@@ -27,3 +27,13 @@ sol = solve(prob)
 get_timeseries(prob, x, [0.0, 1.0, 2.0])
 xmin = get_min_t(prob, x)
 xmax = get_max_t(prob, x)
+
+
+using Plots
+plot(sol, idxs = x)
+scatter!([xmin],[sol(xmin;idxs=x)])
+scatter!([xmax],[sol(xmax;idxs=x)])
+
+plot(sol, idxs = (x,y,z))
+scatter!([sol(xmin;idxs=x)], [sol(xmin;idxs=y)], [sol(xmin;idxs=z)])
+scatter!([sol(xmax;idxs=x)], [sol(xmax;idxs=y)], [sol(xmax;idxs=z)])

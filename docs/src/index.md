@@ -1,7 +1,7 @@
 # EasyModelAnalysis.jl
 
 ```@example analysis
-using EasyModelAnalysis
+using EasyModelAnalysis, Plots
 
 @parameters t σ ρ β
 @variables x(t) y(t) z(t)
@@ -41,7 +41,12 @@ xmax = get_max_t(prob, x)
 ```
 
 ```@example analysis
-using Plots
+plot(sol, idxs = (x,y))
+scatter!([sol(xmin;idxs=x)], [sol(xmin;idxs=y)])
+scatter!([sol(xmax;idxs=x)], [sol(xmax;idxs=y)])
+```
+
+```@example analysis
 plot(sol, idxs = x)
 scatter!([xmin],[sol(xmin;idxs=x)])
 scatter!([xmax],[sol(xmax;idxs=x)])
