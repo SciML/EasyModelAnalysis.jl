@@ -40,7 +40,7 @@ xmin = get_min_t(prob, x)
 xmax = get_max_t(prob, x)
 ```
 
-```@example
+```@example analysis
 using Plots
 plot(sol, idxs = x)
 scatter!([xmin],[sol(xmin;idxs=x)])
