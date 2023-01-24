@@ -29,7 +29,7 @@ sol = solve(prob)
 ```
 
 ```@example analysis
-generate_timeseries(prob, x, [0.0, 1.0, 2.0])
+get_timeseries(prob, x, [0.0, 1.0, 2.0])
 ```
 
 ```@example analysis
