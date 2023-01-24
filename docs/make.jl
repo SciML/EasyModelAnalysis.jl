@@ -31,7 +31,7 @@ makedocs(sitename = "Overview of Julia's SciML",
                                   canonical = "https://docs.sciml.ai/stable/",
                                   mathengine = mathengine),
          pages = [
-            "EasyModelAnalysis.jl: Quick and Easy Queries to Simulation Results" => "index.md",
-            ])
+             "EasyModelAnalysis.jl: Quick and Easy Queries to Simulation Results" => "index.md",
+         ])
 
 deploydocs(repo = "github.com/SciML/EasyModelAnalysis.jl")

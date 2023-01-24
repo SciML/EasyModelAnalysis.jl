@@ -6,28 +6,28 @@ using Reexport
 using Optimization, OptimizationBBO
 
 function get_timeseries(prob, sym, t)
-    remake(prob, tspan = (min(prob.tspan[1], t[1]), max(prob.tspan[2], t[end]))) 
+    remake(prob, tspan = (min(prob.tspan[1], t[1]), max(prob.tspan[2], t[end])))
     sol = solve(prob, saveat = t)
     sol[sym]
 end
 
 function get_min_t(prob, sym)
     sol = solve(prob)
-    f(t,_) = sol(t[1];idxs = sym)
+    f(t, _) = sol(t[1]; idxs = sym)
     oprob = OptimizationProblem(f, [(prob.tspan[2] - prob.tspan[1]) / 2],
                                 lb = [prob.tspan[1]],
                                 ub = [prob.tspan[end]])
-    res = solve(oprob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters=10000)
+    res = solve(oprob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters = 10000)
     res.u[1]
 end
 
 function get_max_t(prob, sym)
     sol = solve(prob)
-    f(t,_) = -sol(t[1];idxs = sym)
+    f(t, _) = -sol(t[1]; idxs = sym)
     oprob = OptimizationProblem(f, [(prob.tspan[2] - prob.tspan[1]) / 2],
                                 lb = [prob.tspan[1]],
                                 ub = [prob.tspan[end]])
-    res = solve(oprob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters=10000)
+    res = solve(oprob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters = 10000)
     res.u[1]
 end
 
