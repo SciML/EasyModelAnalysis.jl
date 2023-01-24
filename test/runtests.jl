@@ -24,12 +24,6 @@ tspan = (0.0, 100.0)
 prob = ODEProblem(sys, u0, tspan, p, jac = true)
 sol = solve(prob)
 
-
-generate_timeseries(prob, x, [0.0, 1.0, 2.0])
+get_timeseries(prob, x, [0.0, 1.0, 2.0])
 xmin = get_min_t(prob, x)
 xmax = get_max_t(prob, x)
-
-using Plots
-plot(sol, idxs = x)
-scatter!([xmin],[sol(xmin;idxs=x)])
-scatter!([xmax],[sol(xmax;idxs=x)])

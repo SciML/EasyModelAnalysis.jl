@@ -8,7 +8,7 @@ using Optimization, OptimizationBBO
 function get_timeseries(prob, sym, t)
     remake(prob, tspan = (min(prob.tspan[1], t[1]), max(prob.tspan[2], t[end]))) 
     sol = solve(prob, saveat = t)
-    sol[sym]    
+    sol[sym]
 end
 
 function get_min_t(prob, sym)
