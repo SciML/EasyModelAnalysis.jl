@@ -31,4 +31,6 @@ function get_max_t(prob, sym)
     res.u[1]
 end
 
+export get_timeseries, get_min_t, get_max_t
+
 end
