@@ -34,6 +34,9 @@ makedocs(sitename = "EasyModelAnalysis: High-Level Analyses of Models With Simpl
              "EasyModelAnalysis.jl: Quick and Easy Queries to Simulation Results" => "index.md",
              "Getting Started with EasyModelAnalysis" => "getting_started.md",
              "Tutorials" => [
+                "tutorials/sensitivity_analysis.md",
+                "tutorials/datafitting.md",
+                "tutorials/threshold_interventions.md",
              ],
              "Examples" => [
                 "examples/SEIRHD.md"
