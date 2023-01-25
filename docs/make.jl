@@ -35,6 +35,7 @@ makedocs(sitename = "Overview of Julia's SciML",
              "Getting Started with EasyModelAnalysis" => "getting_started.md",
              "API" => [
                 "basic_queries.md",
+                "data_fitting_calibration.md",
                 "sensitivity_analysis.md"
              ]
          ])

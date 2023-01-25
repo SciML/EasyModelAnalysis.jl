@@ -1,54 +1,103 @@
 # EasyModelAnalysis.jl
 
-```@example analysis
-using EasyModelAnalysis, Plots
+EasyModelAnalysis does exactly what it says: it makes model analysis easy. Want to know the first time
+the number of infected individuals is about 1000? What is the probability that more than 50 people will
+be infected given probability distributions for the parameters? What variables are the most sensitive?
+Please find the parameters that best fit the model to the data. All of these, and more, given as simple
+one-liner queries over SciML-defined differential equation models.
 
-@parameters t σ ρ β
-@variables x(t) y(t) z(t)
-D = Differential(t)
+## Installation
 
-eqs = [D(D(x)) ~ σ * (y - x),
-    D(y) ~ x * (ρ - z) - y,
-    D(z) ~ x * y - β * z]
+To install EasyModelAnalysis.jl, use the Julia package manager:
 
-@named sys = ODESystem(eqs)
-sys = structural_simplify(sys)
-
-u0 = [D(x) => 2.0,
-    x => 1.0,
-    y => 0.0,
-    z => 0.0]
-
-p = [σ => 28.0,
-    ρ => 10.0,
-    β => 8 / 3]
-
-tspan = (0.0, 100.0)
-prob = ODEProblem(sys, u0, tspan, p, jac = true)
-sol = solve(prob)
+```julia
+using Pkg
+Pkg.add("https://github.com/SciML/EasyModelAnalysis.jl")
 ```
 
-```@example analysis
-get_timeseries(prob, x, [0.0, 1.0, 2.0])
+## Contributing
+
+  - Please refer to the
+    [SciML ColPrac: Contributor's Guide on Collaborative Practices for Community Packages](https://github.com/SciML/ColPrac/blob/master/README.md)
+    for guidance on PRs, issues, and other matters relating to contributing to SciML.
+
+  - See the [SciML Style Guide](https://github.com/SciML/SciMLStyle) for common coding practices and other style decisions.
+  - There are a few community forums:
+    
+      + The #diffeq-bridged and #sciml-bridged channels in the
+        [Julia Slack](https://julialang.org/slack/)
+      + The #diffeq-bridged and #sciml-bridged channels in the
+        [Julia Zulip](https://julialang.zulipchat.com/#narrow/stream/279055-sciml-bridged)
+      + On the [Julia Discourse forums](https://discourse.julialang.org)
+      + See also [SciML Community page](https://sciml.ai/community/)
+
+## Reproducibility
+
+```@raw html
+<details><summary>The documentation of this SciML package was built using these direct dependencies,</summary>
 ```
 
-```@example analysis
-xmin = get_min_t(prob, x)
+```@example
+using Pkg # hide
+Pkg.status() # hide
 ```
 
-```@example analysis
-xmax = get_max_t(prob, x)
+```@raw html
+</details>
 ```
 
-```@example analysis
-plot(sol, idxs = (x, y))
-scatter!([sol(xmin; idxs = x)], [sol(xmin; idxs = y)])
-scatter!([sol(xmax; idxs = x)], [sol(xmax; idxs = y)])
+```@raw html
+<details><summary>and using this machine and Julia version.</summary>
 ```
 
-```@example analysis
-plot(sol, idxs = x)
-scatter!([xmin], [sol(xmin; idxs = x)])
-scatter!([xmax], [sol(xmax; idxs = x)])
+```@example
+using InteractiveUtils # hide
+versioninfo() # hide
 ```
 
+```@raw html
+</details>
+```
+
+```@raw html
+<details><summary>A more complete overview of all dependencies and their versions is also provided.</summary>
+```
+
+```@example
+using Pkg # hide
+Pkg.status(; mode = PKGMODE_MANIFEST) # hide
+```
+
+```@raw html
+</details>
+```
+
+```@raw html
+You can also download the
+<a href="
+```
+
+```@eval
+using TOML
+version = TOML.parse(read("../../Project.toml", String))["version"]
+name = TOML.parse(read("../../Project.toml", String))["name"]
+link = "https://github.com/SciML/" * name * ".jl/tree/gh-pages/v" * version *
+       "/assets/Manifest.toml"
+```
+
+```@raw html
+">manifest</a> file and the
+<a href="
+```
+
+```@eval
+using TOML
+version = TOML.parse(read("../../Project.toml", String))["version"]
+name = TOML.parse(read("../../Project.toml", String))["name"]
+link = "https://github.com/SciML/" * name * ".jl/tree/gh-pages/v" * version *
+       "/assets/Project.toml"
+```
+
+```@raw html
+">project</a> file.
+```
