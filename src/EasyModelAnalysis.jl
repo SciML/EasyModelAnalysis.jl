@@ -1,9 +1,12 @@
 module EasyModelAnalysis
 
+using LinearAlgebra
 using Reexport
 @reexport using DifferentialEquations
 @reexport using ModelingToolkit
 using Optimization, OptimizationBBO, OptimizationNLopt
+@reexport using Distributions
+using Turing
 using GlobalSensitivity
 
 """
@@ -72,6 +75,39 @@ function datafit(prob, p, t, data)
     Pair.(pkeys, res.u)
 end
 
+@model function bayesianODE(prob, t, p, data)
+    σ ~ InverseGamma(2, 3)
+    pdist = getfield.(p, :second)
+    pkeys = getfield.(p, :first)
+    pprior ~ Product(pdist)
+
+    prob = remake(prob, tspan = (prob.tspan[1], t[end]), p = Pair.(pkeys, pprior))
+    sol = solve(prob, saveat = t)
+    failure = size(sol, 2) < length(t)
+    if failure
+        Turing.DynamicPPL.acclogp!!(__varinfo__, -Inf)
+        return nothing
+    end
+    for i in eachindex(data)
+        data[i].second ~ MvNormal(sol[data[i].first], σ^2 * I)
+    end
+    return nothing
+end
+"""
+    bayesian_datafit(prob,  p, t, data)
+
+Calculate posterior distribution for paramters `p` given `data` measured at times `t`.
+"""
+function bayesian_datafit(prob, p, t, data)
+    pdist = getfield.(p, :second)
+    pkeys = getfield.(p, :first)
+
+    model = bayesianODE(prob, t, p, data)
+    chain = sample(model, NUTS(0.65), MCMCSerial(), 1000, 3; progress = false)
+    [Pair(pkeys[i], collect(chain["pprior[" * string(i) * "]"])[:])
+     for i in eachindex(pkeys)]
+end
+
 """
     get_sensitivity(prob, t, x, pbounds)
 
@@ -101,5 +137,5 @@ function get_sensitivity(prob, t, x, pbounds)
     return res_dict
 end
 
-export get_timeseries, get_min_t, get_max_t, datafit, get_sensitivity
+export get_timeseries, get_min_t, get_max_t, datafit, bayesian_datafit, get_sensitivity
 end

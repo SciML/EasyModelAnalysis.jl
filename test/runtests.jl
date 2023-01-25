@@ -53,3 +53,6 @@ fit = datafit(prob, psub_ini, tsave, data)
 pvals_fit = getfield.(fit, :second)
 pvals = getfield.(p, :second)[[1, 3]]
 @test isapprox(pvals, pvals_fit, atol = 1e-4, rtol = 1e-4)
+
+p_prior = [σ => Normal(27.0, 1.0), β => Normal(3.0, 0.1)]
+p_posterior = bayesian_datafit(prob, p_prior, tsave, data)
