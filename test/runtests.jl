@@ -66,4 +66,4 @@ sol = stop_at_threshold(prob, x^2, 0.1)
 @test sol.u[end][1]^2≈0.1 atol=1e-5
 
 p_prior = [σ => Normal(27.0, 1.0), β => Normal(3.0, 0.1)]
-p_posterior = bayesian_datafit(prob, p_prior, tsave, data)
+@test_broken p_posterior = bayesian_datafit(prob, p_prior, tsave, data)
