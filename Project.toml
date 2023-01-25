@@ -13,6 +13,7 @@ OptimizationNLopt = "4e6fcdb7-1186-4e1f-a706-475e75c168bb"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 
 [compat]
+OptimizationNLopt = "0.1"
 julia = "1.6"
 
 [extras]
