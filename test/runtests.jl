@@ -41,9 +41,11 @@ xmax = get_max_t(prob, x)
 
 pbounds = [ρ => [0.0, 20.0], β => [0.0, 100.0]]
 sensres = get_sensitivity(prob, 100.0, y, pbounds)
-<<<<<<< datafit
 @test length(sensres.S1) == 2
-
+@test length(sensres) == 5
+@test collect(keys(sensres)) ==
+      [:ρ_first_order, :β_first_order, :ρ_total_order, :β_total_order, :ρ_β_second_order]
+      
 tsave = [1.0, 2.0, 3.0]
 sol_data = solve(prob, saveat = tsave)
 data = [x => sol_data[x], z => sol_data[z]]
@@ -52,7 +54,3 @@ fit = datafit(prob, psub_ini, tsave, data)
 pvals_fit = getfield.(fit, :second)
 pvals = getfield.(p, :second)[[1, 3]]
 @test isapprox(pvals, pvals_fit, atol = 1e-4, rtol = 1e-4)
-=======
-@test length(sensres) == 5
-@test collect(keys(sensres)) == [:β_ST, :β_S1, :ρ_ST, :ρ_β_S2, :ρ_S1]
->>>>>>> main

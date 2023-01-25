@@ -85,15 +85,17 @@ function get_sensitivity(prob, t, x, pbounds)
         sol = solve(prob, saveat = t)
         sol(t; idxs = x)
     end
-    sensres = GlobalSensitivity.gsa(f, Sobol(; order = [0,1,2]), boundvals; samples = 1000)
+    sensres = GlobalSensitivity.gsa(f, Sobol(; order = [0, 1, 2]), boundvals;
+                                    samples = 1000)
     res_dict = Dict{Symbol, Float64}()
     for i in eachindex(boundkeys)
-        res_dict[Symbol(boundkeys[i], "_S1")] = sensres.S1[i]
-        res_dict[Symbol(boundkeys[i], "_ST")] = sensres.ST[i]
+        res_dict[Symbol(boundkeys[i], "_first_order")] = sensres.S1[i]
+        res_dict[Symbol(boundkeys[i], "_total_order")] = sensres.ST[i]
     end
     for i in eachindex(boundkeys)
-        for j in i+1:length(boundkeys)
-            res_dict[Symbol(boundkeys[i], "_", boundkeys[j], "_S2")] = sensres.S2[i, j]
+        for j in (i + 1):length(boundkeys)
+            res_dict[Symbol(boundkeys[i], "_", boundkeys[j], "_second_order")] = sensres.S2[i,
+                                                                                            j]
         end
     end
     return res_dict
