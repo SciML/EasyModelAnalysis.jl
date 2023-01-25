@@ -41,4 +41,5 @@ xmax = get_max_t(prob, x)
 
 pbounds = [ρ => [0.0, 20.0], β => [0.0, 100.0]]
 sensres = get_sensitivity(prob, 100.0, y, pbounds)
-@test length(sensres.S1) == 2
+@test length(sensres) == 5
+@test collect(keys(sensres)) == [:β_ST, :β_S1, :ρ_ST, :ρ_β_S2, :ρ_S1]
