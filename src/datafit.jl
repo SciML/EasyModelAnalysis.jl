@@ -41,6 +41,7 @@ end
     end
     return nothing
 end
+
 """
     bayesian_datafit(prob,  p, t, data)
 

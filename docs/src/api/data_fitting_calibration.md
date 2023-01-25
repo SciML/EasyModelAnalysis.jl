@@ -2,4 +2,5 @@
 
 ```@docs
 datafit
+bayesian_datafit
 ```
