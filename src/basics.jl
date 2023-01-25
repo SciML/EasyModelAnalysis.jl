@@ -47,7 +47,8 @@ Plots the solution of the observable `sym` along with showcasing time time point
 function plot_extrema(prob, sym)
     xmin, xminval = get_min_t(prob, sym)
     xmax, xmaxval = get_max_t(prob, sym)
-    plot(sol, idxs = x)
+    sol = solve(prob)
+    plot(sol, idxs = sym)
     scatter!([xmin], [xminval])
     scatter!([xmax], [xmaxval])
 end
@@ -64,6 +65,6 @@ function phaseplot_extrema(prob, sym, plotsyms)
     xmin, xminval = get_min_t(prob, sym)
     xmax, xmaxval = get_max_t(prob, sym)
     plot(sol, idxs = plotsyms)
-    scatter!([[sol(xmin; idxs = plotsyms[i])] for i in plotsyms]...)
-    scatter!([[sol(xmax; idxs = plotsyms[i])] for i in plotsyms]...)
+    scatter!([[sol(xmin; idxs = x)] for x in plotsyms]...)
+    scatter!([[sol(xmax; idxs = x)] for x in plotsyms]...)
 end
