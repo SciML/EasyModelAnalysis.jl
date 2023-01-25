@@ -3,7 +3,7 @@ module EasyModelAnalysis
 using Reexport
 @reexport using DifferentialEquations
 @reexport using ModelingToolkit
-using Optimization, OptimizationBBO
+using Optimization, OptimizationBBO, OptimizationNLopt
 
 """
     get_timeseries(prob, sym, t)
@@ -46,6 +46,23 @@ function get_max_t(prob, sym)
     res.u[1]
 end
 
-export get_timeseries, get_min_t, get_max_t
+function l2loss(p, (prob, t, data))
+    prob = remake(prob, tspan = (prob.tspan[1], t[end]), p = p)
+    sol = solve(prob, saveat = t)
+    tot_loss = 0.0
+    for pairs in data
+        tot_loss += sum((sol[pairs.first] .- pairs.second) .^ 2)
+    end
+    return tot_loss
+end
+function datafit(prob, t, data)
+    oprob = OptimizationProblem(l2loss, prob.p,
+                                lb = fill(-Inf, length(prob.p)),
+                                ub = fill(Inf, length(prob.p)), (prob, t, data))
+    res = solve(oprob, NLopt.LN_SBPLX())
+    res.u
+end
+
+export get_timeseries, get_min_t, get_max_t, datafit
 
 end
