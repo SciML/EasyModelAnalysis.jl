@@ -46,7 +46,8 @@ function get_max_t(prob, sym)
     res.u[1]
 end
 
-function l2loss(p, (prob, t, data))
+function l2loss(pvals, (prob, pkeys, t, data))
+    p = Pair.(pkeys, pvals)
     prob = remake(prob, tspan = (prob.tspan[1], t[end]), p = p)
     sol = solve(prob, saveat = t)
     tot_loss = 0.0
@@ -55,12 +56,19 @@ function l2loss(p, (prob, t, data))
     end
     return tot_loss
 end
-function datafit(prob, t, data)
-    oprob = OptimizationProblem(l2loss, prob.p,
-                                lb = fill(-Inf, length(prob.p)),
-                                ub = fill(Inf, length(prob.p)), (prob, t, data))
+"""
+    datafit(prob,  p, t, data)
+
+Fit paramters `p` to `data` measured at times `t`.
+"""
+function datafit(prob, p, t, data)
+    pvals = getfield.(p, :second)
+    pkeys = getfield.(p, :first)
+    oprob = OptimizationProblem(l2loss, pvals,
+                                lb = fill(-Inf, length(p)),
+                                ub = fill(Inf, length(p)), (prob, pkeys, t, data))
     res = solve(oprob, NLopt.LN_SBPLX())
-    res.u
+    Pair.(pkeys, res.u)
 end
 
 export get_timeseries, get_min_t, get_max_t, datafit
