@@ -1,4 +1,4 @@
-using Documenter
+using Documenter, EasyModelAnalysis
 
 # Make sure that plots don't throw a bunch of warnings / errors!
 ENV["GKSwstype"] = "100"
@@ -16,7 +16,7 @@ mathengine = MathJax3(Dict(:loader => Dict("load" => ["[tex]/require", "[tex]/ma
 
 makedocs(sitename = "Overview of Julia's SciML",
          authors = "Chris Rackauckas",
-         modules = Module[],
+         modules = Module[EasyModelAnalysis],
          clean = true, doctest = false,
          strict = [
              :doctest,
@@ -32,6 +32,11 @@ makedocs(sitename = "Overview of Julia's SciML",
                                   mathengine = mathengine),
          pages = [
              "EasyModelAnalysis.jl: Quick and Easy Queries to Simulation Results" => "index.md",
+             "Getting Started with EasyModelAnalysis" => "getting_started.md",
+             "API" => [
+                "basic_queries.md",
+                "sensitivity_analysis.md"
+             ]
          ])
 
 deploydocs(repo = "github.com/SciML/EasyModelAnalysis.jl")

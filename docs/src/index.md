@@ -52,10 +52,3 @@ scatter!([xmin], [sol(xmin; idxs = x)])
 scatter!([xmax], [sol(xmax; idxs = x)])
 ```
 
-## API
-
-```@docs
-get_min_t
-get_max_t
-get_timeseries
-```
