@@ -21,7 +21,7 @@ function get_min_t(prob, sym)
                                 lb = [prob.tspan[1]],
                                 ub = [prob.tspan[end]])
     res = solve(oprob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters = 10000)
-    res.u[1], f(res.u[1])
+    res.u[1], f(res.u[1], nothing)
 end
 
 """
@@ -36,7 +36,7 @@ function get_max_t(prob, sym)
                                 lb = [prob.tspan[1]],
                                 ub = [prob.tspan[end]])
     res = solve(oprob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters = 10000)
-    res.u[1], -f(res.u[1])
+    res.u[1], -f(res.u[1], nothing)
 end
 
 """
