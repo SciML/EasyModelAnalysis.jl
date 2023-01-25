@@ -17,6 +17,8 @@ Returns the sensitivity of the solution at time `t` and state `x` to the paramet
 """
 function get_sensitivity(prob, t, x, pbounds)
     sensres = _get_sensitivity(prob, t, x, pbounds)
+    boundvals = getfield.(pbounds, :second)
+    boundkeys = getfield.(pbounds, :first)
     res_dict = Dict{Symbol, Float64}()
     for i in eachindex(boundkeys)
         res_dict[Symbol(boundkeys[i], "_first_order")] = sensres.S1[i]

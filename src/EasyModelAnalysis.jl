@@ -13,6 +13,8 @@ include("datafit.jl")
 include("sensitivity.jl")
 include("threshold.jl")
 
-export get_timeseries, get_min_t, get_max_t, datafit, get_sensitivity,
-       create_sensitivity_plot, stop_at_threshold
+export get_timeseries, get_min_t, get_max_t, plot_extrema, phaseplot_extrema
+export datafit, bayesian_datafit
+export get_sensitivity, create_sensitivity_plot
+export stop_at_threshold
 end
