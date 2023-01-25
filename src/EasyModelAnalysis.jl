@@ -4,6 +4,7 @@ using Reexport
 @reexport using DifferentialEquations
 @reexport using ModelingToolkit
 using Optimization, OptimizationBBO
+using GlobalSensitivity
 
 """
     get_timeseries(prob, sym, t)
@@ -46,6 +47,22 @@ function get_max_t(prob, sym)
     res.u[1]
 end
 
-export get_timeseries, get_min_t, get_max_t
+"""
+    get_sensitivity(prob, t, x, pbounds)
+
+Returns the sensitivity of the solution at time `t` and state `x` to the parameters in `pbounds`.
+"""
+function get_sensitivity(prob, t, x, pbounds)
+    boundvals = getfield.(pbounds, :second)
+    boundkeys = getfield.(pbounds, :first)
+    function f(p)
+        prob = remake(prob; p = Pair.(boundkeys, p))
+        sol = solve(prob, saveat = t)
+        sol(t; idxs = x)
+    end
+    return GlobalSensitivity.gsa(f, Sobol(), boundvals; samples = 1000)
+end
+
+export get_timeseries, get_min_t, get_max_t, get_sensitivity
 
 end
