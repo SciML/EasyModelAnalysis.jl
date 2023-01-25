@@ -42,17 +42,17 @@ get_timeseries(prob, x, [0.0, 1.0, 2.0])
 That's too simple, so now let's grab the time points where `x` achieves its maximum and minimum:
 
 ```@example analysis
-xmin,xminval = get_min_t(prob, x)
+xmin, xminval = get_min_t(prob, x)
 ```
 
 ```@example analysis
-xmax,xmaxval = get_max_t(prob, x)
+xmax, xmaxval = get_max_t(prob, x)
 ```
 
 Was that simple? Let's see what `x` looks like:
 
 ```@example analysis
-phaseplot_extrema(prob, x, (x,y))
+phaseplot_extrema(prob, x, (x, y))
 ```
 
 ```@example analysis

@@ -55,8 +55,8 @@ end
 Plots the solution of the observable `sym` along with showcasing time time points where it obtains its maximum and minimum values.
 """
 function plot_extrema(prob, sym)
-    xmin,xminval = get_min_t(prob, sym)
-    xmax,xmaxval = get_max_t(prob, sym)
+    xmin, xminval = get_min_t(prob, sym)
+    xmax, xmaxval = get_max_t(prob, sym)
     plot(sol, idxs = x)
     scatter!([xmin], [xminval])
     scatter!([xmax], [xmaxval])
@@ -71,8 +71,8 @@ observables that define the axis of the phase plot.
 """
 function phaseplot_extrema(prob, sym, plotsyms)
     sol = solve(prob)
-    xmin,xminval = get_min_t(prob, sym)
-    xmax,xmaxval = get_max_t(prob, sym)
+    xmin, xminval = get_min_t(prob, sym)
+    xmax, xmaxval = get_max_t(prob, sym)
     plot(sol, idxs = plotsyms)
     scatter!([[sol(xmin; idxs = plotsyms[i])] for i in plotsyms]...)
     scatter!([[sol(xmax; idxs = plotsyms[i])] for i in plotsyms]...)

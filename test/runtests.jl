@@ -33,11 +33,11 @@ x_series = get_timeseries(prob, x, t_measure)
 @test sol(t_measure2; idxs = x).t[end] >= prob.tspan[2]
 @test sol(t_measure2; idxs = x).t[end] ≈ t_measure2[end]
 
-xmin,xminval = get_min_t(prob, x)
+xmin, xminval = get_min_t(prob, x)
 @test sol(xmin; idxs = x) == xminval
 @test sol(xmin; idxs = x) <= minimum(sol[x])
 
-xmax,xmaxval = get_max_t(prob, x)
+xmax, xmaxval = get_max_t(prob, x)
 @test sol(xmax; idxs = x) == xmaxval
 @test sol(xmax; idxs = x) >= maximum(sol[x])
 
