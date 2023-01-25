@@ -14,7 +14,7 @@ mathengine = MathJax3(Dict(:loader => Dict("load" => ["[tex]/require", "[tex]/ma
                                             "require",
                                         ])))
 
-makedocs(sitename = "Overview of Julia's SciML",
+makedocs(sitename = "EasyModelAnalysis: High-Level Analyses of Models With Simple One-Liners",
          authors = "Chris Rackauckas",
          modules = Module[EasyModelAnalysis],
          clean = true, doctest = false,
@@ -28,15 +28,20 @@ makedocs(sitename = "Overview of Julia's SciML",
          ],
          format = Documenter.HTML(analytics = "UA-90474609-3",
                                   assets = ["assets/favicon.ico"],
-                                  canonical = "https://docs.sciml.ai/stable/",
+                                  canonical = "https://docs.sciml.ai/EasyModelAnalysis/stable/",
                                   mathengine = mathengine),
          pages = [
              "EasyModelAnalysis.jl: Quick and Easy Queries to Simulation Results" => "index.md",
              "Getting Started with EasyModelAnalysis" => "getting_started.md",
+             "Tutorials" => [
+             ],
+             "Examples" => [
+                "examples/SEIRHD.md"
+             ],
              "API" => [
-                 "basic_queries.md",
-                 "data_fitting_calibration.md",
-                 "sensitivity_analysis.md",
+                 "api/basic_queries.md",
+                 "api/data_fitting_calibration.md",
+                 "api/sensitivity_analysis.md",
              ],
          ])
 
