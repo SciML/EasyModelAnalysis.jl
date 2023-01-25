@@ -6,7 +6,8 @@ using Reexport
 @reexport using ModelingToolkit
 @reexport using Distributions
 using Optimization, OptimizationBBO, OptimizationNLopt
-using GlobalSensitivity, Plots, Turing
+using GlobalSensitivity, Turing
+@reexport using Plots
 
 include("basics.jl")
 include("datafit.jl")
