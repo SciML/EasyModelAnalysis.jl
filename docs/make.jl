@@ -45,6 +45,7 @@ makedocs(sitename = "EasyModelAnalysis: High-Level Analyses of Models With Simpl
                  "api/basic_queries.md",
                  "api/data_fitting_calibration.md",
                  "api/sensitivity_analysis.md",
+                 "api/threshold_interventions.md",
              ],
          ])
 

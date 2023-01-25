@@ -1,4 +1,4 @@
-# Designing Threshold Interventions
+# Threshold Interventions
 
 ```@docs
 stop_at_threshold
