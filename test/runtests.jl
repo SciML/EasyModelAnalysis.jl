@@ -24,15 +24,17 @@ tspan = (0.0, 100.0)
 prob = ODEProblem(sys, u0, tspan, p, jac = true)
 sol = solve(prob)
 
-get_timeseries(prob, x, [0.0, 1.0, 2.0])
+t_measure = [0.0, 1.0, 2.0]
+x_series = get_timeseries(prob, x, t_measure)
+@test sol(t_measure; idxs = x).u ≈ x_series
+
+t_measure2 = [0.0, 1.0, 2.0, 200.0] # go past original tspan
+x_series = get_timeseries(prob, x, t_measure)
+@test sol(t_measure2; idxs = x).t[end] >= prob.tspan[2]
+@test sol(t_measure2; idxs = x).t[end] ≈ t_measure2[end]
+
 xmin = get_min_t(prob, x)
+@test sol(xmin; idxs = x) <= minimum(sol[x])
+
 xmax = get_max_t(prob, x)
-
-using Plots
-plot(sol, idxs = x)
-scatter!([xmin], [sol(xmin; idxs = x)])
-scatter!([xmax], [sol(xmax; idxs = x)])
-
-plot(sol, idxs = (x, y, z))
-scatter!([sol(xmin; idxs = x)], [sol(xmin; idxs = y)], [sol(xmin; idxs = z)])
-scatter!([sol(xmax; idxs = x)], [sol(xmax; idxs = y)], [sol(xmax; idxs = z)])
+@test sol(xmax; idxs = x) >= maximum(sol[x])
