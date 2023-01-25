@@ -34,10 +34,10 @@ makedocs(sitename = "Overview of Julia's SciML",
              "EasyModelAnalysis.jl: Quick and Easy Queries to Simulation Results" => "index.md",
              "Getting Started with EasyModelAnalysis" => "getting_started.md",
              "API" => [
-                "basic_queries.md",
-                "data_fitting_calibration.md",
-                "sensitivity_analysis.md"
-             ]
+                 "basic_queries.md",
+                 "data_fitting_calibration.md",
+                 "sensitivity_analysis.md",
+             ],
          ])
 
 deploydocs(repo = "github.com/SciML/EasyModelAnalysis.jl")
