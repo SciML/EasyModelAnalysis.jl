@@ -33,10 +33,12 @@ x_series = get_timeseries(prob, x, t_measure)
 @test sol(t_measure2; idxs = x).t[end] >= prob.tspan[2]
 @test sol(t_measure2; idxs = x).t[end] ≈ t_measure2[end]
 
-xmin = get_min_t(prob, x)
+xmin,xminval = get_min_t(prob, x)
+@test sol(xmin; idxs = x) == xminval
 @test sol(xmin; idxs = x) <= minimum(sol[x])
 
-xmax = get_max_t(prob, x)
+xmax,xmaxval = get_max_t(prob, x)
+@test sol(xmax; idxs = x) == xmaxval
 @test sol(xmax; idxs = x) >= maximum(sol[x])
 
 pbounds = [ρ => [0.0, 20.0], β => [0.0, 100.0]]
@@ -53,3 +55,6 @@ fit = datafit(prob, psub_ini, tsave, data)
 pvals_fit = getfield.(fit, :second)
 pvals = getfield.(p, :second)[[1, 3]]
 @test isapprox(pvals, pvals_fit, atol = 1e-4, rtol = 1e-4)
+
+p_prior = [σ => Normal(27.0, 1.0), β => Normal(3.0, 0.1)]
+p_posterior = bayesian_datafit(prob, p_prior, tsave, data)

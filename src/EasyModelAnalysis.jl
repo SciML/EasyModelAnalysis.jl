@@ -1,10 +1,12 @@
 module EasyModelAnalysis
 
+using LinearAlgebra
 using Reexport
 @reexport using DifferentialEquations
 @reexport using ModelingToolkit
+@reexport using Distributions
 using Optimization, OptimizationBBO, OptimizationNLopt
-using GlobalSensitivity
+using GlobalSensitivity, Plots, Turing
 
 """
     get_timeseries(prob, sym, t)
@@ -20,7 +22,7 @@ end
 """
     get_min_t(prob, sym)
 
-Returns the minimum of state `sym` in the interval `prob.tspan`.
+Returns `(t,min)` where `t` is the timepoint where `sym` reaches its minimum `min` in the interval `prob.tspan`.
 """
 function get_min_t(prob, sym)
     sol = solve(prob)
@@ -29,13 +31,13 @@ function get_min_t(prob, sym)
                                 lb = [prob.tspan[1]],
                                 ub = [prob.tspan[end]])
     res = solve(oprob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters = 10000)
-    res.u[1]
+    res.u[1], f(res.u[1])
 end
 
 """
     get_max_t(prob, sym)
 
-Returns the maximum of state `sym` in the interval `prob.tspan`.
+Returns `(t,max)` where `t` is the timepoint where `sym` reaches its maximum `max` in the interval `prob.tspan`.
 """
 function get_max_t(prob, sym)
     sol = solve(prob)
@@ -44,7 +46,36 @@ function get_max_t(prob, sym)
                                 lb = [prob.tspan[1]],
                                 ub = [prob.tspan[end]])
     res = solve(oprob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters = 10000)
-    res.u[1]
+    res.u[1], -f(res.u[1])
+end
+
+"""
+    plot_extrema(prob, sym)
+
+Plots the solution of the observable `sym` along with showcasing time time points where it obtains its maximum and minimum values.
+"""
+function plot_extrema(prob, sym)
+    xmin,xminval = get_min_t(prob, sym)
+    xmax,xmaxval = get_max_t(prob, sym)
+    plot(sol, idxs = x)
+    scatter!([xmin], [xminval])
+    scatter!([xmax], [xmaxval])
+end
+
+"""
+    phaseplot_extrema(prob, sym, plotsyms)
+
+Plots the phase plot solution of the observable `sym` along with showcasing time time points where it 
+obtains its maximum and minimum values. `plotsyms` should be given as the tuple of symbols for the
+observables that define the axis of the phase plot.
+"""
+function phaseplot_extrema(prob, sym, plotsyms)
+    sol = solve(prob)
+    xmin,xminval = get_min_t(prob, sym)
+    xmax,xmaxval = get_max_t(prob, sym)
+    plot(sol, idxs = plotsyms)
+    scatter!([[sol(xmin; idxs = plotsyms[i])] for i in plotsyms]...)
+    scatter!([[sol(xmax; idxs = plotsyms[i])] for i in plotsyms]...)
 end
 
 function l2loss(pvals, (prob, pkeys, t, data))
@@ -72,16 +103,37 @@ function datafit(prob, p, t, data)
     Pair.(pkeys, res.u)
 end
 
-function _get_sensitivity(prob, t, x, pbounds)
-    boundvals = getfield.(pbounds, :second)
-    boundkeys = getfield.(pbounds, :first)
-    function f(p)
-        prob = remake(prob; p = Pair.(boundkeys, p))
-        sol = solve(prob, saveat = t)
-        sol(t; idxs = x)
+@model function bayesianODE(prob, t, p, data)
+    σ ~ InverseGamma(2, 3)
+    pdist = getfield.(p, :second)
+    pkeys = getfield.(p, :first)
+    pprior ~ Product(pdist)
+
+    prob = remake(prob, tspan = (prob.tspan[1], t[end]), p = Pair.(pkeys, pprior))
+    sol = solve(prob, saveat = t)
+    failure = size(sol, 2) < length(t)
+    if failure
+        Turing.DynamicPPL.acclogp!!(__varinfo__, -Inf)
+        return nothing
     end
-    return GlobalSensitivity.gsa(f, Sobol(; order = [0, 1, 2]), boundvals;
-                                 samples = 1000)
+    for i in eachindex(data)
+        data[i].second ~ MvNormal(sol[data[i].first], σ^2 * I)
+    end
+    return nothing
+end
+"""
+    bayesian_datafit(prob,  p, t, data)
+
+Calculate posterior distribution for paramters `p` given `data` measured at times `t`.
+"""
+function bayesian_datafit(prob, p, t, data)
+    pdist = getfield.(p, :second)
+    pkeys = getfield.(p, :first)
+
+    model = bayesianODE(prob, t, p, data)
+    chain = sample(model, NUTS(0.65), MCMCSerial(), 1000, 3; progress = false)
+    [Pair(pkeys[i], collect(chain["pprior[" * string(i) * "]"])[:])
+     for i in eachindex(pkeys)]
 end
 
 """
@@ -111,7 +163,7 @@ Creates bar plots of the first, second and total order Sobol indices that quanti
 at time `t` and state `x` to the parameters in `pbounds`.
 """
 function create_sensitivity_plot(prob, t, x, pbounds)
-    sensres = _get_sensitivity(prob, t, x, pbounds)
+    sensres = get_sensitivity(prob, t, x, pbounds)
     paramnames = String.(Symbol.(getfield.(pbounds, :first)))
     p1 = bar(paramnames, sensres.ST,
              title = "Total Order Indices", legend = false)
