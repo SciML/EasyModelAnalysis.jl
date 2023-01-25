@@ -56,5 +56,14 @@ pvals_fit = getfield.(fit, :second)
 pvals = getfield.(p, :second)[[1, 3]]
 @test isapprox(pvals, pvals_fit, atol = 1e-4, rtol = 1e-4)
 
+# Threshold
+@variables t x(t)
+D = Differential(t)
+eqs = [D(x) ~ x]
+@named sys = ODESystem(eqs)
+prob = ODEProblem(sys, [x => 0.01], (0.0, Inf))
+sol = stop_at_threshold(prob, x^2, 0.1)
+@test sol.u[end][1]^2≈0.1 atol=1e-5
+
 p_prior = [σ => Normal(27.0, 1.0), β => Normal(3.0, 0.1)]
 p_posterior = bayesian_datafit(prob, p_prior, tsave, data)
