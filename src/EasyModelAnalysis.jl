@@ -3,7 +3,7 @@ module EasyModelAnalysis
 using Reexport
 @reexport using DifferentialEquations
 @reexport using ModelingToolkit
-using Optimization, OptimizationBBO
+using Optimization, OptimizationBBO, OptimizationNLopt
 using GlobalSensitivity
 
 """
@@ -47,6 +47,31 @@ function get_max_t(prob, sym)
     res.u[1]
 end
 
+function l2loss(pvals, (prob, pkeys, t, data))
+    p = Pair.(pkeys, pvals)
+    prob = remake(prob, tspan = (prob.tspan[1], t[end]), p = p)
+    sol = solve(prob, saveat = t)
+    tot_loss = 0.0
+    for pairs in data
+        tot_loss += sum((sol[pairs.first] .- pairs.second) .^ 2)
+    end
+    return tot_loss
+end
+"""
+    datafit(prob,  p, t, data)
+
+Fit paramters `p` to `data` measured at times `t`.
+"""
+function datafit(prob, p, t, data)
+    pvals = getfield.(p, :second)
+    pkeys = getfield.(p, :first)
+    oprob = OptimizationProblem(l2loss, pvals,
+                                lb = fill(-Inf, length(p)),
+                                ub = fill(Inf, length(p)), (prob, pkeys, t, data))
+    res = solve(oprob, NLopt.LN_SBPLX())
+    Pair.(pkeys, res.u)
+end
+
 """
     get_sensitivity(prob, t, x, pbounds)
 
@@ -76,6 +101,5 @@ function get_sensitivity(prob, t, x, pbounds)
     return res_dict
 end
 
-export get_timeseries, get_min_t, get_max_t, get_sensitivity
-
+export get_timeseries, get_min_t, get_max_t, datafit, get_sensitivity
 end

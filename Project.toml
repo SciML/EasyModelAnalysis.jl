@@ -9,6 +9,7 @@ GlobalSensitivity = "af5da776-676b-467e-8baf-acd8249e4f0f"
 ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78"
 Optimization = "7f7a1694-90dd-40f0-9382-eb1efda571ba"
 OptimizationBBO = "3e6eede4-6085-4f62-9a71-46d9bc1eb92b"
+OptimizationNLopt = "4e6fcdb7-1186-4e1f-a706-475e75c168bb"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 
 [compat]

@@ -44,3 +44,12 @@ sensres = get_sensitivity(prob, 100.0, y, pbounds)
 @test length(sensres) == 5
 @test collect(keys(sensres)) ==
       [:ρ_first_order, :β_first_order, :ρ_total_order, :β_total_order, :ρ_β_second_order]
+      
+tsave = [1.0, 2.0, 3.0]
+sol_data = solve(prob, saveat = tsave)
+data = [x => sol_data[x], z => sol_data[z]]
+psub_ini = [σ => 27.0, β => 3.0]
+fit = datafit(prob, psub_ini, tsave, data)
+pvals_fit = getfield.(fit, :second)
+pvals = getfield.(p, :second)[[1, 3]]
+@test isapprox(pvals, pvals_fit, atol = 1e-4, rtol = 1e-4)
