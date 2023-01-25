@@ -39,6 +39,10 @@ xmin = get_min_t(prob, x)
 xmax = get_max_t(prob, x)
 @test sol(xmax; idxs = x) >= maximum(sol[x])
 
+pbounds = [ρ => [0.0, 20.0], β => [0.0, 100.0]]
+sensres = get_sensitivity(prob, 100.0, y, pbounds)
+@test length(sensres.S1) == 2
+
 tsave = [1.0, 2.0, 3.0]
 sol_data = solve(prob, saveat = tsave)
 data = [x => sol_data[x], z => sol_data[z]]
