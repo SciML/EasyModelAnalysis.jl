@@ -67,3 +67,17 @@ sol = stop_at_threshold(prob, x^2, 0.1)
 
 p_prior = [σ => Normal(27.0, 1.0), β => Normal(3.0, 0.1)]
 @test_broken p_posterior = bayesian_datafit(prob, p_prior, tsave, data)
+
+# Intervention
+@variables t x(t)
+@parameters p
+D = Differential(t)
+eqs = [D(x) ~ p * x]
+@named sys = ODESystem(eqs)
+prob = ODEProblem(sys, [x => 0.01], (0.0, Inf), [p => 1.0])
+opt_tspan, (s1, s2, s3), ret = optimal_threshold_intervention(prob, [p => -1.0], x, 3, 50);
+@test -(-(opt_tspan...)) < 25
+
+# plot(s1, lab = "pre-intervention")
+# plot!(s2, lab = "intervention")
+# plot!(s3, xlims = (0, s3.t[end]), ylims = (0, 5), lab = "post-intervention", dpi = 300)
