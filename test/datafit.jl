@@ -42,7 +42,7 @@ pvals = getfield.(p, :second)[[1, 3]]
 eqs_obs = [D(D(x)) ~ σ * (y - x),
     D(y) ~ x * (ρ - z) - y,
     D(z) ~ x * y - β * z,
-    x_2 ~ 2*x]
+    x_2 ~ 2 * x]
 
 @named sys_obs = ODESystem(eqs_obs)
 sys_obs = structural_simplify(sys_obs)
