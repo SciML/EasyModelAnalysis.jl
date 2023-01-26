@@ -1,4 +1,6 @@
-using SafeTestSets
+using SafeTestsets
+
+const GROUP = get(ENV, "GROUP", "All")
 
 @time begin if GROUP == "All" || GROUP == "Core"
     @time @safetestset "Basic Tests" begin include("basics.jl") end
