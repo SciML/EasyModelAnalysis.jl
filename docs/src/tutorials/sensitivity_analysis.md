@@ -4,7 +4,7 @@ In this tutorial we will showcase how to perform global sensitivity analysis of 
 modified second order ODE Lorenz equation model from before:
 
 ```@example sensitivity
-using EasyModelAnalysis, Plots
+using EasyModelAnalysis
 
 @parameters t σ ρ β
 @variables x(t) y(t) z(t)
