@@ -1,4 +1,4 @@
-using SafeTestSets
+using SafeTestsets
 
 @time begin if GROUP == "All" || GROUP == "Core"
     @time @safetestset "Basic Tests" begin include("basics.jl") end
