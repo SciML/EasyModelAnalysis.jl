@@ -21,7 +21,7 @@ end
 
 Returns the sensitivity of the solution at time `t` and state `x` to the parameters in `pbounds`.
 """
-function get_sensitivity(prob, t, x, pbounds; samples = 10000)
+function get_sensitivity(prob, t, x, pbounds; samples = 1000)
     sensres = _get_sensitivity(prob, t, x, pbounds; samples)
     boundvals = getfield.(pbounds, :second)
     boundkeys = getfield.(pbounds, :first)
