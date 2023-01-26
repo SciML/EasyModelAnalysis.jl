@@ -1,4 +1,4 @@
-function _get_sensitivity(prob, t, x, pbounds)
+function _get_sensitivity(prob, t, x, pbounds; samples)
     boundvals = getfield.(pbounds, :second)
     boundkeys = getfield.(pbounds, :first)
     function f(p)
@@ -6,8 +6,7 @@ function _get_sensitivity(prob, t, x, pbounds)
         sol = solve(prob, saveat = t)
         sol(t; idxs = x)
     end
-    return GlobalSensitivity.gsa(f, Sobol(; order = [0, 1, 2]), boundvals;
-                                 samples = 1000)
+    return GlobalSensitivity.gsa(f, Sobol(; order = [0, 1, 2]), boundvals; samples)
 end
 
 """
@@ -15,8 +14,8 @@ end
 
 Returns the sensitivity of the solution at time `t` and state `x` to the parameters in `pbounds`.
 """
-function get_sensitivity(prob, t, x, pbounds)
-    sensres = _get_sensitivity(prob, t, x, pbounds)
+function get_sensitivity(prob, t, x, pbounds; samples = 1000)
+    sensres = _get_sensitivity(prob, t, x, pbounds; samples)
     boundvals = getfield.(pbounds, :second)
     boundkeys = getfield.(pbounds, :first)
     res_dict = Dict{Symbol, Float64}()
@@ -25,7 +24,7 @@ function get_sensitivity(prob, t, x, pbounds)
         res_dict[Symbol(boundkeys[i], "_total_order")] = sensres.ST[i]
     end
     for i in eachindex(boundkeys)
-        for j in (i + 1):length(boundkeys)
+        for j in i:length(boundkeys)
             res_dict[Symbol(boundkeys[i], "_", boundkeys[j], "_second_order")] = sensres.S2[i,
                                                                                             j]
         end
@@ -39,8 +38,8 @@ end
 Creates bar plots of the first, second and total order Sobol indices that quantify sensitivity of the solution
 at time `t` and state `x` to the parameters in `pbounds`.
 """
-function create_sensitivity_plot(prob, t, x, pbounds)
-    sensres = _get_sensitivity(prob, t, x, pbounds)
+function create_sensitivity_plot(prob, t, x, pbounds; samples = 1000)
+    sensres = _get_sensitivity(prob, t, x, pbounds; samples)
     paramnames = String.(Symbol.(getfield.(pbounds, :first)))
     p1 = bar(paramnames, sensres.ST,
              title = "Total Order Indices", legend = false)
