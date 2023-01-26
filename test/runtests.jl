@@ -56,6 +56,13 @@ pvals_fit = getfield.(fit, :second)
 pvals = getfield.(p, :second)[[1, 3]]
 @test isapprox(pvals, pvals_fit, atol = 1e-4, rtol = 1e-4)
 
+tsave = collect(10.0:10.0:100.0)
+sol_data = solve(prob, saveat = tsave)
+data = [x => sol_data[x], z => sol_data[z]]
+p_prior = [σ => Normal(26.8, 0.1), β => Normal(2.7, 0.1)]
+p_posterior = bayesian_datafit(prob, p_prior, tsave, data)
+@test var.(getfield.(p_prior,:second)) >= var.(getfield.(p_posterior,:second))
+
 # Threshold
 @variables t x(t)
 D = Differential(t)
@@ -65,8 +72,7 @@ prob = ODEProblem(sys, [x => 0.01], (0.0, Inf))
 sol = stop_at_threshold(prob, x^2, 0.1)
 @test sol.u[end][1]^2≈0.1 atol=1e-5
 
-p_prior = [σ => Normal(27.0, 1.0), β => Normal(3.0, 0.1)]
-@test_broken p_posterior = bayesian_datafit(prob, p_prior, tsave, data)
+
 
 # Intervention
 @variables t x(t)
