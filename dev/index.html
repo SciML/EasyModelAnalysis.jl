@@ -3,13 +3,16 @@
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
   gtag('config', 'UA-90474609-3', {'page_path': location.pathname + location.search + location.hash});
-</script><script data-outdated-warner src="assets/warner.js"></script><link rel="canonical" href="https://docs.sciml.ai/EasyModelAnalysis/stable/"/><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.045/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.24/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="assets/documenter.js"></script><script src="siteinfo.js"></script><script src="../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="assets/themeswap.js"></script><link href="assets/favicon.ico" rel="icon" type="image/x-icon"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href><img src="assets/logo.png" alt="EasyModelAnalysis.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit"><a href>EasyModelAnalysis.jl</a></span></div><form class="docs-search" action="search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li class="is-active"><a class="tocitem" href>EasyModelAnalysis.jl: Quick and Easy Queries to Simulation Results</a><ul class="internal"><li><a class="tocitem" href="#Installation"><span>Installation</span></a></li><li><a class="tocitem" href="#Contributing"><span>Contributing</span></a></li><li><a class="tocitem" href="#Reproducibility"><span>Reproducibility</span></a></li></ul></li><li><a class="tocitem" href="getting_started/">Getting Started with EasyModelAnalysis</a></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="tutorials/sensitivity_analysis/">Sensitivity Analysis</a></li><li><a class="tocitem" href="tutorials/datafitting/">Calibrating Models to Data</a></li><li><a class="tocitem" href="tutorials/threshold_interventions/">Designing Threshold Interventions</a></li></ul></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="examples/SEIRHD/">Analysis of Interventions On The SEIRHD Epidemic Model</a></li></ul></li><li><span class="tocitem">API</span><ul><li><a class="tocitem" href="api/basic_queries/">Basic Queries</a></li><li><a class="tocitem" href="api/data_fitting_calibration/">Data Fitting and Model Calibration</a></li><li><a class="tocitem" href="api/sensitivity_analysis/">Sensitivity Analysis</a></li><li><a class="tocitem" href="api/threshold_interventions/">Threshold Interventions</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>EasyModelAnalysis.jl: Quick and Easy Queries to Simulation Results</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>EasyModelAnalysis.jl: Quick and Easy Queries to Simulation Results</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/SciML/EasyModelAnalysis.jl/blob/main/docs/src/index.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="EasyModelAnalysis.jl"><a class="docs-heading-anchor" href="#EasyModelAnalysis.jl">EasyModelAnalysis.jl</a><a id="EasyModelAnalysis.jl-1"></a><a class="docs-heading-anchor-permalink" href="#EasyModelAnalysis.jl" title="Permalink"></a></h1><p>EasyModelAnalysis does exactly what it says: it makes model analysis easy. Want to know the first time the number of infected individuals is about 1000? What is the probability that more than 50 people will be infected given probability distributions for the parameters? What variables are the most sensitive? Please find the parameters that best fit the model to the data. All of these, and more, given as simple one-liner queries over SciML-defined differential equation models.</p><h2 id="Installation"><a class="docs-heading-anchor" href="#Installation">Installation</a><a id="Installation-1"></a><a class="docs-heading-anchor-permalink" href="#Installation" title="Permalink"></a></h2><p>To install EasyModelAnalysis.jl, use the Julia package manager:</p><pre><code class="language-julia hljs">using Pkg
+</script><script data-outdated-warner src="assets/warner.js"></script><link rel="canonical" href="https://docs.sciml.ai/EasyModelAnalysis/stable/"/><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.045/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.24/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="assets/documenter.js"></script><script src="siteinfo.js"></script><script src="../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="assets/themeswap.js"></script><link href="assets/favicon.ico" rel="icon" type="image/x-icon"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href><img src="assets/logo.png" alt="EasyModelAnalysis.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit"><a href>EasyModelAnalysis.jl</a></span></div><form class="docs-search" action="search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li class="is-active"><a class="tocitem" href>EasyModelAnalysis.jl: Quick and Easy Queries to Simulation Results</a><ul class="internal"><li><a class="tocitem" href="#Installation"><span>Installation</span></a></li><li><a class="tocitem" href="#Contributing"><span>Contributing</span></a></li><li><a class="tocitem" href="#Reproducibility"><span>Reproducibility</span></a></li></ul></li><li><a class="tocitem" href="getting_started/">Getting Started with EasyModelAnalysis</a></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="tutorials/sensitivity_analysis/">Sensitivity Analysis</a></li><li><a class="tocitem" href="tutorials/datafitting/">Calibrating Models to Data</a></li><li><a class="tocitem" href="tutorials/threshold_interventions/">Designing Threshold Interventions</a></li><li><a class="tocitem" href="tutorials/probabilistic_thresholds/">Analysis of Threshold Crossing Probabilities Under Uncertainty</a></li></ul></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="examples/petri/">AlgebraicPetri Integration</a></li><li><a class="tocitem" href="examples/ASIR/">Analysis of The Asymptomatic SIR Model</a></li><li><a class="tocitem" href="examples/SEIRHD/">Analysis of Interventions On The SEIRHD Epidemic Model</a></li></ul></li><li><span class="tocitem">API</span><ul><li><a class="tocitem" href="api/basic_queries/">Basic Queries</a></li><li><a class="tocitem" href="api/data_fitting_calibration/">Data Fitting and Model Calibration</a></li><li><a class="tocitem" href="api/sensitivity_analysis/">Sensitivity Analysis</a></li><li><a class="tocitem" href="api/threshold_interventions/">Threshold Interventions</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>EasyModelAnalysis.jl: Quick and Easy Queries to Simulation Results</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>EasyModelAnalysis.jl: Quick and Easy Queries to Simulation Results</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/SciML/EasyModelAnalysis.jl/blob/main/docs/src/index.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="EasyModelAnalysis.jl"><a class="docs-heading-anchor" href="#EasyModelAnalysis.jl">EasyModelAnalysis.jl</a><a id="EasyModelAnalysis.jl-1"></a><a class="docs-heading-anchor-permalink" href="#EasyModelAnalysis.jl" title="Permalink"></a></h1><p>EasyModelAnalysis does exactly what it says: it makes model analysis easy. Want to know the first time the number of infected individuals is about 1000? What is the probability that more than 50 people will be infected given probability distributions for the parameters? What variables are the most sensitive? Please find the parameters that best fit the model to the data. All of these, and more, given as simple one-liner queries over SciML-defined differential equation models.</p><h2 id="Installation"><a class="docs-heading-anchor" href="#Installation">Installation</a><a id="Installation-1"></a><a class="docs-heading-anchor-permalink" href="#Installation" title="Permalink"></a></h2><p>To install EasyModelAnalysis.jl, use the Julia package manager:</p><pre><code class="language-julia hljs">using Pkg
 Pkg.add(&quot;https://github.com/SciML/EasyModelAnalysis.jl&quot;)</code></pre><h2 id="Contributing"><a class="docs-heading-anchor" href="#Contributing">Contributing</a><a id="Contributing-1"></a><a class="docs-heading-anchor-permalink" href="#Contributing" title="Permalink"></a></h2><ul><li><p>Please refer to the <a href="https://github.com/SciML/ColPrac/blob/master/README.md">SciML ColPrac: Contributor&#39;s Guide on Collaborative Practices for Community Packages</a> for guidance on PRs, issues, and other matters relating to contributing to SciML.</p></li><li><p>See the <a href="https://github.com/SciML/SciMLStyle">SciML Style Guide</a> for common coding practices and other style decisions.</p></li><li><p>There are a few community forums:</p><ul><li>The #diffeq-bridged and #sciml-bridged channels in the <a href="https://julialang.org/slack/">Julia Slack</a></li><li>The #diffeq-bridged and #sciml-bridged channels in the <a href="https://julialang.zulipchat.com/#narrow/stream/279055-sciml-bridged">Julia Zulip</a></li><li>On the <a href="https://discourse.julialang.org">Julia Discourse forums</a></li><li>See also <a href="https://sciml.ai/community/">SciML Community page</a></li></ul></li></ul><h2 id="Reproducibility"><a class="docs-heading-anchor" href="#Reproducibility">Reproducibility</a><a id="Reproducibility-1"></a><a class="docs-heading-anchor-permalink" href="#Reproducibility" title="Permalink"></a></h2><details><summary>The documentation of this SciML package was built using these direct dependencies,</summary><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Status `~/work/EasyModelAnalysis.jl/EasyModelAnalysis.jl/docs/Project.toml`
+  [4f99eebe] AlgebraicPetri v0.8.2
+  [134e5e36] Catlab v0.14.11
   [0c46a032] DifferentialEquations v7.6.0
   [e30172f5] Documenter v0.27.24
   [ef4b24a4] EasyModelAnalysis v0.0.1 `~/work/EasyModelAnalysis.jl/EasyModelAnalysis.jl`
   [961ee093] ModelingToolkit v8.42.0
-  [91a5bcdd] Plots v1.38.2</code></pre></details><details><summary>and using this machine and Julia version.</summary><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Julia Version 1.8.5
+  [91a5bcdd] Plots v1.38.2
+  [3a884ed6] UnPack v1.0.2</code></pre></details><details><summary>and using this machine and Julia version.</summary><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Julia Version 1.8.5
 Commit 17cfb8e65ea (2023-01-08 06:45 UTC)
 Platform Info:
   OS: Linux (x86_64-linux-gnu)
@@ -29,6 +32,7 @@ Platform Info:
   [5b7e9947] AdvancedMH v0.7.2
   [576499cb] AdvancedPS v0.4.3
   [b5ca4192] AdvancedVI v0.1.6
+  [4f99eebe] AlgebraicPetri v0.8.2
   [dce04be8] ArgCheck v2.3.0
   [ec485272] ArnoldiMethod v0.2.0
   [4fba245c] ArrayInterface v6.0.25
@@ -47,6 +51,7 @@ Platform Info:
   [6e4b80f9] BenchmarkTools v1.3.2
   [e2ed5e7c] Bijections v0.1.4
   [76274a88] Bijectors v0.10.6
+  [d1d4a3ce] BitFlags v0.1.7
   [62783981] BitTwiddlingConvenienceFunctions v0.1.5
   [a134a8b2] BlackBoxOptim v0.6.2
   [764a87c0] BoundaryValueDiffEq v2.11.0
@@ -55,6 +60,7 @@ Platform Info:
   [a9c8d775] CPUTime v1.0.0
   [00ebfdb7] CSTParser v3.3.6
   [49dc2e85] Calculus v0.5.1
+  [134e5e36] Catlab v0.14.11
   [082447d4] ChainRules v1.46.1
   [d360d2e6] ChainRulesCore v1.15.7
   [9e997f8a] ChangesOfVariables v0.1.5
@@ -69,7 +75,9 @@ Platform Info:
   [a80b9123] CommonMark v0.8.10
   [38540f10] CommonSolve v0.2.3
   [bbf7d656] CommonSubexpressions v0.3.0
+  [0fb5dd42] CompTime v0.1.2
   [34da2185] Compat v4.5.0
+  [a81c6b42] Compose v0.9.4
   [b152e2b5] CompositeTypes v0.1.3
   [a33af91c] CompositionsBase v0.1.1
   [88cd18e8] ConsoleProgressMonitor v0.1.2
@@ -116,8 +124,10 @@ Platform Info:
   [069b7b12] FunctionWrappers v1.1.3
   [77dc65aa] FunctionWrappersWrappers v0.1.1
 ⌅ [d9f16b24] Functors v0.3.0
+  [0c68f7d7] GPUArrays v8.6.1
   [46192b85] GPUArraysCore v0.1.3
   [28b8d3ca] GR v0.71.5
+  [6b9d7cbe] GeneralizedGenerated v0.3.3
   [c145ed77] GenericSchur v0.5.3
   [c27321d9] Glob v1.3.0
   [af5da776] GlobalSensitivity v2.1.3
@@ -125,16 +135,19 @@ Platform Info:
   [42e2da0e] Grisu v1.0.2
   [0b43b601] Groebner v0.2.11
   [d5909c97] GroupsCore v0.4.0
-⌃ [cd3eb016] HTTP v0.9.17
+  [19dc6840] HCubature v1.5.1
+  [cd3eb016] HTTP v1.7.4
   [3e5b6fbb] HostCPUFeatures v0.1.14
   [34004b35] HypergeometricFunctions v0.3.11
   [b5f81e59] IOCapture v0.2.2
+  [7869d1d1] IRTools v0.4.7
   [615f187c] IfElse v0.1.1
   [d25df0c9] Inflate v0.1.3
   [83e8ac13] IniFile v0.5.1
   [22cec73e] InitialValues v0.3.1
   [505f98c9] InplaceOps v0.3.0
   [18e54dd8] IntegerMathUtils v0.1.0
+  [de52edbc] Integrals v3.4.0
   [a98d9a8b] Interpolations v0.14.7
 ⌅ [8197267c] IntervalSets v0.7.3
   [3587e190] InverseFunctions v0.1.8
@@ -147,11 +160,13 @@ Platform Info:
   [692b3bcd] JLLWrappers v1.4.1
   [682c06a0] JSON v0.21.3
   [98e50ef6] JuliaFormatter v1.0.20
+  [b14d175d] JuliaVariables v0.2.4
   [ccbc3e58] JumpProcesses v9.3.1
   [ef3ab10e] KLU v0.4.0
   [5ab0869b] KernelDensity v0.6.5
   [ba0b0d4f] Krylov v0.9.0
   [0b1a1467] KrylovKit v0.6.0
+  [929cbde3] LLVM v4.15.0
   [8ac3fa9e] LRUCache v1.4.0
   [b964fa9f] LaTeXStrings v1.3.0
   [2ee39098] LabelledArrays v1.13.0
@@ -163,6 +178,7 @@ Platform Info:
   [1d6d02ad] LeftChildRightSiblingTrees v0.2.0
   [2d8b4e74] LevyArea v1.0.0
   [6f1fad26] Libtask v0.8.5
+  [9c8b4983] LightXML v0.9.0
   [d3d80556] LineSearches v7.2.0
   [7ed4a6bd] LinearSolve v1.34.1
   [6fdf6af0] LogDensityProblems v2.1.0
@@ -173,6 +189,7 @@ Platform Info:
   [c7f686f2] MCMCChains v5.6.1
   [be115224] MCMCDiagnosticTools v0.2.6
   [e80e1ace] MLJModelInterface v1.8.0
+  [d8e11817] MLStyle v0.4.16
   [1914dd2f] MacroTools v0.5.10
   [d125e4d3] ManualMemory v0.1.8
   [dbb5928d] MappedArrays v0.4.1
@@ -184,6 +201,7 @@ Platform Info:
   [128add7d] MicroCollections v0.1.3
   [e1d29d7a] Missings v1.1.0
   [961ee093] ModelingToolkit v8.42.0
+⌅ [4886b29c] MonteCarloIntegration v0.0.3
   [46d2c3a1] MuladdMacro v0.2.4
   [102ac46a] MultivariatePolynomials v0.4.6
   [d8a4904e] MutableArithmetics v1.1.0
@@ -192,10 +210,12 @@ Platform Info:
   [2774e3e8] NLsolve v4.5.1
   [872c559c] NNlib v0.8.16
   [77ba4419] NaNMath v1.0.1
+  [71a1bf82] NameResolution v0.1.5
   [86f7a689] NamedArrays v0.9.6
   [c020b1a1] NaturalSort v1.0.0
   [8913a72c] NonlinearSolve v1.3.0
   [6fe1bfb0] OffsetArrays v1.12.8
+  [4d8831e6] OpenSSL v1.3.3
   [429524aa] Optim v1.7.4
   [3bd65402] Optimisers v0.2.14
   [7f7a1694] Optimization v3.11.2
@@ -216,6 +236,7 @@ Platform Info:
   [85a6dd25] PositiveFactorizations v0.2.4
   [d236fae5] PreallocationTools v0.4.8
   [21216c6a] Preferences v1.3.0
+  [8162dcfd] PrettyPrint v0.2.0
   [08abe8d2] PrettyTables v2.2.2
   [27ebfcd6] Primes v0.5.3
   [33c8b6b6] ProgressLogging v0.1.4
@@ -237,6 +258,7 @@ Platform Info:
   [05181044] RelocatableFolders v1.0.0
   [ae029012] Requires v1.3.0
   [ae5879a3] ResettableStacks v1.1.1
+  [37e2e3b7] ReverseDiff v1.14.4
   [79098fc4] Rmath v0.7.0
   [f2b01f46] Roots v2.0.8
   [7e49a35a] RuntimeGeneratedFunctions v0.5.5
@@ -244,11 +266,13 @@ Platform Info:
   [94e857df] SIMDTypes v0.1.0
   [476501e8] SLEEFPirates v0.6.38
   [0bca4576] SciMLBase v1.81.0
+  [afe9f18d] SciMLExpectations v2.0.1
   [e9a6253c] SciMLNLSolve v0.1.3
   [30f210dd] ScientificTypesBase v3.0.0
   [6c6a2e73] Scratch v1.1.1
   [efcf1570] Setfield v1.1.1
   [992d4aef] Showoff v1.0.3
+  [777ac1f9] SimpleBufferStream v1.1.0
   [727e6d20] SimpleNonlinearSolve v0.1.8
   [699a6c99] SimpleTraits v0.9.4
   [66db9d55] SnoopPrecompile v1.0.3
@@ -272,6 +296,7 @@ Platform Info:
   [7792a7ef] StrideArraysCore v0.4.6
   [892a3eda] StringManipulation v0.3.0
   [09ab397b] StructArrays v0.6.14
+  [6ec83bb0] StructEquality v2.1.0
   [c3572dad] Sundials v4.12.0
   [2efcf032] SymbolicIndexingInterface v0.2.1
 ⌅ [d1185830] SymbolicUtils v0.19.11
@@ -301,6 +326,7 @@ Platform Info:
   [3d5dd08c] VectorizationBase v0.21.58
   [19fa3120] VertexSafeGraphs v0.2.0
   [efce3f68] WoodburyMatrices v0.5.5
+  [e88e6eb3] Zygote v0.6.55
   [700de1a5] ZygoteRules v0.2.2
   [6e34b625] Bzip2_jll v1.0.8+0
   [83423d85] Cairo_jll v1.16.1+1
@@ -320,6 +346,7 @@ Platform Info:
   [aacddb02] JpegTurbo_jll v2.1.2+0
   [c1c5ebd0] LAME_jll v3.100.1+0
   [88015f11] LERC_jll v3.0.0+1
+  [dad2f222] LLVMExtra_jll v0.0.16+0
   [dd4b983a] LZO_jll v2.10.1+0
 ⌅ [e9f186c6] Libffi_jll v3.2.2+1
   [d4300ac3] Libgcrypt_jll v1.8.7+0
@@ -423,6 +450,6 @@ Platform Info:
   [8e850b90] libblastrampoline_jll v5.1.1+0
   [8e850ede] nghttp2_jll v1.48.0+0
   [3f19e933] p7zip_jll v17.4.0+0
-Info Packages marked with ⌃ and ⌅ have new versions available, but those with ⌅ are restricted by compatibility constraints from upgrading. To see why use `status --outdated -m`</code></pre></details>You can also download the
+Info Packages marked with ⌅ have new versions available but compatibility constraints restrict them from upgrading. To see why use `status --outdated -m`</code></pre></details>You can also download the
 <a href="https://github.com/SciML/EasyModelAnalysis.jl/tree/gh-pages/v0.0.1/assets/Manifest.toml">manifest</a> file and the
-<a href="https://github.com/SciML/EasyModelAnalysis.jl/tree/gh-pages/v0.0.1/assets/Project.toml">project</a> file.</article><nav class="docs-footer"><a class="docs-footer-nextpage" href="getting_started/">Getting Started with EasyModelAnalysis »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.24 on <span class="colophon-date" title="Thursday 26 January 2023 17:47">Thursday 26 January 2023</span>. Using Julia version 1.8.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+<a href="https://github.com/SciML/EasyModelAnalysis.jl/tree/gh-pages/v0.0.1/assets/Project.toml">project</a> file.</article><nav class="docs-footer"><a class="docs-footer-nextpage" href="getting_started/">Getting Started with EasyModelAnalysis »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.24 on <span class="colophon-date" title="Thursday 26 January 2023 22:47">Thursday 26 January 2023</span>. Using Julia version 1.8.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
