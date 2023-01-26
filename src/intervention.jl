@@ -1,17 +1,23 @@
 """
     optimal_threshold_intervention(prob, [p1 = prob.p], p2, obs, threshold, duration; maxtime)
 
-`p1`: parameters for the pre-intervention scenario. Defaults to `prob.p`.
-`p2`: parameters for the pose-intervention scenario.
-`obs`: The observation symbolic expression.
-`threshold`: The threshold for the observation.
-`duration`: Duration for the evaluation of intervention.
-`maxtime`: Maximum optimzation time. Defaults to `Inf`.
+## Arguments 
 
-Returns:
-`opt_tspan`: Optimal intervention time span.
-`(s1, s2, s3)`: Pre-intervention, intervention, post-intervention solutions.
-`ret`: Return code from the optimization.
+- `p1`: parameters for the pre-intervention scenario. Defaults to `prob.p`.
+- `p2`: parameters for the pose-intervention scenario.
+- `obs`: The observation symbolic expression.
+- `threshold`: The threshold for the observation.
+- `duration`: Duration for the evaluation of intervention.
+
+## Keyword Arguments
+
+- `maxtime`: Maximum optimzation time. Defaults to `Inf`.
+
+# Returns
+
+- `opt_tspan`: Optimal intervention time span.
+- `(s1, s2, s3)`: Pre-intervention, intervention, post-intervention solutions.
+- `ret`: Return code from the optimization.
 """
 function optimal_threshold_intervention(prob, p2, obs, threshold, duration; kw...)
     p1 = prob.p
