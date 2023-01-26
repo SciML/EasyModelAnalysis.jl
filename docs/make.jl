@@ -14,7 +14,7 @@ mathengine = MathJax3(Dict(:loader => Dict("load" => ["[tex]/require", "[tex]/ma
                                             "require",
                                         ])))
 
-makedocs(sitename = "EasyModelAnalysis: High-Level Analyses of Models With Simple One-Liners",
+makedocs(sitename = "EasyModelAnalysis.jl",
          authors = "Chris Rackauckas",
          modules = Module[EasyModelAnalysis],
          clean = true, doctest = false,
