@@ -38,6 +38,28 @@ pvals_fit = getfield.(fit, :second)
 pvals = getfield.(p, :second)[[1, 3]]
 @test isapprox(pvals, pvals_fit, atol = 1e-4, rtol = 1e-4)
 
+@variables x_2(t)
+eqs_obs = [D(D(x)) ~ σ * (y - x),
+    D(y) ~ x * (ρ - z) - y,
+    D(z) ~ x * y - β * z,
+    x_2 ~ 2*x]
+
+@named sys_obs = ODESystem(eqs_obs)
+sys_obs = structural_simplify(sys_obs)
+
+u0_obs = [D(x) => 2.0,
+    x => 1.0,
+    y => 0.0,
+    z => 0.0,
+    x_2 => 2.0]
+
+prob_obs = ODEProblem(sys_obs, u0_obs, tspan, p, jac = true)
+sol_data_obs = solve(prob_obs, saveat = tsave)
+data_obs = [x_2 => sol_data_obs[x_2], z => sol_data_obs[z]]
+fit_obs = datafit(prob_obs, psub_ini, tsave, data_obs)
+pvals_fit_obs = getfield.(fit_obs, :second)
+@test isapprox(pvals, pvals_fit_obs, atol = 1e-4, rtol = 1e-4)
+
 tsave = collect(10.0:10.0:100.0)
 sol_data = solve(prob, saveat = tsave)
 data = [x => sol_data[x], z => sol_data[z]]
