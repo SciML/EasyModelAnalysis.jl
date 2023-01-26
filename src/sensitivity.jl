@@ -1,12 +1,19 @@
 function _get_sensitivity(prob, t, x, pbounds; samples)
     boundvals = getfield.(pbounds, :second)
     boundkeys = getfield.(pbounds, :first)
-    function f(p)
-        prob = remake(prob; p = Pair.(boundkeys, p))
-        sol = solve(prob, saveat = t)
-        sol(t; idxs = x)
+    f = function (p)
+        prob_func(prob, i, repeat) = remake(prob; p = Pair.(boundkeys, p[:, i]))
+        ensemble_prob = EnsembleProblem(prob, prob_func = prob_func)
+        sol = solve(ensemble_prob, Tsit5(), EnsembleThreads(); saveat = t,
+                    trajectories = size(p, 2))
+        out = zeros(size(p, 2))
+        for i in 1:size(p, 2)
+            out[i] = sol[i](t; idxs = x)
+        end
+        out
     end
-    return GlobalSensitivity.gsa(f, Sobol(; order = [0, 1, 2]), boundvals; samples)
+    return GlobalSensitivity.gsa(f, Sobol(; order = [0, 1, 2]), boundvals; samples,
+                                 batch = true)
 end
 
 """
@@ -14,7 +21,7 @@ end
 
 Returns the sensitivity of the solution at time `t` and state `x` to the parameters in `pbounds`.
 """
-function get_sensitivity(prob, t, x, pbounds; samples = 1000)
+function get_sensitivity(prob, t, x, pbounds; samples = 10000)
     sensres = _get_sensitivity(prob, t, x, pbounds; samples)
     boundvals = getfield.(pbounds, :second)
     boundkeys = getfield.(pbounds, :first)
@@ -24,7 +31,7 @@ function get_sensitivity(prob, t, x, pbounds; samples = 1000)
         res_dict[Symbol(boundkeys[i], "_total_order")] = sensres.ST[i]
     end
     for i in eachindex(boundkeys)
-        for j in i:length(boundkeys)
+        for j in (i + 1):length(boundkeys)
             res_dict[Symbol(boundkeys[i], "_", boundkeys[j], "_second_order")] = sensres.S2[i,
                                                                                             j]
         end
