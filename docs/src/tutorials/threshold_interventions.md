@@ -55,16 +55,13 @@ the population under 3bB up until a time 50. Thus the call looks as follows:
 
 ```@example threshold_intervention
 opt_tspan, (s1, s2, s3), ret = optimal_threshold_intervention(prob, [p => -1.0], 🐰, 3, 50);
-```
 
-The `opt_tspan` gives us the optimal timespan of the intervention:
-
-```@example threshold_intervention
 opt_tspan
 ```
 
-We should begin the decimation of bunny civilization when it reaches 5.15 months, and then we can turn the destruction device off at
-27.8 months into our tourism operation. To see the effect of this we can plot the results of the three sub-intervals:
+The `opt_tspan` gives us the optimal timespan of the intervention: we should begin the decimation of bunny civilization when it reaches 
+5.15 months, and then we can turn the destruction device off at 27.8 months into our tourism operation. To see the effect of this we 
+can plot the results of the three sub-intervals:
 
 ```@example threshold_intervention
 plot(s1, lab = "pre-intervention")
