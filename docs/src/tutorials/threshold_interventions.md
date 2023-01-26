@@ -15,12 +15,12 @@ ODE system which we define in the ModelingToolkit sense:
 
 ```@example threshold_intervention
 using EasyModelAnalysis
-@variables t x(t)
+@variables t 🐰(t)
 @parameters p
 D = Differential(t)
-eqs = [D(x) ~ p * x]
+eqs = [D(🐰) ~ p * 🐰]
 @named sys = ODESystem(eqs)
-prob = ODEProblem(sys, [x => 0.01], (0.0, 10.0), [p => 1.0])
+prob = ODEProblem(sys, [🐰 => 0.01], (0.0, 10.0), [p => 1.0])
 ```
 
 In this model `x(t)` is the number of billions of bunnies (commmonly referred in the units bB) and `t` is given in units of months. 
@@ -34,7 +34,7 @@ We can ask the question, how long does it take for this exponential growth to ca
 the value of 50bB? Let's ask:
 
 ```@example threshold_intervention
-get_threshold(prob, x, 50)
+get_threshold(prob, 🐰, 50)
 ```
 
 Which, eyeballing the plot looks correct: in about 8 and half months the population will reach 50 billion bunnies! 
@@ -54,7 +54,7 @@ we use the `optimal_threshold_intervention` function. Our intervention will be t
 the population under 3bB up until a time 50. Thus the call looks as follows:
 
 ```@example threshold_intervention
-opt_tspan, (s1, s2, s3), ret = optimal_threshold_intervention(prob, [p => -1.0], x, 3, 50)
+opt_tspan, (s1, s2, s3), ret = optimal_threshold_intervention(prob, [p => -1.0], 🐰, 3, 50)
 ```
 
 The `opt_tspan` gives us the optimal timespan of the intervention:
