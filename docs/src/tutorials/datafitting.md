@@ -1,5 +1,8 @@
 # Calibrating Models to Data
 
+In this tutorial we will showcase the tooling for fitting models to data. Let's take our favorite 2nd order Lorenz equation form
+as our model:
+
 ```@example datafitting
 using EasyModelAnalysis
 
@@ -28,13 +31,22 @@ prob = ODEProblem(sys, u0, tspan, p, jac = true)
 sol = solve(prob)
 ```
 
+Let's create a dataset with some set of parameters, and show how the `datafit` function can be used to discover the parameters
+that generated the data. To start, let's show the data format by generating a dataset. A dataset contains an array `t` of the
+time points for the data, and maps `[observable => timeseries]` where the timeseries is an array of values for the observable
+at the time points of `t`. We can use the `get_timeseries` function to generate a dataset like:
+
 ```@example datafitting
 tsave = [1.0, 2.0, 3.0]
-sol_data = solve(prob, saveat = tsave)
-data = [x => sol_data[x], z => sol_data[z]]
+data = [x => get_timeseries(prob, x, tsave), z => get_timeseries(prob, z, tsave)]
+```
+
+Now let's do a datafit. We need to choose initial parameters for the fitting process and call the datafit:
+
+```@example datafitting
 psub_ini = [σ => 27.0, β => 3.0]
 fit = datafit(prob, psub_ini, tsave, data)
-pvals_fit = getfield.(fit, :second)
-pvals = getfield.(p, :second)[[1, 3]]
-isapprox(pvals, pvals_fit, atol = 1e-4, rtol = 1e-4)
 ```
+
+Recall that our starting parameters, the parameters the dataset was generated from, was `[σ => 28.0, ρ => 10.0, β => 8 / 3]`.
+Looks like this did a good job at recovering them!
