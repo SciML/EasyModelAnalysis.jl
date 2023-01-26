@@ -6,7 +6,7 @@
 [![codecov](https://codecov.io/gh/SciML/EasyModelAnalysis.jl/branch/main/graph/badge.svg)](https://app.codecov.io/gh/SciML/EasyModelAnalysis.jl)
 [![Build Status](https://github.com/SciML/EasyModelAnalysis.jl/workflows/CI/badge.svg)](https://github.com/SciML/EasyModelAnalysis.jl/actions?query=workflow%3ACI)
 
-[![ColPrac: Contributor's Guide on Collaborative Practices for Community Packages](https://img.shields.io/badge/ColPrac-Contributor's%20Guide-blueviolet)](https://github.com/SciML/ColPrac)
+[![ColPrac: Contributor's Guide on Collaborative Practices for Community Packages](https://img.shields.io/badge/ColPrac-Contributor%27s%20Guide-blueviolet)](https://github.com/SciML/ColPrac)
 [![SciML Code Style](https://img.shields.io/static/v1?label=code%20style&message=SciML&color=9558b2&labelColor=389826)](https://github.com/SciML/SciMLStyle)
 
 EasyModelAnalysis does exactly what it says: it makes model analysis easy. Want to know the first time
@@ -17,8 +17,8 @@ one-liner queries over SciML-defined differential equation models.
 
 ## Tutorials and Documentation
 
-For information on using the package, see the [stable documentation](https://docs.sciml.ai/EasyModelAnalysis/stable/). 
-Use the [in-development documentation](https://docs.sciml.ai/EasyModelAnalysis/dev/) for the version of the documentation 
+For information on using the package, see the [stable documentation](https://docs.sciml.ai/EasyModelAnalysis/stable/).
+Use the [in-development documentation](https://docs.sciml.ai/EasyModelAnalysis/dev/) for the version of the documentation
 which contains the unreleased features.
 
 ## Quick Demonstration
