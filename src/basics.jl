@@ -68,3 +68,67 @@ function phaseplot_extrema(prob, sym, plotsyms)
     scatter!([[sol(xmin; idxs = x)] for x in plotsyms]...)
     scatter!([[sol(xmax; idxs = x)] for x in plotsyms]...)
 end
+
+"""
+    get_uncertainty_forecast(prob, sym, t, uncertainp, samples)
+
+Get the ensemble of time-series of state `sym` evaluated at times `t` for solutions with
+uncertain parameters specified according to the distributions in `uncertainp`. The distributions
+are specified in the form `[sym1 => dist1, sym2 => dist2]` where `dist` is a Distributions.jl
+distribution. Samples is the number of trajectories to run.
+"""
+function get_uncertainty_forecast(prob, sym, t, uncertainp, samples)
+    function prob_func(prob, i, reset)
+        ps = getindex.(uncertainp, 1) .=> rand.(getindex.(uncertainp, 2))
+        prob = remake(prob, tspan = (min(prob.tspan[1], t[1]), max(prob.tspan[2], t[end])), p = ps)
+    end
+    eprob = EnsembleProblem(prob, prob_func = prob_func)
+    esol = solve(eprob, nothing, EnsembleSerial(), saveat = t, trajectories = samples)
+    [esol[i][sym] for i in 1:samples] 
+end
+
+"""
+get_uncertainty_forecast_quantiles(prob, sym, t, uncertainp, samples, quants = (0.05, 0.95))
+
+Get the ensemble of time-series of state `sym` evaluated at times `t` for solutions with
+uncertain parameters specified according to the distributions in `uncertainp`. The distributions
+are specified in the form `[sym1 => dist1, sym2 => dist2]` where `dist` is a Distributions.jl
+distribution. Samples is the number of trajectories to run.
+
+Returns a tuple of arrays for the quantiles `quants` which defaults to the 95% confidence intervals.
+"""
+function get_uncertainty_forecast_quantiles(prob, sym, t, uncertainp, samples, quants = (0.05, 0.95))
+    function prob_func(prob, i, reset)
+        ps = getindex.(uncertainp, 1) .=> rand.(getindex.(uncertainp, 2))
+        prob = remake(prob, tspan = (min(prob.tspan[1], t[1]), max(prob.tspan[2], t[end])), p = ps)
+    end
+    eprob = EnsembleProblem(prob, prob_func = prob_func)
+    
+    indexof(sym,syms) = findfirst(isequal(sym),syms)
+    idx = indexof(sym,states(prob.f.sys))
+
+    esol = solve(eprob, nothing, EnsembleSerial(), saveat = t, trajectories = samples, save_idxs = idx)
+    [SciMLBase.EnsembleAnalysis.timeseries_steps_quantile(esol,q).u for q in quants]
+end
+
+"""
+    plot_uncertainty_forecast(prob, sym, t, uncertainp, samples)
+"""
+function plot_uncertainty_forecast(prob, sym, t, uncertainp, samples)
+    function prob_func(prob, i, reset)
+        ps = getindex.(uncertainp, 1) .=> rand.(getindex.(uncertainp, 2))
+        prob = remake(prob, tspan = (min(prob.tspan[1], t[1]), max(prob.tspan[2], t[end])), p = ps)
+    end
+    eprob = EnsembleProblem(prob, prob_func = prob_func)
+    esol = solve(eprob, nothing, EnsembleSerial(), saveat = t, trajectories = samples)
+    plot(esol, idxs = sym) 
+end
+
+"""
+    plot_uncertainty_forecast_quantiles(prob, sym, t, uncertainp, samples, quants = (0.05, 0.95))
+"""
+function plot_uncertainty_forecast_quantiles(prob, sym, t, uncertainp, samples, quants = (0.05, 0.95))
+    qs = get_uncertainty_forecast_quantiles(prob, sym, t, uncertainp, samples, quants)
+    plot(t,qs[1])
+    plot!(t, qs[2])
+end
