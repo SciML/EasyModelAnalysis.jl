@@ -45,7 +45,7 @@ Thus for example, let's calculate the sensitivity of `y(100)` over the parameter
 
 ```@example sensitivity
 pbounds = [ρ => [0.0, 20.0], β => [0.0, 100.0]]
-sensres = get_sensitivity(prob, 100.0, y, pbounds)
+sensres = get_sensitivity(prob, 100.0, y, pbounds; samples = 10000)
 ```
 
 The output shows values of `first_order`, `second_order` and `total_order` sensitivities. These are quantities that define the
