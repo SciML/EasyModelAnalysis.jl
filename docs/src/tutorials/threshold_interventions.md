@@ -54,7 +54,7 @@ we use the `optimal_threshold_intervention` function. Our intervention will be t
 the population under 3bB up until a time 50. Thus the call looks as follows:
 
 ```@example threshold_intervention
-opt_tspan, (s1, s2, s3), ret = optimal_threshold_intervention(prob, [p => -1.0], 🐰, 3, 50)
+opt_tspan, (s1, s2, s3), ret = optimal_threshold_intervention(prob, [p => -1.0], 🐰, 3, 50);
 ```
 
 The `opt_tspan` gives us the optimal timespan of the intervention:
