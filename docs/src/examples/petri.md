@@ -2,6 +2,7 @@
 
 First, let's load all the libraries and define the simple SIR model in
 AlgebraicPetri.jl.
+
 ```@example sir_petri
 using EasyModelAnalysis
 using UnPack
@@ -32,6 +33,7 @@ migrate!(bnsir, psir)
 
 Then, we can use `ODESystem` to convert the Petri net to an `ODESystem` and all
 the analysis functionalities would follow naturally.
+
 ```@example sir_petri
 sys = ODESystem(bnsir)
 @unpack S, I, R, inf, rec = sys
