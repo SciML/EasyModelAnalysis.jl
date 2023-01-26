@@ -59,7 +59,7 @@ psub_ini = [σ => 27.0 => 29.0, β => 2.0 => 3.0]
 fit = datafit(prob, psub_ini, tsave, data)
 pvals_fit = getfield.(fit, :second)
 pvals = getfield.(p, :second)[[1, 3]]
-isapprox(pvals, pvals_fit, atol = 1e-4, rtol = 1e-4)
+@test isapprox(pvals, pvals_fit, atol = 1e-4, rtol = 1e-4)
 
 # Threshold
 @variables t x(t)
