@@ -20,3 +20,14 @@ function stop_at_threshold(prob, obs, threshold; alg = nothing, kw...)
     end
     sol
 end
+
+"""
+    get_threshold(prob, obs, threshold)
+
+Returns the value `t` for the time point where the solution of the model `prob` has the observation
+`obs` hit the `threshold` value.
+"""
+function get_threshold(prob, obs, threshold; alg = nothing, kw...)
+    sol = stop_at_threshold(prob, obs, threshold; alg = nothing, kw...)
+    sol.t[end]
+end
