@@ -37,8 +37,10 @@ makedocs(sitename = "EasyModelAnalysis.jl",
                  "tutorials/sensitivity_analysis.md",
                  "tutorials/datafitting.md",
                  "tutorials/threshold_interventions.md",
+                 "tutorials/probabilistic_thresholds.md"
              ],
              "Examples" => [
+                 "examples/ASIR.md",
                  "examples/SEIRHD.md",
              ],
              "API" => [
