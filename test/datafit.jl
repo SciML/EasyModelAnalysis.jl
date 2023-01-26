@@ -43,4 +43,4 @@ sol_data = solve(prob, saveat = tsave)
 data = [x => sol_data[x], z => sol_data[z]]
 p_prior = [σ => Normal(26.8, 0.1), β => Normal(2.7, 0.1)]
 p_posterior = bayesian_datafit(prob, p_prior, tsave, data)
-@test var.(getfield.(p_prior,:second)) >= var.(getfield.(p_posterior,:second))
+@test var.(getfield.(p_prior, :second)) >= var.(getfield.(p_posterior, :second))
