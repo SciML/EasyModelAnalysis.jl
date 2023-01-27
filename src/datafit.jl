@@ -36,14 +36,14 @@ function datafit(prob, p::Vector{Pair{Num, Float64}}, t, data)
 end
 
 """
-    global_datafit(prob, p, t, data; maxiters = 10000)
+    global_datafit(prob, pbounds, t, data; maxiters = 10000)
 
 Fit paramters `p` to `data` measured at times `t`.
 
 ## Arguments
 
   - `prob`: ODEProblem
-  - `p`: Vector of pairs of symbolic parameters and pairs of lower and upper bounds for the parameters.
+  - `pbounds`: Vector of pairs of symbolic parameters to vectors of lower and upper bounds for the parameters.
   - `t`: Vector of time-points
   - `data`: Vector of pairs of symbolic states and measurements of these states at times `t`.
 
@@ -57,9 +57,9 @@ it can be a subset of parameters. Other parameters necessary to solve `prob`
 default to the parameter values found in `prob.p`.
 Similarly, not all states must be measured.
 """
-function global_datafit(prob, p::Vector{Pair{Num, Pair{Float64, Float64}}}, t, data; maxiters = 10000)
-    plb = getfield.(getfield.(p, :second), :first)
-    pub = getfield.(getfield.(p, :second), :second)
+function global_datafit(prob, pbounds, t, data; maxiters = 10000)
+    plb = getfield.(getfield.(pbounds, :second), :first)
+    pub = getfield.(getfield.(pbounds, :second), :second)
     pkeys = getfield.(p, :first)
     oprob = OptimizationProblem(l2loss, (pub .+ plb) ./ 2,
                                 lb = plb, ub = pub, (prob, pkeys, t, data))
