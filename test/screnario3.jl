@@ -128,6 +128,10 @@ u0init2 = [
 ]
 sys2_ = structural_simplify(sys2)
 probd = ODEProblem(sys2_, u0init2, (0.0, tend))
+ufd = get_uncertainty_forecast(_prob, accumulation_I, 0:100, [u_conv => Uniform(0.0, 1.0)], 6 * 7)
+
+plot_uncertainty_forecast(probd, accumulation_I, 0:100, [u_conv => Uniform(0.0, 1.0)],
+                          6 * 7)
 
 sold = solve(probd)
 plot(sold)
@@ -136,12 +140,21 @@ plot(sold)
 plot(sold[I] .- sol[I])
 
 _prob = remake(probd, p = [u_detect => Symbolics.getdefaultval(u_detect) * 1.2])
+sold2 = solve(_prob)
 
-get_uncertainty_forecast(_prob, accumulation_I, 0:100, [u_conv => Uniform(0.0, 1.0)], 6 * 7)
+# if im doing everything right, this plot shows that the infected count is higher with lower detection rate. 
+# this seems wrong. i would expect that with a detection rate of 1 to be "better"
+plot(sold[I] .- sold2[I])
 
+# the hospitalization count is also higher with the higher detection rate (good)
+plot(sold[H] .- sold2[H])
+
+ufd2 = get_uncertainty_forecast(_prob, accumulation_I, 0:100, [u_conv => Uniform(0.0, 1.0)], 6 * 7)
 
 plot_uncertainty_forecast(_prob, accumulation_I, 0:100, [u_conv => Uniform(0.0, 1.0)],
                           6 * 7)
+
+# todo: compare with the previous forecast uncertainties 
 
 # question 5
 # > Convert the MechBayes SEIRHD model to an SIRHD model by removing the E compartment. 
