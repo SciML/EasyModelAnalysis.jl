@@ -4,7 +4,8 @@
 Get the time-series of state `sym` evaluated at times `t`.
 """
 function get_timeseries(prob, sym, t)
-    prob = remake(prob, tspan = (min(prob.tspan[1], t[1]), max(prob.tspan[2], t[end])))
+    @assert t[1] >= prob.tspan[1]
+    prob = remake(prob, tspan = (prob.tspan[1], min(prob.tspan[2], t[end])))
     sol = solve(prob, saveat = t)
     sol[sym]
 end
@@ -78,9 +79,10 @@ are specified in the form `[sym1 => dist1, sym2 => dist2]` where `dist` is a Dis
 distribution. Samples is the number of trajectories to run.
 """
 function get_uncertainty_forecast(prob, sym, t, uncertainp, samples)
+    @assert t[1] >= prob.tspan[1]
     function prob_func(prob, i, reset)
         ps = getindex.(uncertainp, 1) .=> rand.(getindex.(uncertainp, 2))
-        prob = remake(prob, tspan = (min(prob.tspan[1], t[1]), max(prob.tspan[2], t[end])),
+        prob = remake(prob, tspan = (prob.tspan[1], min(prob.tspan[2], t[end])),
                       p = ps)
     end
     eprob = EnsembleProblem(prob, prob_func = prob_func)
@@ -100,9 +102,10 @@ Returns a tuple of arrays for the quantiles `quants` which defaults to the 95% c
 """
 function get_uncertainty_forecast_quantiles(prob, sym, t, uncertainp, samples,
                                             quants = (0.05, 0.95))
+    @assert t[1] >= prob.tspan[1]
     function prob_func(prob, i, reset)
         ps = getindex.(uncertainp, 1) .=> rand.(getindex.(uncertainp, 2))
-        prob = remake(prob, tspan = (min(prob.tspan[1], t[1]), max(prob.tspan[2], t[end])),
+        prob = remake(prob, tspan = (prob.tspan[1], min(prob.tspan[2], t[end])),
                       p = ps)
     end
     eprob = EnsembleProblem(prob, prob_func = prob_func)
@@ -119,9 +122,10 @@ end
     plot_uncertainty_forecast(prob, sym, t, uncertainp, samples)
 """
 function plot_uncertainty_forecast(prob, sym, t, uncertainp, samples)
+    @assert t[1] >= prob.tspan[1]
     function prob_func(prob, i, reset)
         ps = getindex.(uncertainp, 1) .=> rand.(getindex.(uncertainp, 2))
-        prob = remake(prob, tspan = (min(prob.tspan[1], t[1]), max(prob.tspan[2], t[end])),
+        prob = remake(prob, tspan = (prob.tspan[1], min(prob.tspan[2], t[end])),
                       p = ps)
     end
     eprob = EnsembleProblem(prob, prob_func = prob_func)
