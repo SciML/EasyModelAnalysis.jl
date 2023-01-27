@@ -3,6 +3,79 @@
 ## Generate the Model and Dataset
 
 ```@example scenario2
+using EasyModelAnalysis, AlgebraicPetri
+using Catlab, Catlab.CategoricalAlgebra, Catlab.Programs, Catlab.WiringDiagrams, Catlab.Graphics
+
+types′ = LabelledPetriNet([:Pop],
+    :infect=>((:Pop, :Pop)=>(:Pop, :Pop)),
+    :disease=>(:Pop=>:Pop),
+    :strata=>(:Pop=>:Pop))
+types = map(types′, Name=name->nothing)
+# Parts of type system for ease of reference
+s, = parts(types′, :S)
+t_interact, t_disease, t_strata = parts(types′, :T)
+i_interact1, i_interact2, i_disease, i_strata = parts(types′, :I)
+o_interact1, o_interact2, o_disease, o_strata = parts(types′, :O);
+
+function formSEIRHD()
+  SEIRHD = LabelledPetriNet([:S, :E, :I, :R, :H, :D],
+  :inf => ((:S, :I)=>(:E, :I)),
+  :conv => (:E=>:I),
+  :rec => (:I=>:R),
+  :hosp => (:I=>:H),
+  :death => (:H=>:D)
+)
+  return SEIRHD
+end
+
+seirhd = formSEIRHD()
+
+seirhd_typed = ACSetTransformation(seirhd, types,
+  S=[s, s, s, s, s, s],
+  T=[t_interact, t_disease, t_disease, t_disease, t_disease],
+  I=[i_interact1, i_interact2, i_disease, i_disease, i_disease, i_disease],
+  O=[o_interact1, o_interact2, o_disease, o_disease, o_disease, o_disease],
+  Name=name -> nothing
+)
+
+@assert is_natural(seirhd_typed)
+
+vax_lpn = LabelledPetriNet([:U, :V],
+  :infuu => ((:U, :U) => (:U, :U)),
+  :infvu => ((:V, :U) => (:V, :U)),
+  :infuv => ((:U, :V) => (:U, :V)),
+  :infvv => ((:V, :V) => (:V, :V)),
+  :vax => (:U => :V),
+)
+# vax_aug = augLabelledPetriNet(vax_lpn, vax_aug_st)
+
+Vax_aug_typed = ACSetTransformation(vax_lpn, types,
+  S=[s, s],
+  T=[t_interact, t_interact, t_interact, t_interact, t_strata],
+  I=[i_interact1, i_interact2, i_interact1, i_interact2, i_interact1, i_interact2, i_interact1, i_interact2, i_strata],
+  O=[o_interact1, o_interact2, o_interact1, o_interact2, o_interact1, o_interact2, o_interact1, o_interact2, o_strata],
+  Name=name -> nothing
+)
+
+@assert is_natural(Vax_aug_typed)
+
+function stratify_typed(pn1, pn2, type_system)
+  pn1′, pn2′ = [add_cross_terms(pn, type_system) for pn in [pn1, pn2]]
+  pb = pullback(pn1′, pn2′) 
+  return first(legs(pb)) ⋅ pn1′
+end
+
+seirhd_vax = stratify_typed(
+  seirhd_typed=>[[:strata],[:strata],[:strata],[:strata],[:strata],[]],
+  Vax_aug_typed=>[[:disease,:infect],[:disease,:infect]],
+  types′)
+
+@assert is_natural(seirhd_vax)
+
+sys = ODESystem(seirhd_vax)
+
+# Things that need values
+
 prob = nothing
 p_init = nothing # or box constraints
 tsave, data = nothing, nothing
