@@ -46,7 +46,7 @@ seirhd_vax_typed = typed_product(seirhd_typed, vax_lpn_typed)
 # The names for the typed product are tuples; here we combine them with an underscore
 seirhd_vax = map(
   seirhd_vax_typed.dom,
-  Name=t -> Symbol(string(t[1]) + "_" + string(t[2]))
+  Name=t -> Symbol(string(t[1]) * "_" * string(t[2]))
 )
 
 sys = ODESystem(seirhd_vax)
