@@ -3,11 +3,11 @@
 ## Generate the Model and Dataset
 
 ```@example scenario2
-using EasyModelAnalysis
+using EasyModelAnalysis, Optimization, OptimizationMOI, Ipopt, ModelingToolkit, Plots
 @variables t
 Dₜ = Differential(t)
 @variables S(t)=0.9 E(t)=0.05 I(t)=0.01 R(t)=0.2 H(t)=0.1 D(t)=0.01
-@variables T(t)=0.0 η(t)=0.0 cumulative_I(t)=0.0
+@variables T(t)=10000.0 η(t)=0.0 cumulative_I(t)=0.0
 @parameters β₁=0.6 β₂=0.143 β₃=0.055 α=0.003 γ₁=0.007 γ₂=0.011 δ=0.1 μ=0.14
 eqs = [T ~ S + E + I + R + H + D
        η ~ (β₁ * E + β₂ * I + β₃ * H) / T
@@ -53,7 +53,12 @@ forecast_threemonths = solve(prob, tspan = (0.0, 90.0), saveat = 1.0)
 ```@example scenario2
 need_intervention = any(x -> x > 3000, forecast_threemonths[H])
 
-posterior = Pair.(getfield.(fit,:first),Normal.(mean.(getfield.(fit,:second)),var.(getfield.(fit,:second))
+post_mean = mean.(getfield.(fit,:second))
+post_sd = sqrt.(var.(getfield.(fit,:second)))
+trunc_min = post_mean .- 3*post_sd
+trunc_max = post_mean .+ 3*post_sd
+post_trunc = Truncated.(Normal.(post_mean,post_sd),trunc_min,trunc_max)
+posterior = Pair.(getfield.(fit,:first),post_trunc)
 prob_violating_treshold(prob, posterior, [H>3000])
 ```
 
@@ -62,13 +67,6 @@ prob_violating_treshold(prob, posterior, [H>3000])
 > Assume a consistent policy of social distancing/masking will be implemented, resulting in a 50% decrease from baseline transmission. Assume that we want to minimize the time that the policy is in place, and once it has been put in place and then ended, it can't be re-implemented. Looking forward from “today’s” date of Dec. 28, 2021, what are the optimal start and end dates for this policy, to keep projections below the hospitalization threshold over the entire 3-month period? How many fewer hospitalizations and cases does this policy result in?
 
 ```@example scenario2
-#root_eqs = [H ~ 3000] # or 80% of 3000 
-#affect   = [η ~ η/2]
-#@named mask_system = ODESystem(eqs, t; continuous_events = root_eqs => affect)
-
-start_intervention = (t == tstart) => [η ~ η/2]
-stop_intervention = (t == tstop) => [η ~ 2*η]
-@named opttime_sys = ODESystem(eqs, t; discrete_events = [start_intervention, stop_intervention])
 function f(ts, p = nothing)
   ts[2] - ts[1]
 end
@@ -76,13 +74,19 @@ end
 function g(res, ts, p = nothing)
   tstart = ts[1]
   tstop = ts[2]
-  prob = ODEProblem(opttime_sys, [], (0.0, 90.0), saveat = 1.0)
-  sol = solve(prob, idxs = [H])
-  res .= copy(H) 
+  start_intervention = (t.val == tstart) => [β₁ ~ β₁/2, β₂ ~ β₂/2, β₃ ~ β₃/2]
+  stop_intervention = (t.val == tstop) => [β₁ ~ β₁*2, β₂ ~ β₂*2, β₃ ~ β₃*2]
+  @named opttime_sys = ODESystem(eqs, t; discrete_events = [start_intervention, stop_intervention])
+  opttime_sys = structural_simplify(opttime_sys)
+  prob = ODEProblem(opttime_sys, [], [0.0, 90.0])
+  sol = solve(prob, saveat = 0.0:1.0:90.0)
+  h = sol[H]
+  res .= vcat(copy(h), vcat([tstart, tstop], [tstop > tstart]))
 end
 
-optprob = OptimizationFunction(f, AutoModelingToolkit(), cons = g)
-prob = OptimizationProblem(optprob, [0.0, 90.0], lcons = fill(-Inf, 90), ucons = fill(3000.0, 90))
+optfun = OptimizationFunction(f, Optimization.AutoForwardDiff(), cons = g)
+optprob = Optimization.OptimizationProblem(optfun, [1.0, 89.0], lcons = vcat(fill(-Inf, 91), [0.0,0.0,1.0]), ucons = vcat(fill(3000.0, 91), [90.0, 90.0, 1.0]))
+ts = solve(optprob, OptimizationMOI.MOI.OptimizerWithAttributes(NLopt.Optimizer, "algorithm" => :LN_COBYLA))
 ```
 
 
@@ -105,7 +109,7 @@ prob = OptimizationProblem(optprob, [0.0, 90.0], lcons = fill(-Inf, 90), ucons =
 ```@example scenario2
 @variables S(t)=0.9 E(t)=0.05 I(t)=0.01 R(t)=0.2 H(t)=0.1 D(t)=0.01
 @variables T(t)=0.0 η(t)=0.0 cumulative_I(t)=0.0
-@parameters β₁=0.6 β₂=0.143 β₃=0.055 β₄=0.8 α=0.003 γ₁=0.007 γ₂=0.011 δ=0.1 μ=0.14 ρ₁=0.5 ρ₂=0.5  
+@parameters β₁=0.6 β₂=0.143 β₃=0.055 β₄=0.8 α=0.003 γ₁=0.007 γ₂=0.011 δ=0.1 μ=0.14 ρ₁=0.5 ρ₂=0.5
 eqs = [T ~ S + E + I + R + H + D
        η ~ (β₁ * E + β₂ * I + β₃ * H - β₄ * V) / T
        Dₜ(S) ~ -η * S
