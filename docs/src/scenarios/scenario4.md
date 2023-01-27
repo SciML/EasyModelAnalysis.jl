@@ -120,6 +120,12 @@ p_opt, s2, ret = optimal_parameter_threshold(prob, IS, 430, u_test, [u_test], [0
 plot(s2, idxs = [IS])
 ```
 
+```@example scenario4
+p_opt, s2, ret = optimal_parameter_threshold(prob, D, 430, u_test, [u_test], [0.0], [NN],
+                                             maxtime = 10);
+plot(s2, idxs = [I, IS, D])
+```
+
 ### Question 4
 
 > Challenge question: assume that antigen tests are one fifth the cost of PCR
