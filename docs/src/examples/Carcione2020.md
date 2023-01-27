@@ -1,6 +1,6 @@
 # Sensitivity Analysis of the Carcione2020 Epidemic Model
 
-```@examples carcione
+```@example carcione
 cd(@__DIR__)
 using SBMLToolkit, ModelingToolkit, EasyModelAnalysis, UnPack
 
@@ -15,11 +15,11 @@ rs = ReactionSystem(mdl)  # If you want to create a reaction system
 odesys = convert(ODESystem, rs)  # Alternatively: ODESystem(mdl)
 ```
 
-```@examples carcione
+```@example carcione
 sys = structural_simplify(odesys)
 ```
 
-```@examples carcione
+```@example carcione
 @unpack Infected, Exposed, Deceased, Recovered, Total_population, Susceptible = sys
 @unpack alpha, epsilon, gamma, mu, beta, City = sys
 tspan = (0., 1.)
@@ -28,7 +28,7 @@ sol = solve(prob, Rodas5())
 plot(sol, idxs = Deceased)
 ```
 
-```@examples carcione
+```@example carcione
 pbounds = [
     alpha => [0.003, 0.006],
     epsilon => [1/6, 1/2],
