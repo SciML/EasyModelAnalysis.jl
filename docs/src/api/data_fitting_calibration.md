@@ -2,5 +2,6 @@
 
 ```@docs
 datafit
+global_datafit
 bayesian_datafit
 ```
