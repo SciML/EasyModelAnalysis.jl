@@ -25,7 +25,7 @@ sys1 = ODESystem(formSEIRHD())
 @unpack S, E, I, R, H, D = sys1
 @unpack expo, conv, rec, hosp, death = sys1
 NN = 10.0
-@parameters u_expo=0.2 u_conv=0.2 u_rec=0.8 u_hosp=0.2 u_death=0.1 N=NN
+@parameters u_expo=0.2 * NN u_conv=0.2 * NN u_rec=0.8 * NN u_hosp=0.2 * NN u_death=0.1 * NN N=NN
 translate_params = [expo => u_expo / N,
     conv => u_conv / N,
     rec => u_rec / N,
@@ -167,23 +167,23 @@ plot_uncertainty_forecast(probd, accumulation_I, 0:100,
 
 > Convert the MechBayes SEIRHD model to an SIRHD model by removing the E compartment. Compute the same six-week forecast that you had done in Question 1a and compare the accuracy of the six-week forecasts with the forecasts done in Question 1a.
 
-```@example scenario3
+```julia
 prob2 = prob
 get_uncertainty_forecast(prob2, accumulation_I, 0:100, [u_conv => Uniform(0.0, 1.0)], 6 * 7)
 ```
 
-```@example scenario3
+```julia
 plot_uncertainty_forecast(prob2, accumulation_I, 0:100, [u_conv => Uniform(0.0, 1.0)],
                           6 * 7)
 ```
 
-```@example scenario3
+```julia
 get_uncertainty_forecast_quantiles(prob2, accumulation_I, 0:100,
                                    [u_conv => Uniform(0.0, 1.0)],
                                    6 * 7)
 ```
 
-```@example scenario3
+```julia
 plot_uncertainty_forecast_quantiles(prob2, accumulation_I, 0:100,
                                     [u_conv => Uniform(0.0, 1.0)],
                                     6 * 7)
@@ -191,23 +191,23 @@ plot_uncertainty_forecast_quantiles(prob2, accumulation_I, 0:100,
 
 > Further modify the MechBayes SEIRHD model and do a model space exploration and model selection from the following models, based on comparing forecasts of cases and deaths to actual data: SEIRD, SEIRHD, and SIRHD models. Use data from April 1, 2020 – April 30, 2020 from the scenario location (Massachusetts) for fitting these models.  Then make out-of-sample forecasts from the same 6-week period from May 1 – June 15, 2020, and compare with actual data. Comment on the quality of the fit for each of these models.
 
-```@example scenario3
+```julia
 prob3 = prob
 get_uncertainty_forecast(prob2, accumulation_I, 0:100, [u_conv => Uniform(0.0, 1.0)], 6 * 7)
 ```
 
-```@example scenario3
+```julia
 plot_uncertainty_forecast(prob2, accumulation_I, 0:100, [u_conv => Uniform(0.0, 1.0)],
                           6 * 7)
 ```
 
-```@example scenario3
+```julia
 get_uncertainty_forecast_quantiles(prob2, accumulation_I, 0:100,
                                    [u_conv => Uniform(0.0, 1.0)],
                                    6 * 7)
 ```
 
-```@example scenario3
+```julia
 plot_uncertainty_forecast_quantiles(prob2, accumulation_I, 0:100,
                                     [u_conv => Uniform(0.0, 1.0)],
                                     6 * 7)
@@ -218,6 +218,8 @@ plot_uncertainty_forecast_quantiles(prob2, accumulation_I, 0:100,
 ```@example scenario3
 # 
 ```
+
+### https://github.com/SciML/EasyModelAnalysis.jl/issues/22
 
 ### Question 7
 
