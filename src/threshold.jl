@@ -33,11 +33,11 @@ function get_threshold(prob, obs, threshold; alg = nothing, kw...)
 end
 
 """
-    prob_violating_treshold(prob, p, tresholds)
+    prob_violating_threshold(prob, p, thresholds)
 
-Returns the probability of violating `tresholds` given distributions of parameters `p`.
+Returns the probability of violating `thresholds` given distributions of parameters `p`.
 """
-function prob_violating_treshold(prob, p, tresholds)
+function prob_violating_threshold(prob, p, thresholds)
     pkeys = getfield.(p, :first)
     p_dist = getfield.(p, :second)
     gd = GenericDistribution(p_dist...)
@@ -45,13 +45,13 @@ function prob_violating_treshold(prob, p, tresholds)
     sm = SystemMap(prob, sol.alg)
     h(x, u, p) = u, remake(prob, p = Pair.(pkeys, [x...])).p # remake does not work well with static arrays
     function g(sol, p)
-        for treshold in tresholds
-            if (treshold.val.f == >) || (treshold.val.f == >=)
-                if maximum(sol[treshold.val.arguments[1]]) > treshold.val.arguments[2]
+        for threshold in thresholds
+            if (threshold.val.f == >) || (threshold.val.f == >=)
+                if maximum(sol[threshold.val.arguments[1]]) > threshold.val.arguments[2]
                     return 1.0
                 end
-            elseif (treshold.val.f == <) || (treshold.val.f == <=)
-                if minimum(sol[treshold.val.arguments[1]]) < treshold.val.arguments[2]
+            elseif (threshold.val.f == <) || (threshold.val.f == <=)
+                if minimum(sol[threshold.val.arguments[1]]) < threshold.val.arguments[2]
                     return 1.0
                 end
             else

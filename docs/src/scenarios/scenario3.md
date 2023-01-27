@@ -83,7 +83,7 @@ plot_uncertainty_forecast_quantiles(prob, accumulation_I, ts, [u_conv => Uniform
 
 ```@example scenario3
 _prob = remake(prob, tspan = (0.0, 6 * 7.0))
-prob_violating_treshold(_prob, [u_conv => Uniform(0.0, 1.0)], [accumulation_I > 0.4 * NN])
+prob_violating_threshold(_prob, [u_conv => Uniform(0.0, 1.0)], [accumulation_I > 0.4 * NN])
 ```
 
 ### Question 3
@@ -92,7 +92,7 @@ prob_violating_treshold(_prob, [u_conv => Uniform(0.0, 1.0)], [accumulation_I > 
 
 ```@example scenario3
 _prob = remake(_prob, p = [u_expo => 0.02])
-prob_violating_treshold(_prob, [u_conv => Uniform(0.0, 1.0)], [accumulation_I > 0.4 * NN])
+prob_violating_threshold(_prob, [u_conv => Uniform(0.0, 1.0)], [accumulation_I > 0.4 * NN])
 ```
 
 ### Question 4

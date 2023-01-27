@@ -66,15 +66,34 @@ plt = plot_uncertainty_forecast_quantiles(prob, accumulation_I, ts, [u_conv => U
 plot!(plt, sol, vars = [accumulation_I])
 
 # question 2 
+# > Based on the forecasts, do we need additional interventions to keep cumulative Covid deaths under 6000 total? 
+# Provide a probability that the cumulative number of Covid deaths will stay under 6000 for the next 6 weeks 
+# without any additional interventions.
+
 _prob = remake(prob, tspan = (0.0, 6 * 7.0))
-prob_violating_treshold(_prob, [u_conv => Uniform(0.0, 1.0)], [accumulation_I > 0.4 * NN])
+prob_violating_threshold(_prob, [u_conv => Uniform(0.0, 1.0)], [accumulation_I > 0.4 * NN]) # TODO: explain 0.4*NN
 
 # question 3
+# > We are interested in determining how effective it would be to institute a mandatory mask mandate for 
+# the duration of the next six weeks. What is the probability of staying below 6000 cumulative deaths if 
+# we institute an indefinite mask mandate starting May 1, 2020?
 
-_prob = remake(_prob, p = [u_expo => 0.02])
-prob_violating_treshold(_prob, [u_conv => Uniform(0.0, 1.0)], [accumulation_I > 0.4 * NN])
+_prob = remake(_prob, p = [u_expo => 0.02]) # here we assume the exposure parameter was decreased 10 times (0.2 -> 0.02)
+prob_violating_threshold(_prob, [u_conv => Uniform(0.0, 1.0)], [accumulation_I > 0.4 * NN])
 
 # question 4
+# > We are interested in determining how detection rate can affect the accuracy and uncertainty in our forecasts. 
+# In particular, suppose we can improve the baseline detection rate by 20%, and the detection rate stays constant 
+# throughout the duration of the forecast. 
+
+# Assuming no additional interventions (ignoring Question 3), does that increase the amount of cumulative forecasted 
+# cases and deaths after six weeks? 
+
+# How does an increase in the detection rate affect the uncertainty in our estimates? 
+
+# Can you characterize the relationship between detection rate and our forecasts and their uncertainties, 
+# and comment on whether improving detection rates would provide decision-makers with better information 
+# (i.e., more accurate forecasts and/or narrower prediction intervals)?
 
 _prob = remake(prob, p = [β₃ => 0.015])
 get_uncertainty_forecast(_prob, accumulation_I, 0:100, [u_conv => Uniform(0.0, 1.0)], 6 * 7)

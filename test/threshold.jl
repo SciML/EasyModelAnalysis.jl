@@ -71,11 +71,11 @@ p_prior = [
     σ => truncated(Normal(28.0, 1.0), 20.0, 40.0),
     β => truncated(Normal(2.7, 0.1), 2.0, 4.0),
 ]
-@test prob_violating_treshold(prob, p_prior, tresholds) > 0.99
+@test prob_violating_threshold(prob, p_prior, tresholds) > 0.99
 
 tresholds = [x > Inf, y < -Inf]
 p_prior = [
     σ => truncated(Normal(28.0, 1.0), 20.0, 40.0),
     β => truncated(Normal(2.7, 0.1), 2.0, 4.0),
 ]
-@test prob_violating_treshold(prob, p_prior, tresholds) < 0.01
+@test prob_violating_threshold(prob, p_prior, tresholds) < 0.01
