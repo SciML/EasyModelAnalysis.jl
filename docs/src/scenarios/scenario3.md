@@ -13,15 +13,80 @@ using UnPack
 ```@example scenario3
 function formSEIRHD()
     SEIRHD = LabelledPetriNet([:S, :E, :I, :R, :H, :D],
-                              :expo => ((:S, :I) => (:E, :I)),
-                              :conv => (:E => :I),
-                              :rec => (:I => :R),
-                              :hosp => (:I => :H),
-                              :death => (:H => :D))
+	  :exp => ((:S, :I)=>(:E, :I)),
+	  :conv => (:E=>:I),
+	  :rec => (:I=>:R),
+	  :hosp => (:I=>:H),
+      :death => (:H=>:D),
+	)
     return SEIRHD
 end
-sys1 = ODESystem(formSEIRHD())
 
+seirhd = formSEIRHD()
+sys1 = ODESystem(seirhd)
+```
+
+```@example scenario3
+function formSEIRD()
+    SEIRD = LabelledPetriNet([:S, :E, :I, :R, :D],
+	  :exp => ((:S, :I)=>(:E, :I)),
+	  :conv => (:E=>:I),
+	  :rec => (:I=>:R),
+	  :death => (:I=>:D),
+	)
+    return SEIRD
+end
+
+seird = formSEIRD()
+sys2 = ODESystem(seird)
+```
+
+```@example scenario3
+function formSIRHD()
+    SIRHD = LabelledPetriNet([:S, :I, :R, :H, :D],
+	  :exp => ((:S, :I)=>(:I, :I)),
+	  :rec => (:I=>:R),
+	  :hosp => (:I=>:H),
+      :death => (:H=>:D),
+	)
+    return SIRHD
+end
+
+sirhd = formSIRHD()
+sys3 = ODESystem(sirhd)
+```
+
+```@example scenario3
+function form_seird_renew()
+    seird_renew = LabelledPetriNet([:S, :E, :I, :R, :D],
+	  :exp => ((:S, :I)=>(:E, :I)),
+	  :conv => (:E=>:I),
+	  :rec => (:I=>:R),
+	  :death => (:I=>:D),
+      :renew => (:R=>:S)
+	)
+    return seird_renew
+end
+
+seird_renew = form_seird_renew()
+sys4 = ODESystem(seird_renew)
+```
+
+```@example scenario3
+using ASKEM # Hack, remove when merged
+max_e_h = mca(seird, sirhd)
+AlgebraicPetri.Graph(max_e_h[1])
+
+```@example scenario3
+max_3way = mca(max_e_h[1], seirhd)
+AlgebraicPetri.Graph(max_3way[1])
+
+```@example scenario3
+max_seird_renew = mca(seird, seird_renew)
+AlgebraicPetri.Graph(max_seird_renew[1])
+```
+
+```@example scenario3
 @unpack S, E, I, R, H, D = sys1
 @unpack expo, conv, rec, hosp, death = sys1
 NN = 10.0
