@@ -1,12 +1,13 @@
 @time_imports using EasyModelAnalysis, AlgebraicPetri, UnPack # 91197.80000000003 ms
 using Plots
 # sys equations
-# Differential(t)(S(t)) ~ -(u_expo / N)*I(t)*S(t)
-# Differential(t)(E(t)) ~ (u_expo / N)*I(t)*S(t) - (u_conv / N)*E(t)
-# Differential(t)(I(t)) ~ (u_conv / N)*E(t) - (u_hosp / N)*I(t) - (u_rec / N)*I(t)
-# Differential(t)(R(t)) ~ (u_rec / N)*I(t)
-# Differential(t)(H(t)) ~ (u_hosp / N)*I(t) - (u_death / N)*H(t)
-# Differential(t)(D(t)) ~ (u_death / N)*H(t)
+Differential(t)(S(t)) ~ -(u_expo / N) * I(t) * S(t)
+Differential(t)(E(t)) ~ (u_expo / N) * I(t) * S(t) - (u_conv / N) * E(t)
+Differential(t)(I(t)) ~ (u_conv / N) * E(t) - (u_hosp / N) * I(t) - (u_rec / N) * I(t)
+Differential(t)(R(t)) ~ (u_rec / N) * I(t)
+Differential(t)(H(t)) ~ (u_hosp / N) * I(t) - (u_death / N) * H(t)
+Differential(t)(D(t)) ~ (u_death / N) * H(t)
+
 # Differential(t)(accumulation_I(t)) ~ I(t)
 
 function formSEIRHD()
@@ -99,20 +100,33 @@ prob_violating_threshold(_prob, [u_conv => Uniform(0.0, 1.0)], [accumulation_I >
 # and comment on whether improving detection rates would provide decision-makers with better information 
 # (i.e., more accurate forecasts and/or narrower prediction intervals)?
 
+# sys equations
+# Differential(t)(S(t)) ~ -(u_expo / N) * I(t) * S(t)
+# Differential(t)(E(t)) ~ (u_expo / N) * I(t) * S(t) - (u_conv / N) * E(t)
+# Differential(t)(I(t)) ~ (u_conv / N) * E(t) - (u_hosp / N) * I(t) - (u_rec / N) * I(t)
+# Differential(t)(R(t)) ~ (u_rec / N) * I(t)
+# Differential(t)(H(t)) ~ (u_hosp / N) * I(t) - (u_death / N) * H(t)
+# Differential(t)(D(t)) ~ (u_death / N) * H(t)
 @parameters t
 
 @variables I_undetected(t) I_detected(t)
 
 seirhd_detect_eqs = [Differential(t)(S) ~ -(u_expo / N) * I * S
                      Differential(t)(E) ~ (u_expo / N) * I * S - (u_conv / N) * E
-                     Differential(t)(I_undetected) ~ (u_conv / N) * E - (u_rec / N) * I -
-                                                     (u_detect / N) * I_undetected
-                     Differential(t)(I_detected) ~ (u_detect / N) * I_undetected -
-                                                   (u_hosp / N) * I_detected
+                     Differential(t)(I_undetected) ~ (u_conv / N) * E - # E->Iu
+                                                     (u_rec / N) * I_undetected - # Iu->R
+                                                     (u_detect / N) * I_undetected - # Iu->Id
+                                                     (u_hosp / N) * I_undetected # Iu->H
+
+                     Differential(t)(I_detected) ~ (u_detect / N) * I_undetected - # Iu->Id
+                                                   (u_hosp / N) * I_detected - # Id -> H
+                                                   (u_rec / N) * I_detected # Id -> R
+
                      I ~ I_detected + I_undetected
                      Differential(t)(R) ~ (u_rec / N) * I
-                     Differential(t)(H) ~ (u_hosp / N) * I_detected - (u_death / N) * H
+                     Differential(t)(H) ~ (u_hosp / N) * I - (u_death / N) * H
                      Differential(t)(D) ~ (u_death / N) * H]
+
 #  Differential(t)(accumulation_I) ~ I]
 
 @named seirhd_detect = ODESystem(seirhd_detect_eqs)
@@ -128,17 +142,18 @@ u0init2 = [
 ]
 sys2_ = structural_simplify(sys2)
 probd = ODEProblem(sys2_, u0init2, (0.0, tend))
-ufd = get_uncertainty_forecast(_prob, accumulation_I, 0:100, [u_conv => Uniform(0.0, 1.0)],
+ufd = get_uncertainty_forecast(_prob, accumulation_I, 0:100,
+                               [u_detect => Uniform(0.0, 1.0)],
                                6 * 7)
 
-plot_uncertainty_forecast(probd, accumulation_I, 0:100, [u_conv => Uniform(0.0, 1.0)],
+plot_uncertainty_forecast(probd, accumulation_I, 0:100, [u_detect => Uniform(0.0, 1.0)],
                           6 * 7)
 
 sold = solve(probd)
 ts = sold.t
 plot(sold)
 
-# comparing infected counts between the two models
+# comparing infected counts between the two models (one with detection rate, `sol` without)
 plot(sold[I] .- sol[I])
 
 # a couple of cases to sanity check 
@@ -152,20 +167,10 @@ probd4 = remake(probd, p = [u_detect => 0])
 sold4 = solve(probd4; saveat = sold.t)
 
 sols = []
-ufs = []
-ufqs = []
 u_detecs = 0:0.1:1
 for x in u_detecs
     probd = remake(probd, p = [u_detect => x])
     sold = solve(probd; saveat = sold.t)
-    uf = get_uncertainty_forecast(probd, accumulation_I, 0:100,
-                                  [u_conv => Uniform(0.0, 1.0)],
-                                  6 * 7)
-    q = get_uncertainty_forecast_quantiles(probd, accumulation_I, ts,
-                                            [u_conv => Uniform(0.0, 1.0)],
-                                            6 * 7)
-    push!(ufs, uf)
-    push!(ufqs, q)
     push!(sols, sold)
 end
 
@@ -174,41 +179,27 @@ plot(is)
 # demonstrate that the total infected count is strictly decreasing with increasing detection rate
 @test issorted(is; rev = true)
 
-spans = map(x->x[2] .- x[1], ufqs)
-end_t_uncert = last.(spans)
+# i would expect deaths to be decreasing with increasing detection rate
+ds = map(x -> x[D][end], sols)
+plot(ds)
+@test issorted(ds)
+@test_broken issorted(ds; rev = true)
 
 # 👀: i think im doing something wrong here. i would assume the uncertainty should be decreasing with increasing detection rate
 plot(end_t_uncert)
 sortperm(end_t_uncert)
 
-q1 = get_uncertainty_forecast_quantiles(probd, accumulation_I, ts,
-                                        [u_conv => Uniform(0.0, 1.0)],
-                                        6 * 7)
-pq1 = plot_uncertainty_forecast_quantiles(probd, accumulation_I, ts,
-                                          [u_conv => Uniform(0.0, 1.0)],
-                                          6 * 7)
-title!(pq1)
-q2 = get_uncertainty_forecast_quantiles(probd2, accumulation_I, ts,
-                                        [u_conv => Uniform(0.0, 1.0)],
-                                        6 * 7)
-pq2 = plot_uncertainty_forecast_quantiles(probd2, accumulation_I, ts,
-                                          [u_conv => Uniform(0.0, 1.0)],
-                                          6 * 7)
-q3 = get_uncertainty_forecast_quantiles(probd3, accumulation_I, 0:100,
-                                        [u_conv => Uniform(0.0, 1.0)],
-                                        6 * 7)
-pq3 = plot_uncertainty_forecast_quantiles(probd3, accumulation_I, ts,
-                                          [u_conv => Uniform(0.0, 1.0)],
-                                          6 * 7)
-q4 = get_uncertainty_forecast_quantiles(probd4, accumulation_I, 0:100,
-                                        [u_conv => Uniform(0.0, 1.0)],
-                                        6 * 7)
-
-ufd2 = get_uncertainty_forecast(probd, accumulation_I, 0:100, [u_conv => Uniform(0.0, 1.0)],
+uf = get_uncertainty_forecast(probd, accumulation_I, 0:100, [u_detect => Uniform(0.0, 1.0)],
+                              6 * 7)
+ufp = plot_uncertainty_forecast(probd, accumulation_I, 0:100,
+                                [u_detect => Uniform(0.0, 1.0)],
                                 6 * 7)
-
-plot_uncertainty_forecast(probd, accumulation_I, 0:100, [u_conv => Uniform(0.0, 1.0)],
-                          6 * 7)
+q = get_uncertainty_forecast_quantiles(probd, accumulation_I, 0:100,
+                                       [u_detect => Uniform(0.0, 1.0)],
+                                       6 * 7)
+qp = plot_uncertainty_forecast_quantiles(probd, accumulation_I, ts,
+                                         [u_detect => Uniform(0.0, 1.0)],
+                                         6 * 7)
 
 # todo: compare with the previous forecast uncertainties 
 
