@@ -59,7 +59,7 @@ trunc_min = post_mean .- 3*post_sd
 trunc_max = post_mean .+ 3*post_sd
 post_trunc = Truncated.(Normal.(post_mean,post_sd),trunc_min,trunc_max)
 posterior = Pair.(getfield.(fit,:first),post_trunc)
-prob_violating_treshold(prob, posterior, [H>0.05])
+prob_violating_threshold(prob, posterior, [H>0.05])
 ```
 
 ### Question 3

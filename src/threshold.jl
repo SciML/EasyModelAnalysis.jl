@@ -33,11 +33,11 @@ function get_threshold(prob, obs, threshold; alg = nothing, kw...)
 end
 
 """
-    prob_violating_threshold(prob, p, thresholds)
+    prob_violating_thresholdd(prob, p, thresholds)
 
 Returns the probability of violating `thresholds` given distributions of parameters `p`.
 """
-function prob_violating_threshold(prob, p, thresholds)
+function prob_violating_thresholdd(prob, p, thresholds)
     pkeys = getfield.(p, :first)
     p_dist = getfield.(p, :second)
     gd = GenericDistribution(p_dist...)
