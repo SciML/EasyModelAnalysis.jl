@@ -4,7 +4,6 @@ authors = ["SciML"]
 version = "0.1.0"
 
 [deps]
-AlgebraicPetri = "4f99eebe-17bf-4e98-b6a1-2c4f205a959b"
 DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 GlobalSensitivity = "af5da776-676b-467e-8baf-acd8249e4f0f"
@@ -18,7 +17,6 @@ Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 SciMLBase = "0bca4576-84f4-4d90-8ffe-ffa030f20462"
 SciMLExpectations = "afe9f18d-7609-4d0e-b7b7-af0cb72b8ea8"
 Turing = "fce5fe82-541a-59a6-adf8-730c64b5f9a0"
-UnPack = "3a884ed6-31ef-47d7-9d2a-63182c4928ed"
 
 [compat]
 DifferentialEquations = "7"

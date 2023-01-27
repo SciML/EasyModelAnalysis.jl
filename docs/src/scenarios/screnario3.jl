@@ -1,14 +1,4 @@
-@time_imports using EasyModelAnalysis, AlgebraicPetri, UnPack # 91197.80000000003 ms
-using Plots
-# sys equations
-Differential(t)(S(t)) ~ -(u_expo / N) * I(t) * S(t)
-Differential(t)(E(t)) ~ (u_expo / N) * I(t) * S(t) - (u_conv / N) * E(t)
-Differential(t)(I(t)) ~ (u_conv / N) * E(t) - (u_hosp / N) * I(t) - (u_rec / N) * I(t)
-Differential(t)(R(t)) ~ (u_rec / N) * I(t)
-Differential(t)(H(t)) ~ (u_hosp / N) * I(t) - (u_death / N) * H(t)
-Differential(t)(D(t)) ~ (u_death / N) * H(t)
-
-# Differential(t)(accumulation_I(t)) ~ I(t)
+using EasyModelAnalysis, AlgebraicPetri, UnPack, Plots
 
 function formSEIRHD()
     SEIRHD = LabelledPetriNet([:S, :E, :I, :R, :H, :D],
@@ -26,7 +16,7 @@ sys1 = ODESystem(formSEIRHD())
 @unpack expo, conv, rec, hosp, death = sys1
 NN = 10.0
 
-@parameters u_expo=0.2 u_conv=0.2 u_rec=0.8 u_hosp=0.2 u_death=0.1 u_detect=0.5 N=NN
+@parameters u_expo=0.2 u_conv=0.2 u_rec=0.8 u_hosp=0.2 u_death=0.1 N=NN
 translate_params = [expo => u_expo / N,
     conv => u_conv / N,
     rec => u_rec / N,
@@ -45,21 +35,23 @@ u0init = [
     D => 0.01 * NN,
 ]
 
+tend = 6 * 7 # 6 weeks
+ts = 0:tend
+prob = ODEProblem(sys, u0init, (0.0, tend))
+sol = solve(prob; saveat = ts)
+plot(sol)
+
 # question 1 
 # > Provide a forecast of cumulative Covid-19 cases and deaths over the 6-week period from 
 # May 1 – June 15, 2020 under no interventions, including 90% prediction intervals in your forecasts. 
 # Compare the accuracy of the forecasts with true data over the six-week timespan.
 
-tend = 6 * 7 # 6 weeks
-ts = 0:tend
-prob = ODEProblem(sys, u0init, (0.0, tend))
-sol = solve(prob;saveat=ts)
-plot(sol)
 
 uf = uncert_forecast = get_uncertainty_forecast(prob, accumulation_I, ts,
-                                           [u_conv => Uniform(0.0, 1.0)], 6 * 7)
+                                                [u_conv => Uniform(0.0, 1.0)], 6 * 7)
 
-ufplt = plot_uncertainty_forecast(prob, accumulation_I, ts, [u_conv => Uniform(0.0, 1.0)], 6 * 7)
+ufplt = plot_uncertainty_forecast(prob, accumulation_I, ts, [u_conv => Uniform(0.0, 1.0)],
+                                  6 * 7)
 
 qtiles = get_uncertainty_forecast_quantiles(prob, accumulation_I, ts,
                                             [u_conv => Uniform(0.0, 1.0)],
@@ -108,17 +100,15 @@ prob_violating_threshold(_prob, [u_conv => Uniform(0.0, 1.0)], [accumulation_I >
 # Differential(t)(H(t)) ~ (u_hosp / N) * I(t) - (u_death / N) * H(t)
 # Differential(t)(D(t)) ~ (u_death / N) * H(t)
 
-
 @parameters t
 
-eqs2 = [
-Differential(t)(S) ~ -(u_expo / N) * I * S
-Differential(t)(E) ~ (u_expo / N) * I * S - (u_conv / N) * E
-Differential(t)(I) ~ (u_conv / N) * E - (u_hosp / N) * I - (u_rec / N) * I - (u_death / N) * I
-Differential(t)(R) ~ (u_rec / N) * I + (u_rec / N)*H
-Differential(t)(H) ~ (u_hosp / N) * I - (u_death / N) * H - (u_rec / N)*H
-Differential(t)(D) ~ (u_death / N) * H + (u_death / N) * I
-]
+eqs2 = [Differential(t)(S) ~ -(u_expo / N) * I * S
+        Differential(t)(E) ~ (u_expo / N) * I * S - (u_conv / N) * E
+        Differential(t)(I) ~ (u_conv / N) * E - (u_hosp / N) * I - (u_rec / N) * I -
+                             (u_death / N) * I
+        Differential(t)(R) ~ (u_rec / N) * I + (u_rec / N) * H
+        Differential(t)(H) ~ (u_hosp / N) * I - (u_death / N) * H - (u_rec / N) * H
+        Differential(t)(D) ~ (u_death / N) * H + (u_death / N) * I]
 # these new equations add I->D and H->R  to the model. 
 @named seirhd_detect = ODESystem(eqs2)
 sys2 = add_accumulations(seirhd_detect, [I])
@@ -134,7 +124,7 @@ sys2_ = structural_simplify(sys2)
 @unpack accumulation_I = sys2_
 
 probd = ODEProblem(sys2_, u0init2, (0.0, tend))
-sold = solve(probd;saveat=ts)
+sold = solve(probd; saveat = ts)
 plot(sold)
 
 sols = []
@@ -145,9 +135,9 @@ for x in u_detecs
     push!(sols, sold)
 end
 
+# demonstrate that the total infected count is strictly decreasing with increasing detection rate
 is = map(x -> x[accumulation_I][end], sols)
 plot(is)
-# demonstrate that the total infected count is strictly decreasing with increasing detection rate
 @test issorted(is; rev = true)
 
 # deaths decrease with increasing detection rate
@@ -155,15 +145,16 @@ ds = map(x -> x[D][end], sols)
 plot(ds)
 @test issorted(ds; rev = true)
 
-
 ufd = get_uncertainty_forecast(_prob, accumulation_I, 0:100,
                                [u_hosp => Uniform(0.0, 1.0), u_conv => Uniform(0.0, 1.0)],
                                6 * 7)
 
-ufdplt = plot_uncertainty_forecast(probd, accumulation_I, 0:100, [u_hosp => Uniform(0.0, 1.0), u_conv => Uniform(0.0, 1.0)],
-                          6 * 7)
-
-
+ufdplt = plot_uncertainty_forecast(probd, accumulation_I, 0:100,
+                                   [
+                                       u_hosp => Uniform(0.0, 1.0),
+                                       u_conv => Uniform(0.0, 1.0),
+                                   ],
+                                   6 * 7)
 
 # BELOW not done 
 
