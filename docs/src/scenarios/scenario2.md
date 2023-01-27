@@ -99,7 +99,24 @@ ts = solve(optprob, OptimizationMOI.MOI.OptimizerWithAttributes(NLopt.Optimizer,
 > What is the minimum impact on transmission rate these mitigation policies need to have the first time they kick in, to (1) ensure that we don't reach the hospitalization threshold at any time during the 3-month period, and (2) ensure that the policies only need to be implemented once, and potentially expired later, but never reimplemented? Express this in terms of change in baseline transmission levels (e.g. 10% decrease, 50% decrease, etc.).
 
 ```@example scenario2
-
+function f(reduction_rate, p = nothing)
+    reduction_rate = reduction_rate[1]
+end
+function g(res, reduction_rate, p = nothing)
+    reduction_rate = reduction_rate[1]
+    root_eqs = [H ~ 3000*0.8]
+    affect   = [β₁ ~ β₁*(1-reduction_rate), β₂ ~ β₂*(1-reduction_rate), β₃ ~ β₃*(1-reduction_rate)]
+    @named mask_system = ODESystem(eqs, t; continuous_events = root_eqs => affect)
+    mask_system = structural_simplify(mask_system)
+    prob = ODEProblem(mask_system , [], (0.0, 90.0), saveat = 1.0)
+    sol = solve(prob)
+    hospitalizations = sol[H]
+    res .= hospitalizations
+end
+optprob = OptimizationFunction(f, Optimization.AutoFiniteDiff(), cons = g)
+prob = OptimizationProblem(optprob, [0.0], lb=[0.0], ub=[1.0], lcons = fill(-Inf, 91), ucons = fill(3000.0, 91))
+using OptimizationMOI, NLopt
+solve(prob,OptimizationMOI.MOI.OptimizerWithAttributes(NLopt.Optimizer, "algorithm" => :GN_ORIG_DIRECT,"maxtime" => 60.0, "maxeval"=>100)) # in reality needs much longer than 60
 ```
 
 ### Question 5
