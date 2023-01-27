@@ -58,8 +58,8 @@ default to the parameter values found in `prob.p`.
 Similarly, not all states must be measured.
 """
 function global_datafit(prob, pbounds, t, data; maxiters = 10000)
-    plb = getfield.(getfield.(pbounds, :second), :first)
-    pub = getfield.(getfield.(pbounds, :second), :second)
+    plb = getindex.(getfield.(pbounds, :second), 1)
+    pub = getindex.(getfield.(pbounds, :second), 2)
     pkeys = getfield.(p, :first)
     oprob = OptimizationProblem(l2loss, (pub .+ plb) ./ 2,
                                 lb = plb, ub = pub, (prob, pkeys, t, data))
