@@ -152,17 +152,34 @@ probd4 = remake(probd, p = [u_detect => 0])
 sold4 = solve(probd4; saveat = sold.t)
 
 sols = []
+ufs = []
+ufqs = []
 u_detecs = 0:0.1:1
 for x in u_detecs
     probd = remake(probd, p = [u_detect => x])
     sold = solve(probd; saveat = sold.t)
+    uf = get_uncertainty_forecast(probd, accumulation_I, 0:100,
+                                  [u_conv => Uniform(0.0, 1.0)],
+                                  6 * 7)
+    q = get_uncertainty_forecast_quantiles(probd, accumulation_I, ts,
+                                            [u_conv => Uniform(0.0, 1.0)],
+                                            6 * 7)
+    push!(ufs, uf)
+    push!(ufqs, q)
     push!(sols, sold)
 end
-is = map(x->x[accumulation_I][end], sols)
-plot(is)
 
+is = map(x -> x[accumulation_I][end], sols)
+plot(is)
 # demonstrate that the total infected count is strictly decreasing with increasing detection rate
-@test issorted(is; rev=true)
+@test issorted(is; rev = true)
+
+spans = map(x->x[2] .- x[1], ufqs)
+end_t_uncert = last.(spans)
+
+# 👀: i think im doing something wrong here. i would assume the uncertainty should be decreasing with increasing detection rate
+plot(end_t_uncert)
+sortperm(end_t_uncert)
 
 q1 = get_uncertainty_forecast_quantiles(probd, accumulation_I, ts,
                                         [u_conv => Uniform(0.0, 1.0)],
