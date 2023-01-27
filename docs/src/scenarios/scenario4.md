@@ -16,8 +16,8 @@ tsave, data = nothing, nothing
 
 #### https://github.com/SciML/EasyModelAnalysis.jl/issues/88
 
-### Question 2
+### Question 4
 
-> The model will need to include cohort stratification and appropriate treatment of the testing campaign as an intervention. The user will need to produce and maintain distinct cohorts for undergraduate student population, graduate/professional student population, and employee population.
+> Challenge question: assume that antigen tests are one fifth the cost of PCR tests but also much less (~half) as sensitive. Incorporate the cost of the testing program into your recommendations.
 
-> The testing campaign needs to be implemented on a weekly cadence with the ability to modulate the number and type of tests applied across cohort. For a simplification, we can start with just one test type.
+#### https://github.com/SciML/EasyModelAnalysis.jl/issues/88
