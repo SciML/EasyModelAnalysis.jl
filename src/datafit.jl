@@ -34,32 +34,39 @@ function datafit(prob, p::Vector{Pair{Num, Float64}}, t, data)
     res = solve(oprob, NLopt.LN_SBPLX())
     Pair.(pkeys, res.u)
 end
+
 """
-    datafit(prob, p, t, data)
+    global_datafit(prob, pbounds, t, data; maxiters = 10000)
 
 Fit paramters `p` to `data` measured at times `t`.
 
 ## Arguments
 
   - `prob`: ODEProblem
-  - `p`: Vector of pairs of symbolic parameters and pairs of lower and upper bounds for the parameters.
+  - `pbounds`: Vector of pairs of symbolic parameters to vectors of lower and upper bounds for the parameters.
   - `t`: Vector of time-points
   - `data`: Vector of pairs of symbolic states and measurements of these states at times `t`.
+
+## Keyword Arguments
+
+  - `maxiters`: how long to run the optimization for. Defaults to 10000. Larger values are slower but more
+     robust.
 
 `p` does not have to contain all the parameters required to solve `prob`,
 it can be a subset of parameters. Other parameters necessary to solve `prob`
 default to the parameter values found in `prob.p`.
 Similarly, not all states must be measured.
 """
-function datafit(prob, p::Vector{Pair{Num, Pair{Float64, Float64}}}, t, data)
-    plb = getfield.(getfield.(p, :second), :first)
-    pub = getfield.(getfield.(p, :second), :second)
-    pkeys = getfield.(p, :first)
+function global_datafit(prob, pbounds, t, data; maxiters = 10000)
+    plb = getindex.(getfield.(pbounds, :second), 1)
+    pub = getindex.(getfield.(pbounds, :second), 2)
+    pkeys = getfield.(pbounds, :first)
     oprob = OptimizationProblem(l2loss, (pub .+ plb) ./ 2,
                                 lb = plb, ub = pub, (prob, pkeys, t, data))
-    res = solve(oprob, BBO_adaptive_de_rand_1_bin_radiuslimited())
+    res = solve(oprob, BBO_adaptive_de_rand_1_bin_radiuslimited(); maxiters)
     Pair.(pkeys, res.u)
 end
+
 @model function bayesianODE(prob, t, p, data)
     σ ~ InverseGamma(2, 3)
     pdist = getfield.(p, :second)

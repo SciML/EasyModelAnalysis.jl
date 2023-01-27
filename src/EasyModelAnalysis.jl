@@ -20,7 +20,7 @@ include("intervention.jl")
 export get_timeseries, get_min_t, get_max_t, plot_extrema, phaseplot_extrema
 export get_uncertainty_forecast, get_uncertainty_forecast_quantiles
 export plot_uncertainty_forecast, plot_uncertainty_forecast_quantiles
-export datafit, bayesian_datafit
+export datafit, global_datafit, bayesian_datafit
 export get_sensitivity, create_sensitivity_plot
 export stop_at_threshold, get_threshold
 export optimal_threshold_intervention, prob_violating_treshold
