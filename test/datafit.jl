@@ -57,7 +57,7 @@ u0_obs = [D(x) => 2.0,
 prob_obs = ODEProblem(sys_obs, u0_obs, tspan, p, jac = true)
 sol_data_obs = solve(prob_obs, saveat = tsave)
 data_obs = [x_2 => sol_data_obs[x_2], z => sol_data_obs[z]]
-fit_obs = datafit(prob_obs, psub_ini, tsave, data_obs)
+fit_obs = global_datafit(prob_obs, psub_ini, tsave, data_obs)
 pvals_fit_obs = getfield.(fit_obs, :second)
 @test isapprox(pvals, pvals_fit_obs, atol = 1e-4, rtol = 1e-4)
 
