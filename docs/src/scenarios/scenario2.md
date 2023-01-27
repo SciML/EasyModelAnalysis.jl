@@ -6,39 +6,30 @@
 using EasyModelAnalysis, AlgebraicPetri
 using Catlab, Catlab.CategoricalAlgebra, Catlab.Programs, Catlab.WiringDiagrams, Catlab.Graphics
 
-types′ = LabelledPetriNet([:Pop],
+types = LabelledPetriNet([:Pop],
     :infect=>((:Pop, :Pop)=>(:Pop, :Pop)),
     :disease=>(:Pop=>:Pop),
     :strata=>(:Pop=>:Pop))
-types = map(types′, Name=name->nothing)
-# Parts of type system for ease of reference
-s, = parts(types′, :S)
-t_interact, t_disease, t_strata = parts(types′, :T)
-i_interact1, i_interact2, i_disease, i_strata = parts(types′, :I)
-o_interact1, o_interact2, o_disease, o_strata = parts(types′, :O);
 
-function formSEIRHD()
-  SEIRHD = LabelledPetriNet([:S, :E, :I, :R, :H, :D],
-  :inf => ((:S, :I)=>(:E, :I)),
-  :conv => (:E=>:I),
-  :rec => (:I=>:R),
-  :hosp => (:I=>:H),
-  :death => (:H=>:D)
-)
-  return SEIRHD
+seirhd_uwd = @relation () where (S::Pop, E::Pop, I::Pop, R::Pop, H::Pop, D::Pop) begin
+  infect(S,I,E,I)
+  disease(E,I)
+  disease(I,R)
+  disease(I,H)
+  disease(H,D)
 end
 
-seirhd = formSEIRHD()
-
-seirhd_typed = ACSetTransformation(seirhd, types,
-  S=[s, s, s, s, s, s],
-  T=[t_interact, t_disease, t_disease, t_disease, t_disease],
-  I=[i_interact1, i_interact2, i_disease, i_disease, i_disease, i_disease],
-  O=[o_interact1, o_interact2, o_disease, o_disease, o_disease, o_disease],
-  Name=name -> nothing
-)
+seirhd_typed = oapply_typed(types, seirhd_uwd, [:inf, :conv, :rec, :hosp, :death])
 
 @assert is_natural(seirhd_typed)
+
+vax_lpn_uwd = @relation () where (U::Pop, V::Pop) begin
+  infect(U,U,U,U)
+  infect(V,U,V,U)
+  infect(U,V,U,V)
+  infect(V,V,V,V)
+  strata(U,V)
+end
 
 vax_lpn = LabelledPetriNet([:U, :V],
   :infuu => ((:U, :U) => (:U, :U)),
@@ -47,30 +38,16 @@ vax_lpn = LabelledPetriNet([:U, :V],
   :infvv => ((:V, :V) => (:V, :V)),
   :vax => (:U => :V),
 )
-# vax_aug = augLabelledPetriNet(vax_lpn, vax_aug_st)
 
-Vax_aug_typed = ACSetTransformation(vax_lpn, types,
-  S=[s, s],
-  T=[t_interact, t_interact, t_interact, t_interact, t_strata],
-  I=[i_interact1, i_interact2, i_interact1, i_interact2, i_interact1, i_interact2, i_interact1, i_interact2, i_strata],
-  O=[o_interact1, o_interact2, o_interact1, o_interact2, o_interact1, o_interact2, o_interact1, o_interact2, o_strata],
-  Name=name -> nothing
+vax_lpn_typed = oapply_typed(types, vax_lpn_uwd, [:infuu, :infvu, :infuv, :infvv, :vax])
+
+seirhd_vax_typed = typed_product(seirhd_typed, vax_lpn_typed)
+
+# The names for the typed product are tuples; here we combine them with an underscore
+seirhd_vax = map(
+  seirhd_vax_typed.dom,
+  Name=t -> Symbol(string(t[1]) + "_" + string(t[2]))
 )
-
-@assert is_natural(Vax_aug_typed)
-
-function stratify_typed(pn1, pn2, type_system)
-  pn1′, pn2′ = [add_cross_terms(pn, type_system) for pn in [pn1, pn2]]
-  pb = pullback(pn1′, pn2′) 
-  return first(legs(pb)) ⋅ pn1′
-end
-
-seirhd_vax = stratify_typed(
-  seirhd_typed=>[[:strata],[:strata],[:strata],[:strata],[:strata],[]],
-  Vax_aug_typed=>[[:disease,:infect],[:disease,:infect]],
-  types′)
-
-@assert is_natural(seirhd_vax)
 
 sys = ODESystem(seirhd_vax)
 
