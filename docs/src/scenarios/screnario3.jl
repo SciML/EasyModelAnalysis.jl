@@ -92,16 +92,9 @@ prob_violating_threshold(_prob, [u_conv => Uniform(0.0, 1.0)], [accumulation_I >
 # and comment on whether improving detection rates would provide decision-makers with better information 
 # (i.e., more accurate forecasts and/or narrower prediction intervals)?
 
-# sys equations
-# Differential(t)(S(t)) ~ -(u_expo / N) * I(t) * S(t)
-# Differential(t)(E(t)) ~ (u_expo / N) * I(t) * S(t) - (u_conv / N) * E(t)
-# Differential(t)(I(t)) ~ (u_conv / N) * E(t) - (u_hosp / N) * I(t) - (u_rec / N) * I(t)
-# Differential(t)(R(t)) ~ (u_rec / N) * I(t)
-# Differential(t)(H(t)) ~ (u_hosp / N) * I(t) - (u_death / N) * H(t)
-# Differential(t)(D(t)) ~ (u_death / N) * H(t)
-
-@parameters t
-
+# these new equations add I->D and H->R  to the model. 
+# this says now, that all I are undetected and u_hosp is the detection rate. 
+# this assumes there is always hospital capacity
 eqs2 = [Differential(t)(S) ~ -(u_expo / N) * I * S
         Differential(t)(E) ~ (u_expo / N) * I * S - (u_conv / N) * E
         Differential(t)(I) ~ (u_conv / N) * E - (u_hosp / N) * I - (u_rec / N) * I -
@@ -109,7 +102,6 @@ eqs2 = [Differential(t)(S) ~ -(u_expo / N) * I * S
         Differential(t)(R) ~ (u_rec / N) * I + (u_rec / N) * H
         Differential(t)(H) ~ (u_hosp / N) * I - (u_death / N) * H - (u_rec / N) * H
         Differential(t)(D) ~ (u_death / N) * H + (u_death / N) * I]
-# these new equations add I->D and H->R  to the model. 
 @named seirhd_detect = ODESystem(eqs2)
 sys2 = add_accumulations(seirhd_detect, [I])
 u0init2 = [
