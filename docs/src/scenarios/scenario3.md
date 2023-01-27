@@ -1,10 +1,14 @@
 # Scenario 3: Limiting Deaths
 
+```@example scenario3
+using EasyModelAnalysis
+using AlgebraicPetri
+using UnPack
+```
+
 ## Generate the Model and Dataset
 
 ```@example scenario3
-using AlgebraicPetri
-
 function formSEIRHD()
     SEIRHD = LabelledPetriNet([:S, :E, :I, :R, :H, :D],
       :exp => ((:S, :I)=>(:E, :I)),
@@ -15,14 +19,33 @@ function formSEIRHD()
     )
     return SEIRHD
 end
-prob = ODESystem(formSEIRHD())
-p_init = nothing # or box constraints
+sys1 = ODESystem(formSEIRHD())
+
+@unpack S, E, I, R, H, D = sys1
+@unpack exp, conv, rec, hosp, death = sys1
+
+sys = add_accumulations!(sys1, [I])
+```
+
+```@example scenario3
+u0init = [
+    S => 0.9,
+    E => 0.05,
+    I => 0.01,
+    R => 0.2,
+    H => 0.1,
+    D => 0.01
+]
+
+p_init = [
+
+]
+prob = ODEProblem(sys, u0init, (0.0,6*7), pinit)
 ```
 
 ### Sample Model
 
 ```@example scenario3
-using EasyModelAnalysis
 @variables t
 Dₜ = Differential(t)
 @variables S(t)=0.9 E(t)=0.05 I(t)=0.01 R(t)=0.2 H(t)=0.1 D(t)=0.01
