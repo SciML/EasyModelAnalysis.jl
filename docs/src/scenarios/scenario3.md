@@ -99,12 +99,12 @@ prob_violating_treshold(_prob, [u_conv => Uniform(0.0, 1.0)], [accumulation_I > 
 
 > We are interested in determining how detection rate can affect the accuracy and uncertainty in our forecasts. In particular, suppose we can improve the baseline detection rate by 20%, and the detection rate stays constant throughout the duration of the forecast. Assuming no additional interventions (ignoring Question 3), does that increase the amount of cumulative forecasted cases and deaths after six weeks? How does an increase in the detection rate affect the uncertainty in our estimates? Can you characterize the relationship between detection rate and our forecasts and their uncertainties, and comment on whether improving detection rates would provide decision-makers with better information (i.e., more accurate forecasts and/or narrower prediction intervals)?
 
-```@example scenario3
+```julia
 _prob = remake(prob, p = [β₃ => 0.015])
 get_uncertainty_forecast(_prob, accumulation_I, 0:100, [u_conv => Uniform(0.0, 1.0)], 6 * 7)
 ```
 
-```@example scenario3
+```julia
 plot_uncertainty_forecast(_prob, accumulation_I, 0:100, [u_conv => Uniform(0.0, 1.0)],
                           6 * 7)
 ```
@@ -115,23 +115,23 @@ plot_uncertainty_forecast(_prob, accumulation_I, 0:100, [u_conv => Uniform(0.0, 
 
 > Convert the MechBayes SEIRHD model to an SIRHD model by removing the E compartment. Compute the same six-week forecast that you had done in Question 1a and compare the accuracy of the six-week forecasts with the forecasts done in Question 1a.
 
-```@example scenario3
+```julia
 prob2 = prob
 get_uncertainty_forecast(prob2, accumulation_I, 0:100, [u_conv => Uniform(0.0, 1.0)], 6 * 7)
 ```
 
-```@example scenario3
+```julia
 plot_uncertainty_forecast(prob2, accumulation_I, 0:100, [u_conv => Uniform(0.0, 1.0)],
                           6 * 7)
 ```
 
-```@example scenario3
+```julia
 get_uncertainty_forecast_quantiles(prob2, accumulation_I, 0:100,
                                    [u_conv => Uniform(0.0, 1.0)],
                                    6 * 7)
 ```
 
-```@example scenario3
+```julia
 plot_uncertainty_forecast_quantiles(prob2, accumulation_I, 0:100,
                                     [u_conv => Uniform(0.0, 1.0)],
                                     6 * 7)
@@ -139,23 +139,23 @@ plot_uncertainty_forecast_quantiles(prob2, accumulation_I, 0:100,
 
 > Further modify the MechBayes SEIRHD model and do a model space exploration and model selection from the following models, based on comparing forecasts of cases and deaths to actual data: SEIRD, SEIRHD, and SIRHD models. Use data from April 1, 2020 – April 30, 2020 from the scenario location (Massachusetts) for fitting these models.  Then make out-of-sample forecasts from the same 6-week period from May 1 – June 15, 2020, and compare with actual data. Comment on the quality of the fit for each of these models.
 
-```@example scenario3
+```julia
 prob3 = prob
 get_uncertainty_forecast(prob2, accumulation_I, 0:100, [u_conv => Uniform(0.0, 1.0)], 6 * 7)
 ```
 
-```@example scenario3
+```julia
 plot_uncertainty_forecast(prob2, accumulation_I, 0:100, [u_conv => Uniform(0.0, 1.0)],
                           6 * 7)
 ```
 
-```@example scenario3
+```julia
 get_uncertainty_forecast_quantiles(prob2, accumulation_I, 0:100,
                                    [u_conv => Uniform(0.0, 1.0)],
                                    6 * 7)
 ```
 
-```@example scenario3
+```julia
 plot_uncertainty_forecast_quantiles(prob2, accumulation_I, 0:100,
                                     [u_conv => Uniform(0.0, 1.0)],
                                     6 * 7)
