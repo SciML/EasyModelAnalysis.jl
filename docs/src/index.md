@@ -4,7 +4,8 @@ EasyModelAnalysis does exactly what it says: it makes model analysis easy. Want 
 the number of infected individuals is about 1000? What is the probability that more than 50 people will
 be infected given probability distributions for the parameters? What variables are the most sensitive?
 Please find the parameters that best fit the model to the data. All of these, and more, given as simple
-one-liner queries over SciML-defined differential equation models.
+one-liner queries over [ModelingToolkit](https://docs.sciml.ai/ModelingToolkit/stable/)-defined
+differential equation models.
 
 ## Installation
 
