@@ -24,6 +24,6 @@ export datafit, global_datafit, bayesian_datafit
 export get_sensitivity, create_sensitivity_plot
 export stop_at_threshold, get_threshold
 export optimal_threshold_intervention, prob_violating_treshold,
-       optimal_parameter_intervention_for_threshold
+       optimal_parameter_intervention_for_threshold, optimal_parameter_threshold
 
 end

@@ -11,7 +11,7 @@
 
 ## Keyword Arguments
 
-  - `maxtime`: Maximum optimzation time. Defaults to `Inf`.
+  - `maxtime`: Maximum optimzation time. Defaults to `60`.
 
 # Returns
 
@@ -24,7 +24,7 @@ function optimal_threshold_intervention(prob, p2, obs, threshold, duration; kw..
     optimal_threshold_intervention(prob, p1, p2, obs, threshold, duration; kw...)
 end
 function optimal_threshold_intervention(prob, p1, p2, obs, threshold, duration;
-                                        maxtime = Inf, kw...)
+                                        maxtime = 60, kw...)
     t0 = prob.tspan[1]
     prob1 = remake(prob, p = p1)
     prob2 = remake(prob, p = p2)
@@ -74,7 +74,7 @@ function optimal_threshold_intervention(prob, p1, p2, obs, threshold, duration;
 end
 
 """
-    optimal_parameter_intervention_for_threshold(prob, p1, obs, threshold, cost, ps, lb, ub, intervention_tspan, duration; maxtime=Inf)
+    optimal_parameter_intervention_for_threshold(prob, [p1 = prob.p], obs, threshold, cost, ps, lb, ub, intervention_tspan, duration; maxtime=60)
 
 ## Arguments
 
@@ -91,7 +91,7 @@ end
 
 ## Keyword Arguments
 
-  - `maxtime`: Maximum optimzation time. Defaults to `Inf`.
+  - `maxtime`: Maximum optimzation time. Defaults to `60`.
 
 # Returns
 
@@ -111,7 +111,7 @@ end
 function optimal_parameter_intervention_for_threshold(prob, p1, obs, threshold,
                                                       symbolic_cost, ps, lb, ub,
                                                       intervention_tspan, duration;
-                                                      maxtime = Inf, kw...)
+                                                      maxtime = 60, kw...)
     t0 = prob.tspan[1]
     prob1 = remake(prob, p = p1)
     ti_start, ti_end = intervention_tspan

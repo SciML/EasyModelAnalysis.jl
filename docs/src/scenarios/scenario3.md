@@ -25,7 +25,7 @@ sys1 = ODESystem(formSEIRHD())
 @unpack S, E, I, R, H, D = sys1
 @unpack expo, conv, rec, hosp, death = sys1
 NN = 10.0
-@parameters u_expo=0.2 u_conv=0.2 u_rec=0.8 u_hosp=0.2 u_death=0.1 N=NN
+@parameters u_expo=0.2 * NN u_conv=0.2 * NN u_rec=0.8 * NN u_hosp=0.2 * NN u_death=0.1 * NN N=NN
 translate_params = [expo => u_expo / N,
     conv => u_conv / N,
     rec => u_rec / N,
