@@ -64,3 +64,34 @@ function prob_violating_treshold(prob, p, tresholds)
     exsol = solve(exprob, Koopman(), batch = 0, quadalg = HCubatureJL())
     exsol.u
 end
+
+"""
+    optimal_parameter_threshold(prob, obs, threshold, cost, ps, lb, ub; maxtime = 60, kw...)
+
+## Arguments
+
+  - `prob`: An ODEProblem.
+  - `obs`: The observation symbolic expression.
+  - `threshold`: The threshold for the observation.
+  - `cost`: the cost function for minimization, e.g. `α + 20 * β`.
+  - `ps`: the parameters that appear in the cost, e.g. `[α, β]`.
+  - `lb`: the lower bounds of the parameters e.g. `[-10, -5]`.
+  - `ub`: the uppwer bounds of the parameters e.g. `[5, 10]`.
+
+## Keyword Arguments
+
+  - `maxtime`: Maximum optimzation time. Defaults to `60`.
+
+# Returns
+
+  - `opt_p`: Optimal intervention parameters.
+  - `ret`: Return code from the optimization.
+"""
+function optimal_parameter_threshold(prob, obs, threshold, cost, ps, lb, ub; maxtime = 60,
+                                     kw...)
+    opt, (s1, s2, s3), ret = optimal_parameter_intervention_for_threshold(prob, obs,
+                                                                          threshold, cost,
+                                                                          ps, lb, ub;
+                                                                          maxtime, kw...)
+    opt, s2, ret
+end

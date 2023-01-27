@@ -73,14 +73,15 @@ sys1 = ODESystem(formSEIISRD())
 @unpack S, E, I, IS, R, D = sys1
 @unpack expo, conv, rec, test, leave, death = sys1
 
-@parameters u_expo=0.2 u_conv=0.2 u_rec=0.8 u_death=0.1 u_test=0.2 u_leave=0.2 N=NN
+@parameters u_expo=0.1 * NN u_conv=0.1 * NN u_rec=0.8 * NN u_death=0.1 * NN u_test=0.9 * NN u_leave=0.2 *
+                                                                                                    NN N=NN
 translate_params = [expo => u_expo / NN,
     conv => u_conv / NN,
     rec => u_rec / NN,
     death => u_death / NN,
     test => u_test / NN,
-    leave => u_leave / NN
-    ]
+    leave => u_leave / NN,
+]
 subed_sys = substitute(sys1, translate_params)
 sys = add_accumulations(subed_sys, [I])
 @unpack accumulation_I = sys
@@ -101,26 +102,33 @@ prob = ODEProblem(sys, u0init, (0.0, tdays))
 sol = solve(prob)
 plot(sol)
 ```
+
 ## Model Analysis
 
 ### Question 1
 
-> Define a return-to-campus strategy that minimizes total testing while maintaining infections below the initial isolation bed capacity of 430. The testing scheme can include an arrival testing strategy in addition to unique testing approaches within time periods of the simulation. Cohorts can have unique testing strategies defined by test type and number per week.
+> Define a return-to-campus strategy that minimizes total testing while
+> maintaining infections below the initial isolation bed capacity of 430. The
+> testing scheme can include an arrival testing strategy in addition to unique
+> testing approaches within time periods of the simulation. Cohorts can have
+> unique testing strategies defined by test type and number per week.
 
 ```@example scenario4
 # Minimize u_test subject to IS <= 430
-optimal_parameter_threshold(u_test, IS => 430)
+p_opt, s2, ret = optimal_parameter_threshold(prob, IS, 430, u_test, [u_test], [0.0], [NN],
+                                             maxtime = 10);
+plot(s2, idxs = [IS])
 ```
-
-#### https://github.com/SciML/EasyModelAnalysis.jl/issues/88
 
 ### Question 4
 
-> Challenge question: assume that antigen tests are one fifth the cost of PCR tests but also much less (~half) as sensitive. Incorporate the cost of the testing program into your recommendations.
-
-#### https://github.com/SciML/EasyModelAnalysis.jl/issues/88
+> Challenge question: assume that antigen tests are one fifth the cost of PCR
+> tests but also much less (~half) as sensitive. Incorporate the cost of the
+> testing program into your recommendations.
 
 ```@example scenario4
-# Minimize u_test subject to IS <= 430 (TODO: Multiple test kinds in actual model)
-optimal_parameter_threshold(5*u_test, IS => 430)
+# Minimize u_test subject to IS <= 430
+p_opt, s2, ret = optimal_parameter_threshold(prob, IS, 430, 5 * u_test, [u_test], [0.0],
+                                             [NN], maxtime = 10);
+plot(s2, idxs = [IS])
 ```

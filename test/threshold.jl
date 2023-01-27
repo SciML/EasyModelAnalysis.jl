@@ -46,13 +46,11 @@ opt_tspan, (s1, s2, s3), ret = optimal_threshold_intervention(prob, [p => -1.0],
 opt_ps, (s1, s2, s3), ret = optimal_parameter_intervention_for_threshold(prob, x, 3,
                                                                          abs(p)^2, [p],
                                                                          [-5.0], [0.0],
-                                                                         (2.0, 45.0), 50,
-                                                                         maxtime = 60);
+                                                                         (2.0, 45.0), 50);
 @test abs(opt_ps[p]) < 0.04
 opt_ps, (s1, s2, s3), ret = optimal_parameter_intervention_for_threshold(prob, x, 3,
                                                                          -p, [p],
-                                                                         [-1.0], [1.0],
-                                                                         maxtime = 60);
+                                                                         [-1.0], [1.0]);
 @test abs(opt_ps[p]) > 0.114
 
 @parameters t σ ρ β
