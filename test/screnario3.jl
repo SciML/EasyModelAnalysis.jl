@@ -53,13 +53,13 @@ u0init = [
 tend = 6 * 7 # 6 weeks
 ts = 0:tend
 prob = ODEProblem(sys, u0init, (0.0, tend))
-sol = solve(prob)
+sol = solve(prob;saveat=ts)
 plot(sol)
 
-uncert_forecast = get_uncertainty_forecast(prob, accumulation_I, ts,
+uf = uncert_forecast = get_uncertainty_forecast(prob, accumulation_I, ts,
                                            [u_conv => Uniform(0.0, 1.0)], 6 * 7)
 
-plot_uncertainty_forecast(prob, accumulation_I, ts, [u_conv => Uniform(0.0, 1.0)], 6 * 7)
+ufplt = plot_uncertainty_forecast(prob, accumulation_I, ts, [u_conv => Uniform(0.0, 1.0)], 6 * 7)
 
 qtiles = get_uncertainty_forecast_quantiles(prob, accumulation_I, ts,
                                             [u_conv => Uniform(0.0, 1.0)],
@@ -107,69 +107,40 @@ prob_violating_threshold(_prob, [u_conv => Uniform(0.0, 1.0)], [accumulation_I >
 # Differential(t)(R(t)) ~ (u_rec / N) * I(t)
 # Differential(t)(H(t)) ~ (u_hosp / N) * I(t) - (u_death / N) * H(t)
 # Differential(t)(D(t)) ~ (u_death / N) * H(t)
+
+
 @parameters t
 
-@variables I_undetected(t) I_detected(t)
-
-seirhd_detect_eqs = [Differential(t)(S) ~ -(u_expo / N) * I * S
-                     Differential(t)(E) ~ (u_expo / N) * I * S - (u_conv / N) * E
-                     Differential(t)(I_undetected) ~ (u_conv / N) * E - # E->Iu
-                                                     (u_rec / N) * I_undetected - # Iu->R
-                                                     (u_detect / N) * I_undetected - # Iu->Id
-                                                     (u_hosp / N) * I_undetected # Iu->H
-
-                     Differential(t)(I_detected) ~ (u_detect / N) * I_undetected - # Iu->Id
-                                                   (u_hosp / N) * I_detected - # Id -> H
-                                                   (u_rec / N) * I_detected # Id -> R
-
-                     I ~ I_detected + I_undetected
-                     Differential(t)(R) ~ (u_rec / N) * I
-                     Differential(t)(H) ~ (u_hosp / N) * I - (u_death / N) * H
-                     Differential(t)(D) ~ (u_death / N) * H]
-
-#  Differential(t)(accumulation_I) ~ I]
-
-@named seirhd_detect = ODESystem(seirhd_detect_eqs)
+eqs2 = [
+Differential(t)(S) ~ -(u_expo / N) * I * S
+Differential(t)(E) ~ (u_expo / N) * I * S - (u_conv / N) * E
+Differential(t)(I) ~ (u_conv / N) * E - (u_hosp / N) * I - (u_rec / N) * I - (u_death / N) * I
+Differential(t)(R) ~ (u_rec / N) * I + (u_rec / N)*H
+Differential(t)(H) ~ (u_hosp / N) * I - (u_death / N) * H - (u_rec / N)*H
+Differential(t)(D) ~ (u_death / N) * H + (u_death / N) * I
+]
+# these new equations add I->D and H->R  to the model. 
+@named seirhd_detect = ODESystem(eqs2)
 sys2 = add_accumulations(seirhd_detect, [I])
 u0init2 = [
     S => 0.9 * NN,
     E => 0.05 * NN,
-    I_undetected => 0.01 * NN,
-    I_detected => 0.0,
+    I => 0.01 * NN,
     R => 0.02 * NN,
     H => 0.01 * NN,
     D => 0.01 * NN,
 ]
 sys2_ = structural_simplify(sys2)
+@unpack accumulation_I = sys2_
+
 probd = ODEProblem(sys2_, u0init2, (0.0, tend))
-ufd = get_uncertainty_forecast(_prob, accumulation_I, 0:100,
-                               [u_detect => Uniform(0.0, 1.0)],
-                               6 * 7)
-
-plot_uncertainty_forecast(probd, accumulation_I, 0:100, [u_detect => Uniform(0.0, 1.0)],
-                          6 * 7)
-
-sold = solve(probd)
-ts = sold.t
+sold = solve(probd;saveat=ts)
 plot(sold)
-
-# comparing infected counts between the two models (one with detection rate, `sol` without)
-plot(sold[I] .- sol[I])
-
-# a couple of cases to sanity check 
-probd2 = remake(probd, p = [u_detect => Symbolics.getdefaultval(u_detect) * 1.2])
-sold2 = solve(probd2; saveat = sold.t)
-
-probd3 = remake(probd, p = [u_detect => 1])
-sold3 = solve(probd3; saveat = sold.t)
-
-probd4 = remake(probd, p = [u_detect => 0])
-sold4 = solve(probd4; saveat = sold.t)
 
 sols = []
 u_detecs = 0:0.1:1
 for x in u_detecs
-    probd = remake(probd, p = [u_detect => x])
+    probd = remake(probd, p = [u_hosp => x])
     sold = solve(probd; saveat = sold.t)
     push!(sols, sold)
 end
@@ -179,29 +150,22 @@ plot(is)
 # demonstrate that the total infected count is strictly decreasing with increasing detection rate
 @test issorted(is; rev = true)
 
-# i would expect deaths to be decreasing with increasing detection rate
+# deaths decrease with increasing detection rate
 ds = map(x -> x[D][end], sols)
 plot(ds)
-@test issorted(ds)
-@test_broken issorted(ds; rev = true)
+@test issorted(ds; rev = true)
 
-# 👀: i think im doing something wrong here. i would assume the uncertainty should be decreasing with increasing detection rate
-plot(end_t_uncert)
-sortperm(end_t_uncert)
 
-uf = get_uncertainty_forecast(probd, accumulation_I, 0:100, [u_detect => Uniform(0.0, 1.0)],
-                              6 * 7)
-ufp = plot_uncertainty_forecast(probd, accumulation_I, 0:100,
-                                [u_detect => Uniform(0.0, 1.0)],
-                                6 * 7)
-q = get_uncertainty_forecast_quantiles(probd, accumulation_I, 0:100,
-                                       [u_detect => Uniform(0.0, 1.0)],
-                                       6 * 7)
-qp = plot_uncertainty_forecast_quantiles(probd, accumulation_I, ts,
-                                         [u_detect => Uniform(0.0, 1.0)],
-                                         6 * 7)
+ufd = get_uncertainty_forecast(_prob, accumulation_I, 0:100,
+                               [u_hosp => Uniform(0.0, 1.0), u_conv => Uniform(0.0, 1.0)],
+                               6 * 7)
 
-# todo: compare with the previous forecast uncertainties 
+ufdplt = plot_uncertainty_forecast(probd, accumulation_I, 0:100, [u_hosp => Uniform(0.0, 1.0), u_conv => Uniform(0.0, 1.0)],
+                          6 * 7)
+
+
+
+# BELOW not done 
 
 # question 5
 # > Convert the MechBayes SEIRHD model to an SIRHD model by removing the E compartment. 
