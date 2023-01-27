@@ -128,13 +128,15 @@ function optimal_parameter_intervention_for_threshold(prob, p1, obs, threshold,
         prob_preintervention = remake(prob1, tspan = (t0, ti_start))
         sol_preintervention = stop_at_threshold(prob_preintervention, obs, threshold; kw...)
         violation = ti_start - sol_preintervention.t[end]
-        violation > 0 && return violation + (duration - (ti_start - t0))
+        violation > 0 && return p ? (sol_preintervention, nothing, nothing) :
+               (violation + (duration - (ti_start - t0)))
 
         prob_intervention = remake(prob, u0 = sol_preintervention.u[end], p = ps .=> x,
                                    tspan = (ti_start, ti_end))
         sol_intervention = stop_at_threshold(prob_intervention, obs, threshold; kw...)
         violation = ti_end - sol_intervention.t[end]
-        violation > 0 && return violation + (duration - (ti_end - ti_start))
+        violation > 0 && return p ? (sol_preintervention, sol_intervention, nothing) :
+               (violation + (duration - (ti_end - ti_start)))
 
         prob_postintervention = remake(prob1, u0 = sol_intervention.u[end],
                                        tspan = (ti_end, t0 + duration))
@@ -142,7 +144,7 @@ function optimal_parameter_intervention_for_threshold(prob, p1, obs, threshold,
                                                  kw...)
         violation = t0 + duration - sol_postintervention.t[end]
         return p ?
-               (violation, (sol_preintervention, sol_intervention, sol_postintervention)) :
+               (sol_preintervention, sol_intervention, sol_postintervention) :
                violation
     end
 
@@ -156,6 +158,6 @@ function optimal_parameter_intervention_for_threshold(prob, p1, obs, threshold,
     opt.maxtime = maxtime
     init_x = @. lb + ub / 2
     (optf, optx, ret) = NLopt.optimize(opt, init_x)
-    _, (s1, s2, s3) = duration_constraint(optx, [], Val(true))
-    Dict(ps .=> optx), (s1, s2, s3), ret
+    ss = duration_constraint(optx, [], Val(true))
+    Dict(ps .=> optx), ss, ret
 end
