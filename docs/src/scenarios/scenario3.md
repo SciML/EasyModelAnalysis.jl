@@ -3,9 +3,20 @@
 ## Generate the Model and Dataset
 
 ```@example scenario3
-prob = nothing
+using AlgebraicPetri
+
+function formSEIRHD()
+    SEIRHD = LabelledPetriNet([:S, :E, :I, :R, :H, :D],
+      :exp => ((:S, :I)=>(:E, :I)),
+      :conv => (:E=>:I),
+      :rec => (:I=>:R),
+      :hosp => (:I=>:H),
+      :death => (:H=>:D),
+    )
+    return SEIRHD
+end
+prob = ODESystem(formSEIRHD())
 p_init = nothing # or box constraints
-tsave, data = nothing, nothing
 ```
 
 ### Sample Model
@@ -39,20 +50,20 @@ plot(sol)
 
 > Provide a forecast of cumulative Covid-19 cases and deaths over the 6-week period from May 1 – June 15, 2020 under no interventions, including 90% prediction intervals in your forecasts. Compare the accuracy of the forecasts with true data over the six-week timespan.
 
-```@example seirhd
+```@example scenario3
 get_uncertainty_forecast(prob, cumulative_I, 0:100, [β₁ => Uniform(0.0, 1.0)], 6 * 7)
 ```
 
-```@example seirhd
+```@example scenario3
 plot_uncertainty_forecast(prob, cumulative_I, 0:100, [β₁ => Uniform(0.0, 1.0)], 6 * 7)
 ```
 
-```@example seirhd
+```@example scenario3
 get_uncertainty_forecast_quantiles(prob, cumulative_I, 0:100, [β₁ => Uniform(0.0, 1.0)],
                                    6 * 7)
 ```
 
-```@example seirhd
+```@example scenario3
 plot_uncertainty_forecast_quantiles(prob, cumulative_I, 0:100, [β₁ => Uniform(0.0, 1.0)],
                                     6 * 7)
 ```
@@ -61,7 +72,7 @@ plot_uncertainty_forecast_quantiles(prob, cumulative_I, 0:100, [β₁ => Uniform
 
 > Based on the forecasts, do we need additional interventions to keep cumulative Covid deaths under 6000 total? Provide a probability that the cumulative number of Covid deaths will stay under 6000 for the next 6 weeks without any additional interventions.
 
-```@example seirhd
+```@example scenario3
 _prob = remake(prob, tspan = (0.0, 6*7.0))
 prob_violating_treshold(_prob, [β₁ => Uniform(0.0, 1.0)], [cumulative_I > 0.4])
 ```
@@ -70,7 +81,7 @@ prob_violating_treshold(_prob, [β₁ => Uniform(0.0, 1.0)], [cumulative_I > 0.4
 
 > We are interested in determining how effective it would be to institute a mandatory mask mandate for the duration of the next six weeks. What is the probability of staying below 6000 cumulative deaths if we institute an indefinite mask mandate starting May 1, 2020?
 
-```@example seirhd
+```@example scenario3
 _prob = remake(_prob, p=[β₂ => 0.02])
 prob_violating_treshold(_prob, [β₁ => Uniform(0.0, 1.0)], [cumulative_I > 0.4])
 ```
@@ -79,15 +90,67 @@ prob_violating_treshold(_prob, [β₁ => Uniform(0.0, 1.0)], [cumulative_I > 0.4
 
 > We are interested in determining how detection rate can affect the accuracy and uncertainty in our forecasts. In particular, suppose we can improve the baseline detection rate by 20%, and the detection rate stays constant throughout the duration of the forecast. Assuming no additional interventions (ignoring Question 3), does that increase the amount of cumulative forecasted cases and deaths after six weeks? How does an increase in the detection rate affect the uncertainty in our estimates? Can you characterize the relationship between detection rate and our forecasts and their uncertainties, and comment on whether improving detection rates would provide decision-makers with better information (i.e., more accurate forecasts and/or narrower prediction intervals)?
 
+```@example scenario3
+_prob = remake(prob, p=[β₃ => 0.015])
+get_uncertainty_forecast(_prob, cumulative_I, 0:100, [β₁ => Uniform(0.0, 1.0)], 6 * 7)
+```
+
+```@example scenario3
+plot_uncertainty_forecast(_prob, cumulative_I, 0:100, [β₁ => Uniform(0.0, 1.0)], 6 * 7)
+```
+
 > Compute the accuracy of the forecast assuming no mask mandate (ignoring Question 3) in the same way as you did in Question 1 and determine if improving the detection rate improves forecast accuracy.
+
 
 ### Question 5
 
 > Convert the MechBayes SEIRHD model to an SIRHD model by removing the E compartment. Compute the same six-week forecast that you had done in Question 1a and compare the accuracy of the six-week forecasts with the forecasts done in Question 1a.
 
+```@example scenario3
+prob2 = prob
+get_uncertainty_forecast(prob2, cumulative_I, 0:100, [β₁ => Uniform(0.0, 1.0)], 6 * 7)
+```
+
+```@example scenario3
+plot_uncertainty_forecast(prob2, cumulative_I, 0:100, [β₁ => Uniform(0.0, 1.0)], 6 * 7)
+```
+
+```@example scenario3
+get_uncertainty_forecast_quantiles(prob2, cumulative_I, 0:100, [β₁ => Uniform(0.0, 1.0)],
+                                   6 * 7)
+```
+
+```@example scenario3
+plot_uncertainty_forecast_quantiles(prob2, cumulative_I, 0:100, [β₁ => Uniform(0.0, 1.0)],
+                                    6 * 7)
+```
+
 > Further modify the MechBayes SEIRHD model and do a model space exploration and model selection from the following models, based on comparing forecasts of cases and deaths to actual data: SEIRD, SEIRHD, and SIRHD models. Use data from April 1, 2020 – April 30, 2020 from the scenario location (Massachusetts) for fitting these models.  Then make out-of-sample forecasts from the same 6-week period from May 1 – June 15, 2020, and compare with actual data. Comment on the quality of the fit for each of these models.
 
+```@example scenario3
+prob3 = prob
+get_uncertainty_forecast(prob2, cumulative_I, 0:100, [β₁ => Uniform(0.0, 1.0)], 6 * 7)
+```
+
+```@example scenario3
+plot_uncertainty_forecast(prob2, cumulative_I, 0:100, [β₁ => Uniform(0.0, 1.0)], 6 * 7)
+```
+
+```@example scenario3
+get_uncertainty_forecast_quantiles(prob2, cumulative_I, 0:100, [β₁ => Uniform(0.0, 1.0)],
+                                   6 * 7)
+```
+
+```@example scenario3
+plot_uncertainty_forecast_quantiles(prob2, cumulative_I, 0:100, [β₁ => Uniform(0.0, 1.0)],
+                                    6 * 7)
+```
+
 > Do a 3-way structural model comparison between the SEIRD, SEIRHD, and SIRHD models.
+
+```@example scenario3
+# 
+```
 
 ### Question 7
 
