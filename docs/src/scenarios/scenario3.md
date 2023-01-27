@@ -167,6 +167,8 @@ plot_uncertainty_forecast_quantiles(prob2, accumulation_I, 0:100,
 # 
 ```
 
+### https://github.com/SciML/EasyModelAnalysis.jl/issues/22
+
 ### Question 7
 
 > What is the latest date we can impose a mandatory mask mandate over the next six weeks to ensure, with 90% probability, that cumulative deaths do not exceed 6000? Can you characterize the following relationship: for every day that we delay implementing a mask mandate, we expect cumulative deaths (over the six-week timeframe) to go up by X?
