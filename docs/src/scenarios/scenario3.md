@@ -83,7 +83,7 @@ plot_uncertainty_forecast_quantiles(prob, accumulation_I, ts, [u_conv => Uniform
 
 ```@example scenario3
 _prob = remake(prob, tspan = (0.0, 6 * 7.0))
-prob_violating_treshold(_prob, [u_conv => Uniform(0.0, 1.0)], [accumulation_I > 0.4 * NN])
+prob_violating_threshold(_prob, [u_conv => Uniform(0.0, 1.0)], [accumulation_I > 0.4 * NN]) # TODO: explain 0.4*NN
 ```
 
 ### Question 3
@@ -92,21 +92,73 @@ prob_violating_treshold(_prob, [u_conv => Uniform(0.0, 1.0)], [accumulation_I > 
 
 ```@example scenario3
 _prob = remake(_prob, p = [u_expo => 0.02])
-prob_violating_treshold(_prob, [u_conv => Uniform(0.0, 1.0)], [accumulation_I > 0.4 * NN])
+prob_violating_threshold(_prob, [u_conv => Uniform(0.0, 1.0)], [accumulation_I > 0.4 * NN])
 ```
 
 ### Question 4
 
 > We are interested in determining how detection rate can affect the accuracy and uncertainty in our forecasts. In particular, suppose we can improve the baseline detection rate by 20%, and the detection rate stays constant throughout the duration of the forecast. Assuming no additional interventions (ignoring Question 3), does that increase the amount of cumulative forecasted cases and deaths after six weeks? How does an increase in the detection rate affect the uncertainty in our estimates? Can you characterize the relationship between detection rate and our forecasts and their uncertainties, and comment on whether improving detection rates would provide decision-makers with better information (i.e., more accurate forecasts and/or narrower prediction intervals)?
 
-```julia
-_prob = remake(prob, p = [β₃ => 0.015])
-get_uncertainty_forecast(_prob, accumulation_I, 0:100, [u_conv => Uniform(0.0, 1.0)], 6 * 7)
+```@example scenario3
+# these new equations add I->D and H->R  to the model. 
+# this says now, that all I are undetected and u_hosp is the detection rate. 
+# this assumes there is always hospital capacity
+eqs2 = [Differential(t)(S) ~ -(u_expo / N) * I * S
+        Differential(t)(E) ~ (u_expo / N) * I * S - (u_conv / N) * E
+        Differential(t)(I) ~ (u_conv / N) * E - (u_hosp / N) * I - (u_rec / N) * I -
+                             (u_death / N) * I
+        Differential(t)(R) ~ (u_rec / N) * I + (u_rec / N) * H
+        Differential(t)(H) ~ (u_hosp / N) * I - (u_death / N) * H - (u_rec / N) * H
+        Differential(t)(D) ~ (u_death / N) * H + (u_death / N) * I]
+@named seirhd_detect = ODESystem(eqs2)
+sys2 = add_accumulations(seirhd_detect, [I])
+u0init2 = [
+    S => 0.9 * NN,
+    E => 0.05 * NN,
+    I => 0.01 * NN,
+    R => 0.02 * NN,
+    H => 0.01 * NN,
+    D => 0.01 * NN,
+]
+sys2_ = structural_simplify(sys2)
+@unpack accumulation_I = sys2_
+
+probd = ODEProblem(sys2_, u0init2, (0.0, tend))
+sold = solve(probd; saveat = ts)
+plot(sold)
 ```
 
-```julia
-plot_uncertainty_forecast(_prob, accumulation_I, 0:100, [u_conv => Uniform(0.0, 1.0)],
-                          6 * 7)
+```@example scenario3
+sols = []
+u_detecs = 0:0.1:1
+for x in u_detecs
+    probd = remake(probd, p = [u_hosp => x])
+    sold = solve(probd; saveat = sold.t)
+    push!(sols, sold)
+end
+
+# demonstrate that the total infected count is strictly decreasing with increasing detection rate
+is = map(x -> x[accumulation_I][end], sols)
+plot(is)
+@test issorted(is; rev = true)
+
+# deaths decrease with increasing detection rate
+ds = map(x -> x[D][end], sols)
+plot(ds)
+@test issorted(ds; rev = true)
+```
+
+```@example scenario3
+get_uncertainty_forecast(_prob, accumulation_I, 0:100,
+                               [u_hosp => Uniform(0.0, 1.0), u_conv => Uniform(0.0, 1.0)],
+                               6 * 7)
+
+plot_uncertainty_forecast(probd, accumulation_I, 0:100,
+                                   [
+                                       u_hosp => Uniform(0.0, 1.0),
+                                       u_conv => Uniform(0.0, 1.0),
+                                   ],
+                                   6 * 7)
 ```
 
 > Compute the accuracy of the forecast assuming no mask mandate (ignoring Question 3) in the same way as you did in Question 1 and determine if improving the detection rate improves forecast accuracy.
