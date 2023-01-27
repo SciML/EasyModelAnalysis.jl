@@ -43,6 +43,12 @@ prob = ODEProblem(sys, [x => 0.01], (0.0, Inf), [p => 1.0])
 opt_tspan, (s1, s2, s3), ret = optimal_threshold_intervention(prob, [p => -1.0], x, 3, 50);
 @test -(-(opt_tspan...)) < 25
 
+opt_ps, (s1, s2, s3), ret = optimal_parameter_intervention_for_threshold(prob, x, 3,
+                                                                         abs(p)^2, [p],
+                                                                         [-5.0], [0.0],
+                                                                         (2.0, 45.0), 50);
+@test abs(opt_ps[p]) < 0.04
+
 @parameters t σ ρ β
 @variables x(t) y(t) z(t)
 D = Differential(t)
