@@ -71,7 +71,7 @@ end
     σ ~ InverseGamma(2, 3)
     pdist = getfield.(p, :second)
     pkeys = getfield.(p, :first)
-    pprior ~ Product(pdist)
+    pprior ~ product_distribution(pdist)
 
     prob = remake(prob, tspan = (prob.tspan[1], t[end]), p = Pair.(pkeys, pprior))
     sol = solve(prob, saveat = t)
