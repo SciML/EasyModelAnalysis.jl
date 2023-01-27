@@ -11,7 +11,7 @@ using UnPack
 ```@example scenario3
 function formSEIRHD()
     SEIRHD = LabelledPetriNet([:S, :E, :I, :R, :H, :D],
-      :exp => ((:S, :I)=>(:E, :I)),
+      :expo => ((:S, :I)=>(:E, :I)),
       :conv => (:E=>:I),
       :rec => (:I=>:R),
       :hosp => (:I=>:H),
@@ -22,8 +22,10 @@ end
 sys1 = ODESystem(formSEIRHD())
 
 @unpack S, E, I, R, H, D = sys1
-@unpack exp, conv, rec, hosp, death = sys1
+@unpack expo, conv, rec, hosp, death = sys1
+@parameters β=0.6 N
 
+Dict(expo => β/N)
 sys = add_accumulations!(sys1, [I])
 ```
 
