@@ -1,5 +1,5 @@
 @time_imports using EasyModelAnalysis, AlgebraicPetri, UnPack # 91197.80000000003 ms
-
+using Plots
 # sys equations
 # Differential(t)(S(t)) ~ -(u_expo / N)*I(t)*S(t)
 # Differential(t)(E(t)) ~ (u_expo / N)*I(t)*S(t) - (u_conv / N)*E(t)
@@ -128,30 +128,69 @@ u0init2 = [
 ]
 sys2_ = structural_simplify(sys2)
 probd = ODEProblem(sys2_, u0init2, (0.0, tend))
-ufd = get_uncertainty_forecast(_prob, accumulation_I, 0:100, [u_conv => Uniform(0.0, 1.0)], 6 * 7)
+ufd = get_uncertainty_forecast(_prob, accumulation_I, 0:100, [u_conv => Uniform(0.0, 1.0)],
+                               6 * 7)
 
 plot_uncertainty_forecast(probd, accumulation_I, 0:100, [u_conv => Uniform(0.0, 1.0)],
                           6 * 7)
 
 sold = solve(probd)
+ts = sold.t
 plot(sold)
 
 # comparing infected counts between the two models
 plot(sold[I] .- sol[I])
 
-_prob = remake(probd, p = [u_detect => Symbolics.getdefaultval(u_detect) * 1.2])
-sold2 = solve(_prob)
+# a couple of cases to sanity check 
+probd2 = remake(probd, p = [u_detect => Symbolics.getdefaultval(u_detect) * 1.2])
+sold2 = solve(probd2; saveat = sold.t)
 
-# if im doing everything right, this plot shows that the infected count is higher with lower detection rate. 
-# this seems wrong. i would expect that with a detection rate of 1 to be "better"
-plot(sold[I] .- sold2[I])
+probd3 = remake(probd, p = [u_detect => 1])
+sold3 = solve(probd3; saveat = sold.t)
 
-# the hospitalization count is also higher with the higher detection rate (good)
-plot(sold[H] .- sold2[H])
+probd4 = remake(probd, p = [u_detect => 0])
+sold4 = solve(probd4; saveat = sold.t)
 
-ufd2 = get_uncertainty_forecast(_prob, accumulation_I, 0:100, [u_conv => Uniform(0.0, 1.0)], 6 * 7)
+sols = []
+u_detecs = 0:0.1:1
+for x in u_detecs
+    probd = remake(probd, p = [u_detect => x])
+    sold = solve(probd; saveat = sold.t)
+    push!(sols, sold)
+end
+is = map(x->x[accumulation_I][end], sols)
+plot(is)
 
-plot_uncertainty_forecast(_prob, accumulation_I, 0:100, [u_conv => Uniform(0.0, 1.0)],
+# demonstrate that the total infected count is strictly decreasing with increasing detection rate
+@test issorted(is; rev=true)
+
+q1 = get_uncertainty_forecast_quantiles(probd, accumulation_I, ts,
+                                        [u_conv => Uniform(0.0, 1.0)],
+                                        6 * 7)
+pq1 = plot_uncertainty_forecast_quantiles(probd, accumulation_I, ts,
+                                          [u_conv => Uniform(0.0, 1.0)],
+                                          6 * 7)
+title!(pq1)
+q2 = get_uncertainty_forecast_quantiles(probd2, accumulation_I, ts,
+                                        [u_conv => Uniform(0.0, 1.0)],
+                                        6 * 7)
+pq2 = plot_uncertainty_forecast_quantiles(probd2, accumulation_I, ts,
+                                          [u_conv => Uniform(0.0, 1.0)],
+                                          6 * 7)
+q3 = get_uncertainty_forecast_quantiles(probd3, accumulation_I, 0:100,
+                                        [u_conv => Uniform(0.0, 1.0)],
+                                        6 * 7)
+pq3 = plot_uncertainty_forecast_quantiles(probd3, accumulation_I, ts,
+                                          [u_conv => Uniform(0.0, 1.0)],
+                                          6 * 7)
+q4 = get_uncertainty_forecast_quantiles(probd4, accumulation_I, 0:100,
+                                        [u_conv => Uniform(0.0, 1.0)],
+                                        6 * 7)
+
+ufd2 = get_uncertainty_forecast(probd, accumulation_I, 0:100, [u_conv => Uniform(0.0, 1.0)],
+                                6 * 7)
+
+plot_uncertainty_forecast(probd, accumulation_I, 0:100, [u_conv => Uniform(0.0, 1.0)],
                           6 * 7)
 
 # todo: compare with the previous forecast uncertainties 
