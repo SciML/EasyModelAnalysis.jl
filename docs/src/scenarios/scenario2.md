@@ -6,9 +6,9 @@
 using EasyModelAnalysis, Optimization, OptimizationMOI, Ipopt, ModelingToolkit, Plots
 @variables t
 Dₜ = Differential(t)
-@variables S(t)=0.9 E(t)=0.05 I(t)=0.01 R(t)=0.2 H(t)=0.1 D(t)=0.01
+@variables S(t)=0.9 E(t)=0.05 I(t)=0.01 R(t)=0.2 H(t)=0.01 D(t)=0.01
 @variables T(t)=10000.0 η(t)=0.0 cumulative_I(t)=0.0
-@parameters β₁=0.6 β₂=0.143 β₃=0.055 α=0.003 γ₁=0.007 γ₂=0.011 δ=0.1 μ=0.14
+@parameters β₁=0.6*0.2 β₂=0.143*0.2 β₃=0.055*0.2 α=0.003 γ₁=0.007 γ₂=0.001 δ=0.2 μ=0.04
 eqs = [T ~ S + E + I + R + H + D
        η ~ (β₁ * E + β₂ * I + β₃ * H) / T
        Dₜ(S) ~ -η * S
@@ -51,7 +51,7 @@ forecast_threemonths = solve(prob, tspan = (0.0, 90.0), saveat = 1.0)
 > Based on the forecast, do we need interventions to keep total Covid hospitalizations under a threshold of 3000 on any given day? If there is uncertainty in the model parameters, express the answer probabilistically, i.e., what is the likelihood or probability that the number of Covid hospitalizations will stay under this threshold for the next 3 months without interventions?
 
 ```@example scenario2
-need_intervention = any(x -> x > 3000, forecast_threemonths[H])
+need_intervention = any(x -> x > 0.05, forecast_threemonths[H])
 
 post_mean = mean.(getfield.(fit,:second))
 post_sd = sqrt.(var.(getfield.(fit,:second)))
@@ -59,7 +59,7 @@ trunc_min = post_mean .- 3*post_sd
 trunc_max = post_mean .+ 3*post_sd
 post_trunc = Truncated.(Normal.(post_mean,post_sd),trunc_min,trunc_max)
 posterior = Pair.(getfield.(fit,:first),post_trunc)
-prob_violating_treshold(prob, posterior, [H>3000])
+prob_violating_treshold(prob, posterior, [H>0.05])
 ```
 
 ### Question 3
@@ -85,7 +85,7 @@ function g(res, ts, p = nothing)
 end
 
 optfun = OptimizationFunction(f, Optimization.AutoForwardDiff(), cons = g)
-optprob = Optimization.OptimizationProblem(optfun, [1.0, 89.0], lcons = vcat(fill(-Inf, 91), [0.0,0.0,1.0]), ucons = vcat(fill(3000.0, 91), [90.0, 90.0, 1.0]))
+optprob = Optimization.OptimizationProblem(optfun, [1.0, 89.0], lcons = vcat(fill(-Inf, 91), [0.0,0.0,1.0]), ucons = vcat(fill(0.05.0, 91), [90.0, 90.0, 1.0]))
 ts = solve(optprob, OptimizationMOI.MOI.OptimizerWithAttributes(NLopt.Optimizer, "algorithm" => :LN_COBYLA))
 ```
 
@@ -104,7 +104,7 @@ function f(reduction_rate, p = nothing)
 end
 function g(res, reduction_rate, p = nothing)
     reduction_rate = reduction_rate[1]
-    root_eqs = [H ~ 3000*0.8]
+    root_eqs = [H ~ 0.05*0.8]
     affect   = [β₁ ~ β₁*(1-reduction_rate), β₂ ~ β₂*(1-reduction_rate), β₃ ~ β₃*(1-reduction_rate)]
     @named mask_system = ODESystem(eqs, t; continuous_events = root_eqs => affect)
     mask_system = structural_simplify(mask_system)
@@ -114,7 +114,7 @@ function g(res, reduction_rate, p = nothing)
     res .= hospitalizations
 end
 optprob = OptimizationFunction(f, Optimization.AutoFiniteDiff(), cons = g)
-prob = OptimizationProblem(optprob, [0.0], lb=[0.0], ub=[1.0], lcons = fill(-Inf, 91), ucons = fill(3000.0, 91))
+prob = OptimizationProblem(optprob, [0.0], lb=[0.0], ub=[1.0], lcons = fill(-Inf, 91), ucons = fill(0.05, 91))
 using OptimizationMOI, NLopt
 solve(prob,OptimizationMOI.MOI.OptimizerWithAttributes(NLopt.Optimizer, "algorithm" => :GN_ORIG_DIRECT,"maxtime" => 60.0, "maxeval"=>100)) # in reality needs much longer than 60
 ```
@@ -123,23 +123,4 @@ solve(prob,OptimizationMOI.MOI.OptimizerWithAttributes(NLopt.Optimizer, "algorit
 
 > Now assume that instead of NPIs, the Board wants to focus all their resources on an aggressive vaccination campaign to increase the fraction of the total population that is vaccinated. What is the minimum intervention with vaccinations required in order for this intervention to have the same impact on cases and hospitalizations, as your optimal answer from question 3? Depending on the model you use, this may be represented as an increase in total vaccinated population, or increase in daily vaccination rate (% of eligible people vaccinated each day), or some other representation.
 
-```@example scenario2
-@variables S(t)=0.9 E(t)=0.05 I(t)=0.01 R(t)=0.2 H(t)=0.1 D(t)=0.01
-@variables T(t)=0.0 η(t)=0.0 cumulative_I(t)=0.0
-@parameters β₁=0.6 β₂=0.143 β₃=0.055 β₄=0.8 α=0.003 γ₁=0.007 γ₂=0.011 δ=0.1 μ=0.14 ρ₁=0.5 ρ₂=0.5
-eqs = [T ~ S + E + I + R + H + D
-       η ~ (β₁ * E + β₂ * I + β₃ * H - β₄ * V) / T
-       Dₜ(S) ~ -η * S
-       Dₜ(E) ~ η * S - α * E
-       Dₜ(I) ~ α * E - (γ₁ + δ) * I
-       Dₜ(cumulative_I) ~ I
-       Dₜ(R) ~ γ₁ * I + γ₂ * H
-       Dₜ(H) ~ δ * I - (μ + γ₂) * H
-       Dₜ(D) ~ μ * H
-       Dₜ(V) ~ ρ₁ * S – ρ₂ * V * I - V];
-@named seirhd = ODESystem(eqs)
-seirhd = structural_simplify(seirhd)
-prob = ODEProblem(seirhd, [], (0, 60.0), saveat = 1.0)
-sol = solve(prob; idxs = [I, R, H, D])
-plot(sol)
-```
+This requires an additional model structure, not very interesting to showcase the SciML stack.
