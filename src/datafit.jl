@@ -36,7 +36,7 @@ function datafit(prob, p::Vector{Pair{Num, Float64}}, t, data)
 end
 
 """
-    global_datafit(prob, p, t, data)
+    global_datafit(prob, p, t, data; maxiters = 10000)
 
 Fit paramters `p` to `data` measured at times `t`.
 
@@ -47,18 +47,23 @@ Fit paramters `p` to `data` measured at times `t`.
   - `t`: Vector of time-points
   - `data`: Vector of pairs of symbolic states and measurements of these states at times `t`.
 
+## Keyword Arguments
+
+  - `maxiters`: how long to run the optimization for. Defaults to 10000. Larger values are slower but more
+     robust.
+
 `p` does not have to contain all the parameters required to solve `prob`,
 it can be a subset of parameters. Other parameters necessary to solve `prob`
 default to the parameter values found in `prob.p`.
 Similarly, not all states must be measured.
 """
-function global_datafit(prob, p::Vector{Pair{Num, Pair{Float64, Float64}}}, t, data)
+function global_datafit(prob, p::Vector{Pair{Num, Pair{Float64, Float64}}}, t, data; maxiters = 10000)
     plb = getfield.(getfield.(p, :second), :first)
     pub = getfield.(getfield.(p, :second), :second)
     pkeys = getfield.(p, :first)
     oprob = OptimizationProblem(l2loss, (pub .+ plb) ./ 2,
                                 lb = plb, ub = pub, (prob, pkeys, t, data))
-    res = solve(oprob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters = 10000)
+    res = solve(oprob, BBO_adaptive_de_rand_1_bin_radiuslimited(); maxiters)
     Pair.(pkeys, res.u)
 end
 
