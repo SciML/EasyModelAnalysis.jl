@@ -86,8 +86,8 @@ end
   - `ps`: the parameters that appear in the cost, e.g. `[α, β]`.
   - `lb`: the lower bounds of the parameters e.g. `[-10, -5]`.
   - `ub`: the uppwer bounds of the parameters e.g. `[5, 10]`.
-  - `intervention_tspan`: intervention time span, e.g. `(20.0, 30.0)`.
-  - `duration`: Duration for the evaluation of intervention.
+  - `intervention_tspan`: intervention time span, e.g. `(20.0, 30.0)`. Defaults to `prob.tspan`.
+  - `duration`: Duration for the evaluation of intervention. Defaults to `prob.tspan[2] - prob.tspan[1]`.
 
 ## Keyword Arguments
 
@@ -101,7 +101,9 @@ end
 """
 function optimal_parameter_intervention_for_threshold(prob, obs, threshold, cost, ps, lb,
                                                       ub,
-                                                      intervention_tspan, duration; kw...)
+                                                      intervention_tspan = prob.tspan,
+                                                      duration = abs(-(prob.tspan...));
+                                                      kw...)
     p1 = prob.p
     optimal_parameter_intervention_for_threshold(prob, p1, obs, threshold, cost, ps, lb, ub,
                                                  intervention_tspan, duration; kw...)
