@@ -44,6 +44,13 @@ makedocs(sitename = "EasyModelAnalysis.jl",
                  "examples/ASIR.md",
                  "examples/SEIRHD.md",
              ],
+             "Scenarios" => [
+                 "scenarios/scenario1.md",
+                 "scenarios/scenario2.md",
+                 "scenarios/scenario3.md",
+                 "scenarios/scenario4.md",
+                 "scenarios/scenario5.md",
+             ],
              "API" => [
                  "api/basic_queries.md",
                  "api/data_fitting_calibration.md",

@@ -26,7 +26,7 @@ sol = solve(prob)
 
 t_measure = [0.0, 1.0, 2.0]
 x_series = get_timeseries(prob, x, t_measure)
-sol2 = solve(remake(prob, tspan = (0.0,2.0)))
+sol2 = solve(remake(prob, tspan = (0.0, 2.0)))
 @test sol2(t_measure; idxs = x).u ≈ x_series
 
 t_measure2 = [0.0, 1.0, 2.0, 200.0] # go past original tspan

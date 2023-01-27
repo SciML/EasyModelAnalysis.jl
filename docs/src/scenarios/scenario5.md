@@ -1,0 +1,3 @@
+# Scenario 5: Bucky model
+
+> The original Bucky model is structured to handle population data stratified in 16 5-year bins, as described in the documentation. You’ve recently found a publication about an age-structured SIR model describing the spread of Covid in the state of Washington, USA, which was ‘ground zero’ of the Covid-19 pandemic in the United States, with the first confirmed case and first confirmed death in the country. (https://doi.org/10.1038/s41598-021-94609-3). Modify the Bucky model to use data stratified in 9 10-year bins, as shown in the age-contact matrix in Figure 1. Simulate the first 3 months of the Covid-19 pandemic in Washington, using the modified Bucky model.

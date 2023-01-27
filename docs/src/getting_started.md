@@ -69,13 +69,13 @@ state definition. As an example, let's say we wished to get the time series poin
 we would just make that be our observable:
 
 ```@example analysis
-get_timeseries(prob, abs(x+y)^2, [0.0, 1.0, 2.0])
+get_timeseries(prob, abs(x + y)^2, [0.0, 1.0, 2.0])
 ```
 
 and similarly for extrema:
 
 ```@example analysis
-xmin, xminval = get_min_t(prob, abs(x+y)^2)
+xmin, xminval = get_min_t(prob, abs(x + y)^2)
 ```
 
 This applies for data fitting, sensitivity analysis, thresholds, and everything!
