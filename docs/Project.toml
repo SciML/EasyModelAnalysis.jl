@@ -12,6 +12,7 @@ OptimizationMOI = "fd9f6733-72f4-499f-8506-86b2bdd0dea1"
 Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+SBMLToolkit = "86080e66-c8ac-44c2-a1a0-9adaadfe4a4e"
 UnPack = "3a884ed6-31ef-47d7-9d2a-63182c4928ed"
 
 [compat]
