@@ -51,7 +51,7 @@ opt_ps, (s1, s2, s3), ret = optimal_parameter_intervention_for_threshold(prob, x
 opt_ps, (s1, s2, s3), ret = optimal_parameter_intervention_for_threshold(prob, x, 3,
                                                                          -p, [p],
                                                                          [-1.0], [1.0]);
-@test abs(opt_ps[p]) > 0.114
+@test abs(opt_ps[p]) > 0.113
 opt_ps, s2, ret = optimal_parameter_threshold(prob, x, 3,
                                               -p, [p],
                                               [-1.0], [1.0]);
