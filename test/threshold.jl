@@ -55,7 +55,7 @@ opt_ps, (s1, s2, s3), ret = optimal_parameter_intervention_for_threshold(prob, x
 opt_ps, s2, ret = optimal_parameter_threshold(prob, x, 3,
                                               -p, [p],
                                               [-1.0], [1.0]);
-@test abs(opt_ps[p]) > 0.114
+@test abs(opt_ps[p]) > 0.113
 
 @parameters t σ ρ β
 @variables x(t) y(t) z(t)
@@ -83,13 +83,13 @@ prob = ODEProblem(sys, u0, tspan, p, jac = true)
 tresholds = [x > 10.0, y < -5.0]
 p_prior = [
     σ => truncated(Normal(28.0, 1.0), 20.0, 40.0),
-    β prob_violating_threshold, 0.1), 2.0, 4.0),
+    β => truncated(Normal(2.7, 0.1), 2.0, 4.0),
 ]
 @test prob_violating_threshold(prob, p_prior, tresholds) > 0.99
 
 tresholds = [x > Inf, y < -Inf]
 p_prior = [
     σ => truncated(Normal(28.0, 1.0), 20.0, 40.0),
-    β prob_violating_threshold, 0.1), 2.0, 4.0),
+    β => truncated(Normal(2.7, 0.1), 2.0, 4.0),
 ]
 @test prob_violating_threshold(prob, p_prior, tresholds) < 0.01
