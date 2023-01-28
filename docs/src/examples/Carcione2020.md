@@ -4,7 +4,8 @@
 cd(@__DIR__)
 using SBMLToolkit, ModelingToolkit, EasyModelAnalysis, UnPack
 
-xmlfile = "..\assets\Carcione2020.xml"
+xmlfile = "../assets/Carcione2020.xml"
+
 SBMLToolkit.checksupport_file(xmlfile)
 mdl = readSBML(xmlfile, doc -> begin
     set_level_and_version(3, 2)(doc)
