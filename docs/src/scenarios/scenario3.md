@@ -85,7 +85,7 @@ AlgebraicPetri.Graph(max_seird_renew[1])
 ```
 
 ```@example scenario3
-t = get_iv(sys1)
+t = ModelingToolkit.get_iv(sys1)
 @unpack S, E, I, R, H, D = sys1
 @unpack expo, conv, rec, hosp, death = sys1
 NN = 10.0
