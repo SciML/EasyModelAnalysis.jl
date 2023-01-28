@@ -76,6 +76,7 @@ sys4 = ODESystem(seird_renew)
 using ASKEM # Hack, remove when merged
 max_e_h = mca(seird, sirhd)
 AlgebraicPetri.Graph(max_e_h[1])
+```
 
 ```@example scenario3
 max_3way = mca(max_e_h[1], seirhd)
