@@ -3,7 +3,8 @@
 ## Generate the Model and Dataset
 
 ```@example scenario2
-using EasyModelAnalysis, Optimization, OptimizationMOI, Ipopt, ModelingToolkit, Plots
+using EasyModelAnalysis, Optimization, OptimizationMOI, NLopt, Ipopt, ModelingToolkit, Plots
+
 @variables t
 Dₜ = Differential(t)
 @variables S(t)=0.9 E(t)=0.05 I(t)=0.01 R(t)=0.2 H(t)=0.01 D(t)=0.01
@@ -95,7 +96,12 @@ function g(res, ts, p = nothing)
     prob = ODEProblem(opttime_sys, [], [0.0, 90.0])
     sol = solve(prob, saveat = 0.0:1.0:90.0)
     h = sol[H]
-    res .= vcat(copy(h), vcat([tstart, tstop], [tstop > tstart]))
+
+    if SciMLBase.successful_retcode(sol.retcode)
+        res .= vcat(copy(h), vcat([tstart, tstop], [tstop > tstart]))
+    else
+        res .= Inf
+    end
 end
 
 optfun = OptimizationFunction(f, Optimization.AutoForwardDiff(), cons = g)
@@ -132,12 +138,16 @@ function g(res, reduction_rate, p = nothing)
     prob = ODEProblem(mask_system, [], (0.0, 90.0), saveat = 1.0)
     sol = solve(prob)
     hospitalizations = sol[H]
-    res .= hospitalizations
+
+    if SciMLBase.successful_retcode(sol.retcode)
+        res .= hospitalizations
+    else
+        res .= Inf
+    end
 end
 optprob = OptimizationFunction(f, Optimization.AutoFiniteDiff(), cons = g)
 prob = OptimizationProblem(optprob, [0.0], lb = [0.0], ub = [1.0], lcons = fill(-Inf, 91),
                            ucons = fill(0.05, 91))
-using OptimizationMOI, NLopt
 solve(prob,
       OptimizationMOI.MOI.OptimizerWithAttributes(NLopt.Optimizer,
                                                   "algorithm" => :GN_ORIG_DIRECT,
