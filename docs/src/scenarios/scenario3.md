@@ -68,18 +68,18 @@ seird_renew = form_seird_renew()
 sys4 = ODESystem(seird_renew)
 ```
 
-```@example scenario3
+```julia
 using ASKEM # Hack, remove when merged
 max_e_h = mca(seird, sirhd)
 AlgebraicPetri.Graph(max_e_h[1])
 ```
 
-```@example scenario3
+```julia
 max_3way = mca(max_e_h[1], seirhd)
 AlgebraicPetri.Graph(max_3way[1])
 ```
 
-```@example scenario3
+```julia
 max_seird_renew = mca(seird, seird_renew)
 AlgebraicPetri.Graph(max_seird_renew[1])
 ```
