@@ -3,7 +3,8 @@
 ## Generate the Model and Dataset
 
 ```@example scenario2
-using EasyModelAnalysis, Optimization, OptimizationMOI, NLopt, Ipopt, ModelingToolkit, Plots, Random
+using EasyModelAnalysis, Optimization, OptimizationMOI, NLopt, Ipopt, ModelingToolkit,
+      Plots, Random
 Random.seed!(1)
 
 @variables t
