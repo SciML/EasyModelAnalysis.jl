@@ -192,7 +192,7 @@ sold = solve(probd; saveat = ts)
 plot(sold)
 ```
 
-```@example scenario3
+```julia
 sols = []
 u_detecs = 0:0.1:1
 for x in u_detecs
@@ -212,7 +212,7 @@ plot(ds)
 @test issorted(ds; rev = true)
 ```
 
-```@example scenario3
+```julia
 get_uncertainty_forecast(_prob, accumulation_I, 0:100,
                          [u_hosp => Uniform(0.0, 1.0), u_conv => Uniform(0.0, 1.0)],
                          6 * 7)
