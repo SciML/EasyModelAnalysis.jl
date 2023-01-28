@@ -3,12 +3,13 @@
 ## Generate the Model and Dataset
 
 ```@example scenario2
-using EasyModelAnalysis, Optimization, OptimizationMOI, Ipopt, ModelingToolkit, Plots
+using EasyModelAnalysis, Optimization, OptimizationMOI, NLopt, Ipopt, ModelingToolkit, Plots
+
 @variables t
 Dₜ = Differential(t)
 @variables S(t)=0.9 E(t)=0.05 I(t)=0.01 R(t)=0.2 H(t)=0.01 D(t)=0.01
 @variables T(t)=10000.0 η(t)=0.0 cumulative_I(t)=0.0
-@parameters β₁=0.6*0.2 β₂=0.143*0.2 β₃=0.055*0.2 α=0.003 γ₁=0.007 γ₂=0.001 δ=0.2 μ=0.04
+@parameters β₁=0.6 * 0.2 β₂=0.143 * 0.2 β₃=0.055 * 0.2 α=0.003 γ₁=0.007 γ₂=0.001 δ=0.2 μ=0.04
 eqs = [T ~ S + E + I + R + H + D
        η ~ (β₁ * E + β₂ * I + β₃ * H) / T
        Dₜ(S) ~ -η * S
@@ -32,10 +33,20 @@ data = [I => sol[I], R => sol[R], H => sol[H], D => sol[D]]
 > Parameterize model either using data from the previous two months (October 28th – December 28th, 2021), or with relevant parameter values from the literature.
 
 ```@example scenario2
-p_priors = [β₁=>Normal(0.6, 0.1), β₂=>Normal(0.143, 0.01), β₃=>Normal(0.055, 0.01), α=>Normal(0.003, 0.001), γ₁=>Normal(0.007, 0.001), γ₂=>Normal(0.011, 0.01), δ=>Normal(0.1, 0.05), μ=>Normal(0.14, 0.05)]
-tsave = collect(0.0:1.0:2*30)
+p_priors = [
+    β₁ => Normal(0.6, 0.1),
+    β₂ => Normal(0.143, 0.01),
+    β₃ => Normal(0.055, 0.01),
+    α => Normal(0.003, 0.001),
+    γ₁ => Normal(0.007, 0.001),
+    γ₂ => Normal(0.011, 0.01),
+    δ => Normal(0.1, 0.05),
+    μ => Normal(0.14, 0.05),
+]
+tsave = collect(0.0:1.0:(2 * 30))
 fit = bayesian_datafit(prob, p_priors, tsave, data)
-prob = remake(prob; u0 = sol[end, :], p = Pair.(getfield.(fit, :first), mean.(getfield.(fit, :second))))
+prob = remake(prob; u0 = sol[end, :],
+              p = Pair.(getfield.(fit, :first), mean.(getfield.(fit, :second))))
 ```
 
 ### Question 1
@@ -53,13 +64,13 @@ forecast_threemonths = solve(prob, tspan = (0.0, 90.0), saveat = 1.0)
 ```@example scenario2
 need_intervention = any(x -> x > 0.05, forecast_threemonths[H])
 
-post_mean = mean.(getfield.(fit,:second))
-post_sd = sqrt.(var.(getfield.(fit,:second)))
-trunc_min = post_mean .- 3*post_sd
-trunc_max = post_mean .+ 3*post_sd
-post_trunc = Truncated.(Normal.(post_mean,post_sd),trunc_min,trunc_max)
-posterior = Pair.(getfield.(fit,:first),post_trunc)
-prob_violating_threshold(prob, posterior, [H>0.05])
+post_mean = mean.(getfield.(fit, :second))
+post_sd = sqrt.(var.(getfield.(fit, :second)))
+trunc_min = post_mean .- 3 * post_sd
+trunc_max = post_mean .+ 3 * post_sd
+post_trunc = Truncated.(Normal.(post_mean, post_sd), trunc_min, trunc_max)
+posterior = Pair.(getfield.(fit, :first), post_trunc)
+prob_violating_threshold(prob, posterior, [H > 0.05])
 ```
 
 ### Question 3
@@ -68,27 +79,39 @@ prob_violating_threshold(prob, posterior, [H>0.05])
 
 ```@example scenario2
 function f(ts, p = nothing)
-  ts[2] - ts[1]
+    ts[2] - ts[1]
 end
 
 function g(res, ts, p = nothing)
-  tstart = ts[1]
-  tstop = ts[2]
-  start_intervention = (t.val == tstart) => [β₁ ~ β₁/2, β₂ ~ β₂/2, β₃ ~ β₃/2]
-  stop_intervention = (t.val == tstop) => [β₁ ~ β₁*2, β₂ ~ β₂*2, β₃ ~ β₃*2]
-  @named opttime_sys = ODESystem(eqs, t; discrete_events = [start_intervention, stop_intervention])
-  opttime_sys = structural_simplify(opttime_sys)
-  prob = ODEProblem(opttime_sys, [], [0.0, 90.0])
-  sol = solve(prob, saveat = 0.0:1.0:90.0)
-  h = sol[H]
-  res .= vcat(copy(h), vcat([tstart, tstop], [tstop > tstart]))
+    tstart = ts[1]
+    tstop = ts[2]
+    start_intervention = (t.val == tstart) => [β₁ ~ β₁ / 2, β₂ ~ β₂ / 2, β₃ ~ β₃ / 2]
+    stop_intervention = (t.val == tstop) => [β₁ ~ β₁ * 2, β₂ ~ β₂ * 2, β₃ ~ β₃ * 2]
+    @named opttime_sys = ODESystem(eqs, t;
+                                   discrete_events = [
+                                       start_intervention,
+                                       stop_intervention,
+                                   ])
+    opttime_sys = structural_simplify(opttime_sys)
+    prob = ODEProblem(opttime_sys, [], [0.0, 90.0])
+    sol = solve(prob, saveat = 0.0:1.0:90.0)
+    h = sol[H]
+
+    if SciMLBase.successful_retcode(sol.retcode)
+        res .= vcat(copy(h), vcat([tstart, tstop], [tstop > tstart]))
+    else
+        res .= Inf
+    end
 end
 
 optfun = OptimizationFunction(f, Optimization.AutoForwardDiff(), cons = g)
-optprob = Optimization.OptimizationProblem(optfun, [1.0, 89.0], lcons = vcat(fill(-Inf, 91), [0.0,0.0,1.0]), ucons = vcat(fill(0.05.0, 91), [90.0, 90.0, 1.0]))
-ts = solve(optprob, OptimizationMOI.MOI.OptimizerWithAttributes(NLopt.Optimizer, "algorithm" => :LN_COBYLA))
+optprob = Optimization.OptimizationProblem(optfun, [1.0, 89.0],
+                                           lcons = vcat(fill(-Inf, 91), [0.0, 0.0, 1.0]),
+                                           ucons = vcat(fill(0.05, 91), [90.0, 90.0, 1.0]))
+ts = solve(optprob,
+           OptimizationMOI.MOI.OptimizerWithAttributes(NLopt.Optimizer,
+                                                       "algorithm" => :LN_COBYLA))
 ```
-
 
 ### Question 4
 
@@ -104,19 +127,31 @@ function f(reduction_rate, p = nothing)
 end
 function g(res, reduction_rate, p = nothing)
     reduction_rate = reduction_rate[1]
-    root_eqs = [H ~ 0.05*0.8]
-    affect   = [β₁ ~ β₁*(1-reduction_rate), β₂ ~ β₂*(1-reduction_rate), β₃ ~ β₃*(1-reduction_rate)]
+    root_eqs = [H ~ 0.05 * 0.8]
+    affect = [
+        β₁ ~ β₁ * (1 - reduction_rate),
+        β₂ ~ β₂ * (1 - reduction_rate),
+        β₃ ~ β₃ * (1 - reduction_rate),
+    ]
     @named mask_system = ODESystem(eqs, t; continuous_events = root_eqs => affect)
     mask_system = structural_simplify(mask_system)
-    prob = ODEProblem(mask_system , [], (0.0, 90.0), saveat = 1.0)
+    prob = ODEProblem(mask_system, [], (0.0, 90.0), saveat = 1.0)
     sol = solve(prob)
     hospitalizations = sol[H]
-    res .= hospitalizations
+
+    if SciMLBase.successful_retcode(sol.retcode)
+        res .= hospitalizations
+    else
+        res .= Inf
+    end
 end
 optprob = OptimizationFunction(f, Optimization.AutoFiniteDiff(), cons = g)
-prob = OptimizationProblem(optprob, [0.0], lb=[0.0], ub=[1.0], lcons = fill(-Inf, 91), ucons = fill(0.05, 91))
-using OptimizationMOI, NLopt
-solve(prob,OptimizationMOI.MOI.OptimizerWithAttributes(NLopt.Optimizer, "algorithm" => :GN_ORIG_DIRECT,"maxtime" => 60.0, "maxeval"=>100)) # in reality needs much longer than 60
+prob = OptimizationProblem(optprob, [0.0], lb = [0.0], ub = [1.0], lcons = fill(-Inf, 91),
+                           ucons = fill(0.05, 91))
+solve(prob,
+      OptimizationMOI.MOI.OptimizerWithAttributes(NLopt.Optimizer,
+                                                  "algorithm" => :GN_ORIG_DIRECT,
+                                                  "maxtime" => 60.0, "maxeval" => 100)) # in reality needs much longer than 60
 ```
 
 ### Question 5

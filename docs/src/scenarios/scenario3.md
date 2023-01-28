@@ -13,12 +13,11 @@ using UnPack
 ```@example scenario3
 function formSEIRHD()
     SEIRHD = LabelledPetriNet([:S, :E, :I, :R, :H, :D],
-	  :exp => ((:S, :I)=>(:E, :I)),
-	  :conv => (:E=>:I),
-	  :rec => (:I=>:R),
-	  :hosp => (:I=>:H),
-      :death => (:H=>:D),
-	)
+                              :exp => ((:S, :I) => (:E, :I)),
+                              :conv => (:E => :I),
+                              :rec => (:I => :R),
+                              :hosp => (:I => :H),
+                              :death => (:H => :D))
     return SEIRHD
 end
 
@@ -29,11 +28,10 @@ sys1 = ODESystem(seirhd)
 ```@example scenario3
 function formSEIRD()
     SEIRD = LabelledPetriNet([:S, :E, :I, :R, :D],
-	  :exp => ((:S, :I)=>(:E, :I)),
-	  :conv => (:E=>:I),
-	  :rec => (:I=>:R),
-	  :death => (:I=>:D),
-	)
+                             :exp => ((:S, :I) => (:E, :I)),
+                             :conv => (:E => :I),
+                             :rec => (:I => :R),
+                             :death => (:I => :D))
     return SEIRD
 end
 
@@ -44,11 +42,10 @@ sys2 = ODESystem(seird)
 ```@example scenario3
 function formSIRHD()
     SIRHD = LabelledPetriNet([:S, :I, :R, :H, :D],
-	  :exp => ((:S, :I)=>(:I, :I)),
-	  :rec => (:I=>:R),
-	  :hosp => (:I=>:H),
-      :death => (:H=>:D),
-	)
+                             :exp => ((:S, :I) => (:I, :I)),
+                             :rec => (:I => :R),
+                             :hosp => (:I => :H),
+                             :death => (:H => :D))
     return SIRHD
 end
 
@@ -59,12 +56,11 @@ sys3 = ODESystem(sirhd)
 ```@example scenario3
 function form_seird_renew()
     seird_renew = LabelledPetriNet([:S, :E, :I, :R, :D],
-	  :exp => ((:S, :I)=>(:E, :I)),
-	  :conv => (:E=>:I),
-	  :rec => (:I=>:R),
-	  :death => (:I=>:D),
-      :renew => (:R=>:S)
-	)
+                                   :exp => ((:S, :I) => (:E, :I)),
+                                   :conv => (:E => :I),
+                                   :rec => (:I => :R),
+                                   :death => (:I => :D),
+                                   :renew => (:R => :S))
     return seird_renew
 end
 
@@ -76,10 +72,12 @@ sys4 = ODESystem(seird_renew)
 using ASKEM # Hack, remove when merged
 max_e_h = mca(seird, sirhd)
 AlgebraicPetri.Graph(max_e_h[1])
+```
 
 ```@example scenario3
 max_3way = mca(max_e_h[1], seirhd)
 AlgebraicPetri.Graph(max_3way[1])
+```
 
 ```@example scenario3
 max_seird_renew = mca(seird, seird_renew)
@@ -215,15 +213,15 @@ plot(ds)
 
 ```@example scenario3
 get_uncertainty_forecast(_prob, accumulation_I, 0:100,
-                               [u_hosp => Uniform(0.0, 1.0), u_conv => Uniform(0.0, 1.0)],
-                               6 * 7)
+                         [u_hosp => Uniform(0.0, 1.0), u_conv => Uniform(0.0, 1.0)],
+                         6 * 7)
 
 plot_uncertainty_forecast(probd, accumulation_I, 0:100,
-                                   [
-                                       u_hosp => Uniform(0.0, 1.0),
-                                       u_conv => Uniform(0.0, 1.0),
-                                   ],
-                                   6 * 7)
+                          [
+                              u_hosp => Uniform(0.0, 1.0),
+                              u_conv => Uniform(0.0, 1.0),
+                          ],
+                          6 * 7)
 ```
 
 > Compute the accuracy of the forecast assuming no mask mandate (ignoring Question 3) in the same way as you did in Question 1 and determine if improving the detection rate improves forecast accuracy.
