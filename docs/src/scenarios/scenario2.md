@@ -123,7 +123,7 @@ ts = solve(optprob,
 
 > What is the minimum impact on transmission rate these mitigation policies need to have the first time they kick in, to (1) ensure that we don't reach the hospitalization threshold at any time during the 3-month period, and (2) ensure that the policies only need to be implemented once, and potentially expired later, but never reimplemented? Express this in terms of change in baseline transmission levels (e.g. 10% decrease, 50% decrease, etc.).
 
-```@example scenario2
+```julia
 function f(reduction_rate, p = nothing)
     reduction_rate = reduction_rate[1]
 end

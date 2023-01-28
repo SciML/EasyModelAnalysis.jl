@@ -13,7 +13,7 @@ using UnPack
 ```@example scenario3
 function formSEIRHD()
     SEIRHD = LabelledPetriNet([:S, :E, :I, :R, :H, :D],
-                              :exp => ((:S, :I) => (:E, :I)),
+                              :expo => ((:S, :I) => (:E, :I)),
                               :conv => (:E => :I),
                               :rec => (:I => :R),
                               :hosp => (:I => :H),
@@ -28,7 +28,7 @@ sys1 = ODESystem(seirhd)
 ```@example scenario3
 function formSEIRD()
     SEIRD = LabelledPetriNet([:S, :E, :I, :R, :D],
-                             :exp => ((:S, :I) => (:E, :I)),
+                             :expo => ((:S, :I) => (:E, :I)),
                              :conv => (:E => :I),
                              :rec => (:I => :R),
                              :death => (:I => :D))
@@ -42,7 +42,7 @@ sys2 = ODESystem(seird)
 ```@example scenario3
 function formSIRHD()
     SIRHD = LabelledPetriNet([:S, :I, :R, :H, :D],
-                             :exp => ((:S, :I) => (:I, :I)),
+                             :expo => ((:S, :I) => (:I, :I)),
                              :rec => (:I => :R),
                              :hosp => (:I => :H),
                              :death => (:H => :D))
@@ -56,7 +56,7 @@ sys3 = ODESystem(sirhd)
 ```@example scenario3
 function form_seird_renew()
     seird_renew = LabelledPetriNet([:S, :E, :I, :R, :D],
-                                   :exp => ((:S, :I) => (:E, :I)),
+                                   :expo => ((:S, :I) => (:E, :I)),
                                    :conv => (:E => :I),
                                    :rec => (:I => :R),
                                    :death => (:I => :D),

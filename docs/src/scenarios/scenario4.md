@@ -2,7 +2,7 @@
 
 Load packages:
 
-```@example scenario3
+```@example scenario4
 using EasyModelAnalysis
 using AlgebraicPetri
 using UnPack
