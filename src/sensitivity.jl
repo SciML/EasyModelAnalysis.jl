@@ -4,7 +4,7 @@ function _get_sensitivity(prob, t, x, pbounds; samples)
     f = function (p)
         prob_func(prob, i, repeat) = remake(prob; p = Pair.(boundkeys, p[:, i]))
         ensemble_prob = EnsembleProblem(prob, prob_func = prob_func)
-        sol = solve(ensemble_prob, Tsit5(), EnsembleThreads(); saveat = t,
+        sol = solve(ensemble_prob, nothing, EnsembleThreads(); saveat = t,
                     trajectories = size(p, 2))
         out = zeros(size(p, 2))
         for i in 1:size(p, 2)
