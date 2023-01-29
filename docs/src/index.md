@@ -13,7 +13,7 @@ To install EasyModelAnalysis.jl, use the Julia package manager:
 
 ```julia
 using Pkg
-Pkg.add("https://github.com/SciML/EasyModelAnalysis.jl")
+Pkg.add("EasyModelAnalysis")
 ```
 
 ## Contributing
