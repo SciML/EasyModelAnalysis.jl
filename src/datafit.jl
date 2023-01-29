@@ -67,8 +67,8 @@ function global_datafit(prob, pbounds, t, data; maxiters = 10000)
     Pair.(pkeys, res.u)
 end
 
-@model function bayesianODE(prob, t, p, data)
-    σ ~ InverseGamma(2, 3)
+@model function bayesianODE(prob, t, p, data, noise_prior)
+    σ ~ noise_prior
     pdist = getfield.(p, :second)
     pkeys = getfield.(p, :first)
     pprior ~ product_distribution(pdist)
@@ -91,12 +91,12 @@ end
 
 Calculate posterior distribution for paramters `p` given `data` measured at times `t`.
 """
-function bayesian_datafit(prob, p, t, data)
+function bayesian_datafit(prob, p, t, data; noise_prior = InverseGamma(2, 3))
     pdist = getfield.(p, :second)
     pkeys = getfield.(p, :first)
 
-    model = bayesianODE(prob, t, p, data)
-    chain = sample(model, NUTS(0.65), MCMCSerial(), 1000, 3; progress = false)
+    model = bayesianODE(prob, t, p, data, noise_prior)
+    chain = sample(model, NUTS(0.65), MCMCSerial(), 1000, 3; progress = true)
     [Pair(pkeys[i], collect(chain["pprior[" * string(i) * "]"])[:])
      for i in eachindex(pkeys)]
 end
