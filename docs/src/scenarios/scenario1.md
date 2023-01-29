@@ -150,8 +150,7 @@ kappa             # fraction vaccinated
 
 system = ODESystem(seirdnat_v)
 prob = ODEProblem(system, [10000000-99500, 99500, 1, 0, 0.0], [0, 100],
-                  [0.75, 1/5.7, 1/3.31, 0.012048, 1e-3, 1e-3, 1e-3, 1e-3])
-
+[0.75, 1/5.7, 1/3.31, 0.012048, 1e-3, 1e-3, 1e-3, 1e-3])
 
 ### Question 4
 
