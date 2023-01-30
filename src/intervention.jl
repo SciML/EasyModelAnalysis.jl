@@ -163,10 +163,11 @@ function optimal_parameter_intervention_for_threshold(prob, p1, obs, threshold,
 end
 
 """
-Find `intervention_par` which minimize `cost`
-but which do not lead to `constraints` being violated.
-`intervention_par` `affect` `prob` when
-by haviving `affect` on `prob` when `root` is true.
+Find `intervention_par` which minimize `intervention_cost`
+but which do not lead to `thresholds` being violated, throughout `prob.tspan`.
+Neither can `intervention_constraints` be violated.
+`intervention_par` influence `prob` through
+`intervention_continuous_events` and `intervention_discrete_events`,
 """
 function weakest_intervention_not_violating_thresholds(prob,
                                                        intervention_par,
