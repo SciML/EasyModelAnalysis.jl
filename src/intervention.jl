@@ -161,3 +161,42 @@ function optimal_parameter_intervention_for_threshold(prob, p1, obs, threshold,
     ss = duration_constraint(optx, [], Val(true))
     Dict(ps .=> optx), ss, ret
 end
+
+"""
+Find `intervention_par` which minimize `cost`
+but which do not lead to `constraints` being violated.
+`intervention_par` `affect` `prob` when
+by haviving `affect` on `prob` when `root` is true.
+"""
+function weakest_intervention_not_violating_constraint(prob,intervention_par, cost, root, affect, constraints)
+    f = Symbolics.build_function(Symbolics.unwrap(cost), intervention_par, expression = Val{false})
+    # how to get rid of t
+    # cb does not include intervention_par, how to add them?
+    @named cb = ODESystem([],t; continuous_events = root => affect)
+    sys = compose(prob.f.sys, cb)
+    prob = ODEProblem(prob.f.sys, [], prob.tspan)
+    function g(res, intervention_par_vals, p = nothing)
+        prob = remake(prob; p = intervention_par_keys => intervention_par_vals)
+        sol = solve(prob)
+        idxs = [constraint.val.arguments[1]  for constraint in constraints]
+        constraint_check = sol(LinRange(sol.t[begin],sol.t[end],100), idxs = idxs)
+        res .= constraint_check
+    end
+    intervention_par_lb = getindex.(getfield.(intervention_par, :second), 1)
+    intervention_par_ub = getindex.(getfield.(intervention_par, :second), 2)
+    intervention_par_keys = getfield.(intervention_par, :first)
+    optf = OptimizationFunction(f, Optimization.AutoFiniteDiff(), cons = g)
+    lcons = [(a.val.f== <) ? -Inf : a.val.arguments[2] for constraint in constraints]
+    ucons = [(a.val.f== >) ? Inf : a.val.arguments[2] for constraint in constraints]
+    lcons = repeat(lcons,100)
+    ucons = repeat(ucons,100)
+    optprob = OptimizationProblem(optf, (intervention_par_lb.+intervention_par_ub)./2,
+                                lb = intervention_par_lb ,
+                                ub = intervention_par_ub,
+                                lcons = lcons,
+                                ucons = ucons)
+    min_intervention_strength = solve(optprob,
+                                      OptimizationMOI.MOI.OptimizerWithAttributes(NLopt.Optimizer,
+                                                                                  "algorithm" => :GN_ORIG_DIRECT,
+                                                                                  "maxtime" => 60.0))
+end
