@@ -58,6 +58,29 @@ function get_sensitivity(prob, t, x, pbounds; samples = 1000)
 end
 
 """
+    get_sensitivity_of_maximum(prob, t, x, pbounds; samples = 1000)
+
+Returns the [Sobol Indices](https://en.wikipedia.org/wiki/Variance-based_sensitivity_analysis) that
+quanitfy the uncertainity of the solution at time `t` and maximum of observation `x` to the
+parameters in `pbounds`.
+
+
+## Arguments
+  - `t`: The time of observation, the solution is stored at this time to obtain the relevant observed variable.
+  - `x`: The observation symbolic expression.
+  - `pbounds`: An array with the bounds for each parameter, passed as a pair of parameter expression and a vector with the upper and lower bound.
+
+## Keyword Arguments
+  - `samples`: Number of samples for running the global sensitivity analysis.
+
+# Returns
+  - A dictionary with the first, second and total order indices for all parameters (and pairs incase of second order).
+"""
+function get_sensitivity_of_maximum(prob, t, x, pbounds; samples = 1000)
+    get_sensitivity(prob, t, sol -> get_max_t(sol, x)[2], pbounds, samples = samples)
+end
+
+"""
     create_sensitivity_plot(prob, t, x, pbounds)
 
 Creates bar plots of the first, second and total order Sobol indices that quantify sensitivity of the solution

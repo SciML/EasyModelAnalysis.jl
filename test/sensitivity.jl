@@ -30,6 +30,5 @@ sensres = get_sensitivity(prob, 100.0, y, pbounds)
 @test collect(keys(sensres)) ==
       [:ρ_first_order, :β_first_order, :ρ_total_order, :β_total_order, :ρ_β_second_order]
 
-sensres_max = get_sensitivity(prob, 100.0, sol -> get_max_t(sol, y)[2], pbounds,
-                              samples = 50)
+sensres_max = get_sensitivity_of_maximum(prob, 100.0, y, pbounds, samples = 50)
 @test length(sensres) == 5
