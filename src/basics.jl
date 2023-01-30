@@ -12,11 +12,17 @@ end
 
 """
     get_min_t(prob, sym)
+    get_min_t(sol, sym)
 
 Returns `(t,min)` where `t` is the timepoint where `sym` reaches its minimum `min` in the interval `prob.tspan`.
 """
 function get_min_t(prob, sym)
-    sol = solve(prob)
+    if prob isa ODESolution
+        sol = prob
+        prob = sol.prob
+    else
+        sol = solve(prob)
+    end
     f(t, _) = sol(t[1]; idxs = sym)
     oprob = OptimizationProblem(f, [(prob.tspan[2] - prob.tspan[1]) / 2],
                                 lb = [prob.tspan[1]],
@@ -27,11 +33,17 @@ end
 
 """
     get_max_t(prob, sym)
+    get_max_t(sol, sym)
 
 Returns `(t,max)` where `t` is the timepoint where `sym` reaches its maximum `max` in the interval `prob.tspan`.
 """
 function get_max_t(prob, sym)
-    sol = solve(prob)
+    if prob isa ODESolution
+        sol = prob
+        prob = sol.prob
+    else
+        sol = solve(prob)
+    end
     f(t, _) = -sol(t[1]; idxs = sym)
     oprob = OptimizationProblem(f, [(prob.tspan[2] - prob.tspan[1]) / 2],
                                 lb = [prob.tspan[1]],
