@@ -100,3 +100,27 @@ function bayesian_datafit(prob, p, t, data; noise_prior = InverseGamma(2, 3))
     [Pair(pkeys[i], collect(chain["pprior[" * string(i) * "]"])[:])
      for i in eachindex(pkeys)]
 end
+
+"""
+    model_forecast_score(probs::AbstractVector, ts::AbstractVector, dataset::AbstractVector{<:Pair})
+
+Compute the L2 distance between each problem and the dataset.
+
+Arguments:
+- `probs`: a vector of problems to simulate.
+- `ts`: time points of the dataset.
+- `dataset`: dataset of the form of `[S => zeros(n), I => zeros(n)]`.
+
+Output: the L2 distance from the dataset for each problem.
+"""
+function model_forecast_score(probs::AbstractVector, ts::AbstractVector,
+                              dataset::AbstractVector{<:Pair})
+    obs = map(first, dataset)
+    data = map(last, dataset)
+    map(probs) do prob
+        sol = solve(prob, saveat = ts)
+        sum(enumerate(obs)) do (i, o)
+            norm(sol[o] - data[i])
+        end
+    end
+end
