@@ -56,6 +56,22 @@ opt_ps, s2, ret = optimal_parameter_threshold(prob, x, 3,
                                               -p, [p],
                                               [-1.0], [1.0]);
 @test abs(opt_ps[p]) > 0.110
+opt_ps, s2, ret = optimal_parameter_threshold(prob, x, 3,
+                                              -p, [p],
+                                              [-1.0], [1.0]);
+@variables t x(t) y(t)
+@parameters p1 p2
+D = Differential(t)
+eqs = [D(x) ~ p1 * abs(x) + p2 * y
+       D(y) ~ p1 * abs(x) + p2 * y]
+@named sys = ODESystem(eqs)
+prob = ODEProblem(sys, [x => 0.01, y => 1], (0.0, 50), [p1 => 0.5, p2 => 0.2])
+opt_ps, s2, ret = optimal_parameter_threshold(prob, x, 2, p1 - p2, [p1, p2],
+                                              [-2.0, -2.0], [2.0, 2],
+                                              ineq_cons
+                                              = [abs(p2) - abs(p1) + 0.1]);
+@test s2.u[end][1] < 2
+@test abs(opt_ps[p2]) - abs(opt_ps[p1]) + 0.1 < 0
 
 @parameters t σ ρ β
 @variables x(t) y(t) z(t)

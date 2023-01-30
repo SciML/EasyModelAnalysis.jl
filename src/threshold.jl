@@ -66,7 +66,7 @@ function prob_violating_threshold(prob, p, thresholds)
 end
 
 """
-    optimal_parameter_threshold(prob, obs, threshold, cost, ps, lb, ub; maxtime = 60, kw...)
+    optimal_parameter_threshold(prob, obs, threshold, cost, ps, lb, ub; ineq_cons = nothing, maxtime = 60, kw...)
 
 ## Arguments
 
@@ -81,17 +81,21 @@ end
 ## Keyword Arguments
 
   - `maxtime`: Maximum optimzation time. Defaults to `60`.
+  - `ineq_cons`: a vector of symbolic expressions in terms of symbolic
+      parameters. The optimizer will enforce `ineq_cons .< 0`.
 
 # Returns
 
   - `opt_p`: Optimal intervention parameters.
   - `ret`: Return code from the optimization.
 """
-function optimal_parameter_threshold(prob, obs, threshold, cost, ps, lb, ub; maxtime = 60,
+function optimal_parameter_threshold(prob, obs, threshold, cost, ps, lb, ub;
+                                     ineq_cons = nothing, maxtime = 60,
                                      kw...)
     opt, (s1, s2, s3), ret = optimal_parameter_intervention_for_threshold(prob, obs,
                                                                           threshold, cost,
                                                                           ps, lb, ub;
+                                                                          ineq_cons,
                                                                           maxtime, kw...)
     opt, s2, ret
 end
