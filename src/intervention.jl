@@ -152,7 +152,6 @@ function optimal_parameter_intervention_for_threshold(prob, obs, threshold,
     inequality_constraint!(opt, duration_constraint, 1e-16)
     init_x = @. lb + ub / 2
     if ineq_cons !== nothing
-        ps = parameters(prob.f.sys)
         for con in ineq_cons
             _con = Symbolics.build_function(Symbolics.unwrap(con), ps,
                                             expression = Val{false})

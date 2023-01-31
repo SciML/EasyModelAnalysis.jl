@@ -87,6 +87,7 @@ end
 # Returns
 
   - `opt_p`: Optimal intervention parameters.
+  - `sol`: Solution with the optimal intervention parameters.
   - `ret`: Return code from the optimization.
 """
 function optimal_parameter_threshold(prob, obs, threshold, cost, ps, lb, ub;
