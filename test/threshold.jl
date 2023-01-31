@@ -59,6 +59,13 @@ opt_ps, s2, ret = optimal_parameter_threshold(prob, x, 3,
 opt_ps, s2, ret = optimal_parameter_threshold(prob, x, 3,
                                               -p, [p],
                                               [-1.0], [1.0]);
+opt_ps, (s1, s2, s3), ret = optimal_parameter_intervention_for_reach(remake(prob,
+                                                                            tspan = (0,
+                                                                                     1.0)),
+                                                                     x, 300,
+                                                                     p, [p],
+                                                                     [0.0], [30.0]);
+@test 10 < opt_ps[p] < 11
 @variables t x(t) y(t)
 @parameters p1 p2
 D = Differential(t)
