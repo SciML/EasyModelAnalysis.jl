@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Scenario 1: Vaccination · EasyModelAnalysis.jl</title><script async src="https://www.googletagmanager.com/gtag/js?id=UA-90474609-3"></script><script>  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-90474609-3', {'page_path': location.pathname + location.search + location.hash});
+</script><script data-outdated-warner src="../../assets/warner.js"></script><link rel="canonical" href="https://docs.sciml.ai/EasyModelAnalysis/stable/scenarios/scenario1/"/><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.045/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.24/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script><link href="../../assets/favicon.ico" rel="icon" type="image/x-icon"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img src="../../assets/logo.png" alt="EasyModelAnalysis.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit"><a href="../../">EasyModelAnalysis.jl</a></span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">EasyModelAnalysis.jl: Quick and Easy Queries to Simulation Results</a></li><li><a class="tocitem" href="../../getting_started/">Getting Started with EasyModelAnalysis</a></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../../tutorials/sensitivity_analysis/">Sensitivity Analysis</a></li><li><a class="tocitem" href="../../tutorials/datafitting/">Calibrating Models to Data</a></li><li><a class="tocitem" href="../../tutorials/threshold_interventions/">Designing Threshold Interventions</a></li><li><a class="tocitem" href="../../tutorials/probabilistic_thresholds/">Analysis of Threshold Crossing Probabilities Under Uncertainty</a></li></ul></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../../examples/petri/">AlgebraicPetri Integration</a></li><li><a class="tocitem" href="../../examples/ASIR/">Analysis of The Asymptomatic SIR Model</a></li><li><a class="tocitem" href="../../examples/SEIRHD/">Analysis of Interventions On The SEIRHD Epidemic Model</a></li><li><a class="tocitem" href="../../examples/Carcione2020/">Sensitivity Analysis of the Carcione2020 Epidemic Model</a></li></ul></li><li><span class="tocitem">Scenarios</span><ul><li class="is-active"><a class="tocitem" href>Scenario 1: Vaccination</a><ul class="internal"><li><a class="tocitem" href="#Generate-the-Model-and-Dataset"><span>Generate the Model and Dataset</span></a></li><li><a class="tocitem" href="#Model-Analysis"><span>Model Analysis</span></a></li></ul></li><li><a class="tocitem" href="../scenario2/">Scenario 2: Limiting Hospitalizations</a></li><li><a class="tocitem" href="../scenario3/">Scenario 3: Limiting Deaths</a></li><li><a class="tocitem" href="../scenario4/">Scenario 4: Testing and Return to Campus</a></li><li><a class="tocitem" href="../scenario5/">Scenario 5: Bucky model</a></li></ul></li><li><span class="tocitem">API</span><ul><li><a class="tocitem" href="../../api/basic_queries/">Basic Queries</a></li><li><a class="tocitem" href="../../api/data_fitting_calibration/">Data Fitting and Model Calibration</a></li><li><a class="tocitem" href="../../api/sensitivity_analysis/">Sensitivity Analysis</a></li><li><a class="tocitem" href="../../api/threshold_interventions/">Threshold Interventions</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Scenarios</a></li><li class="is-active"><a href>Scenario 1: Vaccination</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Scenario 1: Vaccination</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/SciML/EasyModelAnalysis.jl/blob/main/docs/src/scenarios/scenario1.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Scenario-1:-Vaccination"><a class="docs-heading-anchor" href="#Scenario-1:-Vaccination">Scenario 1: Vaccination</a><a id="Scenario-1:-Vaccination-1"></a><a class="docs-heading-anchor-permalink" href="#Scenario-1:-Vaccination" title="Permalink"></a></h1><h2 id="Generate-the-Model-and-Dataset"><a class="docs-heading-anchor" href="#Generate-the-Model-and-Dataset">Generate the Model and Dataset</a><a id="Generate-the-Model-and-Dataset-1"></a><a class="docs-heading-anchor-permalink" href="#Generate-the-Model-and-Dataset" title="Permalink"></a></h2><h3 id="Setup"><a class="docs-heading-anchor" href="#Setup">Setup</a><a id="Setup-1"></a><a class="docs-heading-anchor-permalink" href="#Setup" title="Permalink"></a></h3><pre><code class="nohighlight hljs">using Catlab, Catlab.CategoricalAlgebra, Catlab.Programs, Catlab.WiringDiagrams, Catlab.Graphics
+using AlgebraicPetri
+using AlgebraicPetri.BilayerNetworks
+using AlgebraicDynamics.UWDDynam
+using LabelledArrays
+using OrdinaryDiffEq, DelayDiffEq
+using Plots
+
+using ASKEM.Dec2022Demo: formSIRD, formInfType, augLabelledPetriNet, sirdAugStates, typeSIRD,
+  makeMultiAge, typeAge, typed_stratify, formVax, vaxAugStates, typeVax, writeMdlStrat,
+  loadSVIIvR, sviivrAugStates, typeSVIIvR
+using ASKEM.SubACSets: mca
+using ASKEM.Stratify: stratify_typed
+
+types′ = LabelledPetriNet([:Pop],
+  :infect =&gt; ((:Pop, :Pop) =&gt; (:Pop, :Pop)),
+  :disease =&gt; (:Pop =&gt; :Pop),
+  :strata =&gt; (:Pop =&gt; :Pop),
+  :natural =&gt; (:Pop =&gt; :Pop),
+  )
+types = map(types′, Name=name -&gt; nothing)
+
+# Parts of type system for ease of reference
+s, = parts(types′, :S)
+t_interact, t_disease, t_strata,t_natural  = parts(types′, :T)
+i_interact1, i_interact2, i_disease, i_strata, i_natural = parts(types′, :I)
+o_interact1, o_interact2, o_disease, o_strata, o_natural = parts(types′, :O);</code></pre><h3 id="Original-SEIRD-model-from-the-paper"><a class="docs-heading-anchor" href="#Original-SEIRD-model-from-the-paper">Original SEIRD model from the paper</a><a id="Original-SEIRD-model-from-the-paper-1"></a><a class="docs-heading-anchor-permalink" href="#Original-SEIRD-model-from-the-paper" title="Permalink"></a></h3><pre><code class="nohighlight hljs">seirdnat = LabelledPetriNet([:S, :E, :I, :R, :D],
+  :inf =&gt; ((:S, :I) =&gt; (:E, :I)),
+  :conv =&gt; (:E =&gt; :I),
+  :rec =&gt; (:I =&gt; :R),
+  :death =&gt; (:I =&gt; :D),
+  :nat_d_s =&gt; (:S =&gt; ()),
+  :nat_d_e =&gt; (:E =&gt; ()),
+  :nat_d_i =&gt; (:I =&gt; ()),
+  :nat_d_r =&gt; (:R =&gt; ()),
+  :nat_birth =&gt; (() =&gt; :S),
+)
+
+# seirdnat_aug = augLabelledPetriNet(seirdnat, [:S, :E, :I, :R])
+seirdnat_typed = ACSetTransformation(seirdnat, types,
+  S=[s, s, s, s, s],
+  T=[t_interact, t_disease, t_disease, t_disease, t_disease, t_disease, t_disease, t_disease, t_natural],
+  I=[i_interact1, i_interact2, i_disease, i_disease, i_disease, i_disease, i_disease, i_disease, i_disease],
+  O=[o_interact1, o_interact2, o_disease, o_disease, o_disease, o_natural],
+  Name=name -&gt; nothing
+)
+@assert is_natural(seirdnat_typed)</code></pre><h3 id="Model-of-vaccination-process"><a class="docs-heading-anchor" href="#Model-of-vaccination-process">Model of vaccination process</a><a id="Model-of-vaccination-process-1"></a><a class="docs-heading-anchor-permalink" href="#Model-of-vaccination-process" title="Permalink"></a></h3><pre><code class="nohighlight hljs">vax_lpn = LabelledPetriNet([:U, :V],
+  :infuu =&gt; ((:U, :U) =&gt; (:U, :U)),
+  :infvu =&gt; ((:V, :U) =&gt; (:V, :U)),
+  :infuv =&gt; ((:U, :V) =&gt; (:U, :V)),
+  :infvv =&gt; ((:V, :V) =&gt; (:V, :V)),
+  :vax =&gt; (:U =&gt; :V),
+)
+
+Vax_aug_typed = ACSetTransformation(vax_lpn, types,
+  S=[s, s],
+  T=[t_interact, t_interact, t_interact, t_interact, t_strata],
+  I=[i_interact1, i_interact2, i_interact1, i_interact2, i_interact1, i_interact2, i_interact1, i_interact2, i_strata],
+  O=[o_interact1, o_interact2, o_interact1, o_interact2, o_interact1, o_interact2, o_interact1, o_interact2, o_strata],
+  Name=name -&gt; nothing
+)
+@assert is_natural(Vax_aug_typed)</code></pre><h3 id="Original-model-stratified-with-vaccination"><a class="docs-heading-anchor" href="#Original-model-stratified-with-vaccination">Original model stratified with vaccination</a><a id="Original-model-stratified-with-vaccination-1"></a><a class="docs-heading-anchor-permalink" href="#Original-model-stratified-with-vaccination" title="Permalink"></a></h3><pre><code class="nohighlight hljs">seirdnat_vax = stratify_typed(
+  seirdnat_typed=&gt;[[:strata],[:strata],[:strata],[:strata],[]],
+  Vax_aug_typed=&gt;[[:disease,:natural],[:disease,]],
+  types′)</code></pre><p>conv: exposed =&gt; infected</p><h3 id="Model-3.a.i-for-comparison"><a class="docs-heading-anchor" href="#Model-3.a.i-for-comparison">Model 3.a.i for comparison</a><a id="Model-3.a.i-for-comparison-1"></a><a class="docs-heading-anchor-permalink" href="#Model-3.a.i-for-comparison" title="Permalink"></a></h3><pre><code class="nohighlight hljs"># SEIRDnat &quot;stratified with vax&quot;
+function formSEIRDnatV()
+  SEIRDnatV = LabelledPetriNet([:Sv, :Ev, :Iv, :Rv, :D],
+    :inf =&gt; ((:Sv, :Iv) =&gt; (:Ev, :Iv)),
+    :conv =&gt; (:Ev =&gt; :Iv),
+    :rec =&gt; (:Iv =&gt; :Rv),
+    :death =&gt; (:Iv =&gt; :D),
+    :nat_d_s =&gt; (:Sv =&gt; ()),
+    :nat_d_e =&gt; (:Ev =&gt; ()),
+    :nat_d_i =&gt; (:Iv =&gt; ()),
+    :nat_d_r =&gt; (:Rv =&gt; ()),
+  )
+  return SEIRDnatV
+end
+
+seirdnat_v = formSEIRDnatV()</code></pre><h3 id="Model-3.a.ii-for-comparison"><a class="docs-heading-anchor" href="#Model-3.a.ii-for-comparison">Model 3.a.ii for comparison</a><a id="Model-3.a.ii-for-comparison-1"></a><a class="docs-heading-anchor-permalink" href="#Model-3.a.ii-for-comparison" title="Permalink"></a></h3><pre><code class="nohighlight hljs"># CHIMESVIIvR
+sviivr_lbn_pth = joinpath(@__DIR__, &quot;CHIME_SVIIvR_dynamics_BiLayer.json&quot;)
+sviivr_lbn = read_json_acset(LabelledBilayerNetwork, sviivr_lbn_pth)
+sviivr = LabelledPetriNet()
+migrate!(sviivr, sviivr_lbn)</code></pre><h2 id="Model-Analysis"><a class="docs-heading-anchor" href="#Model-Analysis">Model Analysis</a><a id="Model-Analysis-1"></a><a class="docs-heading-anchor-permalink" href="#Model-Analysis" title="Permalink"></a></h2><h3 id="Question-3-Numerical-Comparison"><a class="docs-heading-anchor" href="#Question-3-Numerical-Comparison">Question 3 Numerical Comparison</a><a id="Question-3-Numerical-Comparison-1"></a><a class="docs-heading-anchor-permalink" href="#Question-3-Numerical-Comparison" title="Permalink"></a></h3><blockquote><p>Compare simulation outputs between the three models, for the following two scenarios. Assume initial values and parameter values are consistent (to the extent possible) with Table 1 in https://biomedres.us/pdfs/BJSTR.MS.ID.007413.pdf. For initial values that are not specified, choose reasonable values and ensure they are the same between the three models being compared. i.	Vaccine efficacy = 75%, population vaccinated = 10% ii.	Vaccine efficacy = 75%, population vaccinated = 80%</p></blockquote><p>E(0) = 99500      # exposed I(0) = 1          # infected recovered, deceased = 0 N = 10000000 mu = 0.012048     # death rate alpha = 0.00142   # fatality rate among unvaccinated alpha<em>v = 0.00142 # fatality rate among vaccinated beta</em>uu = 0.75    # probability of transmission per unvax contact * # of unvax contacts per time gamma^-1 = 3.31   # reciprocal of recovery rate of unvax gamma<em>v^-1 = 3.31 # &quot; vax eps^-1 = 5.7      # reciprocal of rate of exposed,unvax =&gt; infectious,unvax eps</em>v^-1 = 5.79   # &quot; vax xi = 0.5          # vaccine efficacy kappa             # fraction vaccinated</p><h4 id="Run-model-3ai"><a class="docs-heading-anchor" href="#Run-model-3ai">Run model 3ai</a><a id="Run-model-3ai-1"></a><a class="docs-heading-anchor-permalink" href="#Run-model-3ai" title="Permalink"></a></h4><p>system = ODESystem(seirdnat_v) prob = ODEProblem(system, [10000000-99500, 99500, 1, 0, 0.0], [0, 100], [0.75, 1/5.7, 1/3.31, 0.012048, 1e-3, 1e-3, 1e-3, 1e-3])</p><h3 id="Question-4"><a class="docs-heading-anchor" href="#Question-4">Question 4</a><a id="Question-4-1"></a><a class="docs-heading-anchor-permalink" href="#Question-4" title="Permalink"></a></h3><blockquote><p>Create an equally weighted ensemble model using the three models in 3b, and replicate the scenarios in 3.c.i and 3.c.ii. How does the ensemble model output compare to the output from the individual component models?</p></blockquote><h3 id="Question-5"><a class="docs-heading-anchor" href="#Question-5">Question 5</a><a id="Question-5-1"></a><a class="docs-heading-anchor-permalink" href="#Question-5" title="Permalink"></a></h3><blockquote><p>For any of the models in question 3, conduct a sensitivity analysis to determine which intervention parameters should be prioritized in the model, for having the greatest impact on deaths – NPIs, or vaccine-related interventions?</p></blockquote><h3 id="Question-6"><a class="docs-heading-anchor" href="#Question-6">Question 6</a><a id="Question-6-1"></a><a class="docs-heading-anchor-permalink" href="#Question-6" title="Permalink"></a></h3><blockquote><p>With the age-stratified model, simulate the following situations. You may choose initial values that seem reasonable given the location and time, and you can reuse values from any of the publications referenced): i.	High vaccination rate among older populations 65 years and older (e.g. 80%+), and low vaccination rate among all other age groups (e.g. below 15%) ii.	High vaccination rate among all age groups iii.	Repeat d.i and d.ii, but now add a social distancing policy at schools, that decreases contact rates by 20% for school-aged children only. iv.	Compare and summarize simulation outputs for d.i-d.iii</p></blockquote></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../examples/Carcione2020/">« Sensitivity Analysis of the Carcione2020 Epidemic Model</a><a class="docs-footer-nextpage" href="../scenario2/">Scenario 2: Limiting Hospitalizations »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.24 on <span class="colophon-date" title="Tuesday 31 January 2023 22:24">Tuesday 31 January 2023</span>. Using Julia version 1.8.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
