@@ -26,6 +26,8 @@ sol = solve(prob)
 
 pbounds = [ρ => [0.0, 20.0], β => [0.0, 100.0]]
 sensres = get_sensitivity(prob, 100.0, y, pbounds)
+@test_nowarn create_sensitivity_plot(sensres, pbounds)
+
 @test length(sensres) == 5
 @test collect(keys(sensres)) ==
       [:ρ_first_order, :β_first_order, :ρ_total_order, :β_total_order, :ρ_β_second_order]
