@@ -174,7 +174,7 @@ end
 
   - `prob`: An ODEProblem.
   - `obs`: The observation symbolic expression.
-  - `reach`: The reach for the observation.
+  - `reach`: The reach for the observation, i.e., the constraint enforces that `obs` reaches `reach`.
   - `cost`: the cost function for minimization, e.g. `α + 20 * β`.
   - `ps`: the parameters that appear in the cost, e.g. `[α, β]`.
   - `lb`: the lower bounds of the parameters e.g. `[-10, -5]`.
@@ -215,22 +215,35 @@ function optimal_parameter_intervention_for_reach(prob, obs, reach,
     function duration_constraint(x::Vector, grad::Vector, ::Val{p} = Val(false)) where {p}
         tf = t0 + duration
         prob_preintervention = remake(prob, tspan = (t0, ti_start))
-        sol_preintervention = stop_at_threshold(prob_preintervention, obs, reach; kw...)
-        reach_time = ti_start - sol_preintervention.t[end]
-        (!p && reach_time > 0) && return sol_preintervention.t[end] - tf
+        if p
+            sol_preintervention = solve(prob_preintervention; kw...)
+        else
+            sol_preintervention = stop_at_threshold(prob_preintervention, obs, reach; kw...)
+            reach_time = ti_start - sol_preintervention.t[end]
+            reach_time > 0 && return sol_preintervention.t[end] - tf
+        end
 
         prob_intervention = remake(prob, u0 = sol_preintervention.u[end], p = ps .=> x,
                                    tspan = (ti_start, ti_end))
-        sol_intervention = stop_at_threshold(prob_intervention, obs, reach; kw...)
-        reach_time = ti_end - sol_intervention.t[end]
-        (!p && reach_time > 0) && return sol_intervention.t[end] - tf
+        if p
+            sol_intervention = solve(prob_intervention; kw...)
+        else
+            sol_intervention = stop_at_threshold(prob_intervention, obs, reach; kw...)
+            reach_time = ti_end - sol_intervention.t[end]
+            reach_time > 0 && return sol_intervention.t[end] - tf
+        end
 
         prob_postintervention = remake(prob, u0 = sol_intervention.u[end],
                                        tspan = (ti_end, t0 + duration))
-        sol_postintervention = stop_at_threshold(prob_postintervention, obs, reach;
-                                                 kw...)
-        reach_time = tf - sol_postintervention.t[end]
-        p ? (sol_preintervention, sol_intervention, sol_postintervention) : 10.0
+        if p
+            sol_postintervention = solve(prob_postintervention; kw...)
+            sol_preintervention, sol_intervention, sol_postintervention
+        else
+            sol_postintervention = stop_at_threshold(prob_postintervention, obs, reach;
+                                                     kw...)
+            reach_time = tf - sol_postintervention.t[end]
+            10.0
+        end
     end
 
     opt = Opt(:GN_ISRES, length(ps))
@@ -239,7 +252,7 @@ function optimal_parameter_intervention_for_reach(prob, obs, reach,
     opt.xtol_rel = 1e-4
 
     opt.min_objective = cost
-    init_x = @. lb + ub / 2
+    init_x = @. (lb + ub) / 2
     duration_constraint(init_x, [])
     inequality_constraint!(opt, duration_constraint, 1e-16)
     if ineq_cons !== nothing
