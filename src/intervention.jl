@@ -213,23 +213,24 @@ function optimal_parameter_intervention_for_reach(prob, obs, reach,
     end
 
     function duration_constraint(x::Vector, grad::Vector, ::Val{p} = Val(false)) where {p}
+        tf = t0 + duration
         prob_preintervention = remake(prob, tspan = (t0, ti_start))
         sol_preintervention = stop_at_threshold(prob_preintervention, obs, reach; kw...)
         reach_time = ti_start - sol_preintervention.t[end]
-        (!p && reach_time > 0) && return -reach_time
+        (!p && reach_time > 0) && return sol_preintervention.t[end] - tf
 
         prob_intervention = remake(prob, u0 = sol_preintervention.u[end], p = ps .=> x,
                                    tspan = (ti_start, ti_end))
         sol_intervention = stop_at_threshold(prob_intervention, obs, reach; kw...)
         reach_time = ti_end - sol_intervention.t[end]
-        (!p && reach_time > 0) && return -reach_time
+        (!p && reach_time > 0) && return sol_intervention.t[end] - tf
 
         prob_postintervention = remake(prob, u0 = sol_intervention.u[end],
                                        tspan = (ti_end, t0 + duration))
         sol_postintervention = stop_at_threshold(prob_postintervention, obs, reach;
                                                  kw...)
-        reach_time = t0 + duration - sol_postintervention.t[end]
-        p ? (sol_preintervention, sol_intervention, sol_postintervention) : reach_time
+        reach_time = tf - sol_postintervention.t[end]
+        p ? (sol_preintervention, sol_intervention, sol_postintervention) : 10.0
     end
 
     opt = Opt(:GN_ISRES, length(ps))
