@@ -105,26 +105,27 @@ function create_sensitivity_plot(prob, t, x, pbounds; samples = 1000)
 end
 
 """
-    create_sensitivity_plot(sensres, pbounds)
+    create_sensitivity_plot(sensres, pbounds, total_only = false; kw...)
 
 Creates bar plots of the first, second and total order Sobol indices from the
 result of `get_sensitivity` and `pbounds`.
 
 See also [`get_sensitivity`](@ref)
 """
-function create_sensitivity_plot(sensres::Dict{Symbol}, pbounds)
+function create_sensitivity_plot(sensres::Dict{Symbol}, pbounds, total_only = false; kw...)
     paramnames = String.(Symbol.(getfield.(pbounds, :first)))
     st = getindex.((sensres,), Symbol.(paramnames .* "_total_order"))
-    p1 = bar(paramnames, st,
-             title = "Total Order Indices", legend = false)
+    p1 = bar(paramnames, st;
+             title = "Total Order Indices", legend = false, xrot = 90, kw...)
+    total_only && return p1
     s1 = getindex.((sensres,), Symbol.(paramnames .* "_first_order"))
-    p2 = bar(paramnames, s1,
-             title = "First Order Indices", legend = false)
+    p2 = bar(paramnames, s1;
+             title = "First Order Indices", legend = false, xrot = 90, kw...)
     names = [paramnames[i] * "_" * paramnames[j] for i in eachindex(paramnames)
              for j in (i + 1):length(paramnames)]
     s2 = getindex.((sensres,), Symbol.(names, "_second_order"))
-    p3 = bar(names, s2,
-             title = "Second Order Indices", legend = false)
+    p3 = bar(names, s2;
+             title = "Second Order Indices", legend = false, xrot = 90, kw...)
     l = @layout [a b; c]
     plot(p2, p3, p1; layout = l, ylims = (0, 1))
 end
