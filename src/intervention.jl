@@ -175,7 +175,10 @@ end
   - `prob`: An ODEProblem.
   - `obs`: The observation symbolic expression.
   - `reach`: The reach for the observation, i.e., the constraint enforces that `obs` reaches `reach`.
-  - `cost`: the cost function for minimization, e.g. `α + 20 * β`.
+  - `cost`: the cost function for minimization, e.g. `α + 20 * β`. It could be a
+  tuple where the first argument is a symbol object in terms of parameters, and
+  the second entry of the tuple could be an arbitrary function that takes a
+  solution object and returns a real scalar.
   - `ps`: the parameters that appear in the cost, e.g. `[α, β]`.
   - `lb`: the lower bounds of the parameters e.g. `[-10, -5]`.
   - `ub`: the uppwer bounds of the parameters e.g. `[5, 10]`.
@@ -203,13 +206,33 @@ function optimal_parameter_intervention_for_reach(prob, obs, reach,
                                                   kw...)
     t0 = prob.tspan[1]
     ti_start, ti_end = intervention_tspan
+    if symbolic_cost isa Tuple
+        symbolic_cost, cost_sol = symbolic_cost
+    else
+        cost_sol = nothing
+    end
     symbolic_cost = Symbolics.unwrap(symbolic_cost)
     #ps = collect(ModelingToolkit.vars(symbolic_cost))
     _cost = Symbolics.build_function(symbolic_cost, ps, expression = Val{false})
     _cost(prob.p) # just throw when something is wrong during the setup.
 
-    cost = let _cost = _cost
-        (x, grad) -> _cost(x)
+    cost = let _cost = _cost, cost_sol = cost_sol
+        (x, grad) -> begin
+            p_cost = _cost(x)
+            if cost_sol === nothing
+                sol_cost = 0.0
+            else
+                tf = t0 + duration
+                prob_preintervention = remake(prob, tspan = (t0, ti_start))
+                sol_preintervention = solve(prob_preintervention; kw...)
+                prob_intervention = remake(prob, u0 = sol_preintervention.u[end],
+                                           p = ps .=> x,
+                                           tspan = (ti_start, ti_end))
+                sol_intervention = solve(prob_intervention; kw...)
+                sol_cost = cost_sol(sol_intervention)
+            end
+            p_cost + sol_cost
+        end
     end
 
     function duration_constraint(x::Vector, grad::Vector, ::Val{p} = Val(false)) where {p}

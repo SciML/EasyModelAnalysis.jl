@@ -115,18 +115,18 @@ See also [`get_sensitivity`](@ref)
 function create_sensitivity_plot(sensres::Dict{Symbol}, pbounds, total_only = false; kw...)
     paramnames = String.(Symbol.(getfield.(pbounds, :first)))
     st = getindex.((sensres,), Symbol.(paramnames .* "_total_order"))
-    idxs = sortperm(st, by=abs, rev=true)
+    idxs = sortperm(st, by = abs, rev = true)
     p1 = bar(paramnames[idxs], st[idxs];
              title = "Total Order Indices", legend = false, xrot = 90, kw...)
     total_only && return p1
     s1 = getindex.((sensres,), Symbol.(paramnames .* "_first_order"))
-    idxs = sortperm(s1, by=abs, rev=true)
+    idxs = sortperm(s1, by = abs, rev = true)
     p2 = bar(paramnames[idxs], s1[idxs];
              title = "First Order Indices", legend = false, xrot = 90, kw...)
     names = [paramnames[i] * "_" * paramnames[j] for i in eachindex(paramnames)
              for j in (i + 1):length(paramnames)]
     s2 = getindex.((sensres,), Symbol.(names, "_second_order"))
-    idxs = sortperm(s2, by=abs, rev=true)
+    idxs = sortperm(s2, by = abs, rev = true)
     p3 = bar(names[idxs], s2[idxs];
              title = "Second Order Indices", legend = false, xrot = 90, kw...)
     l = @layout [a b; c]
