@@ -64,8 +64,20 @@ opt_ps, (s1, s2, s3), ret = optimal_parameter_intervention_for_reach(remake(prob
                                                                                      1.0)),
                                                                      x, 300,
                                                                      p, [p],
-                                                                     [0.0], [30.0]);
+                                                                     [8.0], [18.0],
+                                                                     maxtime = 10);
 @test 10 < opt_ps[p] < 11
+
+opt_ps, (s1, s2, s3), ret = optimal_parameter_intervention_for_reach(remake(prob,
+                                                                            tspan = (0,
+                                                                                     1.0)),
+                                                                     x, 300,
+                                                                     (p, sol -> sol(1.0)),
+                                                                     [p],
+                                                                     [8.0], [18.0],
+                                                                     maxtime = 10);
+@test 10 < opt_ps[p]
+
 @variables t x(t) y(t)
 @parameters p1 p2
 D = Differential(t)
