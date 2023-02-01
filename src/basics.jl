@@ -127,28 +127,16 @@ function get_uncertainty_forecast_quantiles(prob, sym, t, uncertainp, samples,
 
     esol = solve(eprob, nothing, EnsembleSerial(), saveat = t, trajectories = samples,
                  save_idxs = idx)
-    [SciMLBase.EnsembleAnalysis.timeseries_steps_quantile(esol, q).u for q in quants]
+    [Array(reduce(hcat, SciMLBase.EnsembleAnalysis.timeseries_steps_quantile(esol, q).u)') for q in quants]
 end
 
 """
     plot_uncertainty_forecast(prob, sym, t, uncertainp, samples)
 """
-function plot_uncertainty_forecast(prob, sym, t, uncertainp::Vector{Pair}, samples)
+function plot_uncertainty_forecast(prob, sym, t, uncertainp, samples)
     @assert t[1] >= prob.tspan[1]
     function prob_func(prob, i, reset)
         ps = getindex.(uncertainp, 1) .=> rand.(getindex.(uncertainp, 2))
-        prob = remake(prob, tspan = (prob.tspan[1], min(prob.tspan[2], t[end])),
-                      p = ps)
-    end
-    eprob = EnsembleProblem(prob, prob_func = prob_func)
-    esol = solve(eprob, nothing, EnsembleSerial(), saveat = t, trajectories = samples)
-    plot(esol, idxs = sym)
-end
-
-function plot_uncertainty_forecast(prob, sym, t, uncertainp::Vector{<:Distribution}, samples)
-    @assert t[1] >= prob.tspan[1]
-    function prob_func(prob, i, reset)
-        ps = rand.(uncertainp)
         prob = remake(prob, tspan = (prob.tspan[1], min(prob.tspan[2], t[end])),
                       p = ps)
     end
