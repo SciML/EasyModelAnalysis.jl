@@ -8,6 +8,17 @@ function l2loss(pvals, (prob, pkeys, t, data))
     end
     return tot_loss
 end
+
+function relative_l2loss(pvals, (prob, pkeys, t, data))
+    p = Pair.(pkeys, pvals)
+    _prob = remake(prob, tspan = (prob.tspan[1], t[end]), p = p)
+    sol = solve(_prob, saveat = t)
+    tot_loss = 0.0
+    for pairs in data
+        tot_loss += sum(((sol[pairs.first] .- pairs.second) ./ sol[pairs.first]) .^ 2)
+    end
+    return tot_loss
+end
 """
     datafit(prob, p, t, data)
 
@@ -20,15 +31,20 @@ Fit paramters `p` to `data` measured at times `t`.
   - `t`: Vector of time-points
   - `data`: Vector of pairs of symbolic states and measurements of these states at times `t`.
 
+## Keyword Arguments
+
+    - `loss`: the loss function used for fitting. Defaults to `EasyModelAnalysis.l2loss`, 
+      with an alternative being `EasyModelAnalysis.relative_l2loss` for relative weighted error.
+
 `p` does not have to contain all the parameters required to solve `prob`,
 it can be a subset of parameters. Other parameters necessary to solve `prob`
 default to the parameter values found in `prob.p`.
 Similarly, not all states must be measured.
 """
-function datafit(prob, p::Vector{Pair{Num, Float64}}, t, data)
+function datafit(prob, p::Vector{Pair{Num, Float64}}, t, data; loss = l2loss)
     pvals = getfield.(p, :second)
     pkeys = getfield.(p, :first)
-    oprob = OptimizationProblem(l2loss, pvals,
+    oprob = OptimizationProblem(loss, pvals,
                                 lb = fill(-Inf, length(p)),
                                 ub = fill(Inf, length(p)), (prob, pkeys, t, data))
     res = solve(oprob, NLopt.LN_SBPLX())
@@ -51,17 +67,19 @@ Fit paramters `p` to `data` measured at times `t`.
 
   - `maxiters`: how long to run the optimization for. Defaults to 10000. Larger values are slower but more
      robust.
+  - `loss`: the loss function used for fitting. Defaults to `EasyModelAnalysis.l2loss`, with an alternative
+    being `EasyModelAnalysis.relative_l2loss` for relative weighted error.
 
 `p` does not have to contain all the parameters required to solve `prob`,
 it can be a subset of parameters. Other parameters necessary to solve `prob`
 default to the parameter values found in `prob.p`.
 Similarly, not all states must be measured.
 """
-function global_datafit(prob, pbounds, t, data; maxiters = 10000)
+function global_datafit(prob, pbounds, t, data; maxiters = 10000, loss = l2loss)
     plb = getindex.(getfield.(pbounds, :second), 1)
     pub = getindex.(getfield.(pbounds, :second), 2)
     pkeys = getfield.(pbounds, :first)
-    oprob = OptimizationProblem(l2loss, (pub .+ plb) ./ 2,
+    oprob = OptimizationProblem(loss, (pub .+ plb) ./ 2,
                                 lb = plb, ub = pub, (prob, pkeys, t, data))
     res = solve(oprob, BBO_adaptive_de_rand_1_bin_radiuslimited(); maxiters)
     Pair.(pkeys, res.u)
