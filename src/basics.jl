@@ -99,7 +99,7 @@ function get_uncertainty_forecast(prob, sym, t, uncertainp, samples)
     end
     eprob = EnsembleProblem(prob, prob_func = prob_func)
     esol = solve(eprob, nothing, EnsembleSerial(), saveat = t, trajectories = samples)
-    [esol[i][sym] for i in 1:samples]
+    Array.(reduce.(hcat, [esol[i][sym] for i in 1:samples]))
 end
 
 """
@@ -134,16 +134,13 @@ end
 """
     plot_uncertainty_forecast(prob, sym, t, uncertainp, samples)
 """
-function plot_uncertainty_forecast(prob, sym, t, uncertainp, samples)
-    @assert t[1] >= prob.tspan[1]
-    function prob_func(prob, i, reset)
-        ps = getindex.(uncertainp, 1) .=> rand.(getindex.(uncertainp, 2))
-        prob = remake(prob, tspan = (prob.tspan[1], min(prob.tspan[2], t[end])),
-                      p = ps)
+function plot_uncertainty_forecast(prob, sym, t, uncertainp, samples; label = reshape(string.(Symbol.(sym)), 1, length(sym)), kwargs...)
+    esol = get_uncertainty_forecast(prob, sym, t, uncertainp, samples)
+    p = plot(Array(esol[1]'), idxs = sym; label = label, kwargs...)
+    for i in 2:samples
+        plot!(p, Array(esol[i]'), idxs = sym; label = false, kwargs...)
     end
-    eprob = EnsembleProblem(prob, prob_func = prob_func)
-    esol = solve(eprob, nothing, EnsembleSerial(), saveat = t, trajectories = samples)
-    plot(esol, idxs = sym)
+    display(p)
 end
 
 """
