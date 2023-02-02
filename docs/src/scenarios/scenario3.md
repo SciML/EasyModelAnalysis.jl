@@ -124,20 +124,20 @@ plot(sol)
 > Provide a forecast of cumulative Covid-19 cases and deaths over the 6-week period from May 1 – June 15, 2020 under no interventions, including 90% prediction intervals in your forecasts. Compare the accuracy of the forecasts with true data over the six-week timespan.
 
 ```@example scenario3
-get_uncertainty_forecast(prob, accumulation_I, ts, [u_conv => Uniform(0.0, 1.0)], 6 * 7)
+get_uncertainty_forecast(prob, [accumulation_I], ts, [u_conv => Uniform(0.0, 1.0)], 6 * 7)
 ```
 
 ```@example scenario3
-plot_uncertainty_forecast(prob, accumulation_I, ts, [u_conv => Uniform(0.0, 1.0)], 6 * 7)
+plot_uncertainty_forecast(prob, [accumulation_I], ts, [u_conv => Uniform(0.0, 1.0)], 6 * 7)
 ```
 
 ```@example scenario3
-get_uncertainty_forecast_quantiles(prob, accumulation_I, ts, [u_conv => Uniform(0.0, 1.0)],
+get_uncertainty_forecast_quantiles(prob, [accumulation_I], ts, [u_conv => Uniform(0.0, 1.0)],
                                    6 * 7)
 ```
 
 ```@example scenario3
-plot_uncertainty_forecast_quantiles(prob, accumulation_I, ts, [u_conv => Uniform(0.0, 1.0)],
+plot_uncertainty_forecast_quantiles(prob, [accumulation_I], ts, [u_conv => Uniform(0.0, 1.0)],
                                     6 * 7)
 ```
 
@@ -164,8 +164,8 @@ prob_violating_threshold(_prob, [u_conv => Uniform(0.0, 1.0)], [accumulation_I >
 > We are interested in determining how detection rate can affect the accuracy and uncertainty in our forecasts. In particular, suppose we can improve the baseline detection rate by 20%, and the detection rate stays constant throughout the duration of the forecast. Assuming no additional interventions (ignoring Question 3), does that increase the amount of cumulative forecasted cases and deaths after six weeks? How does an increase in the detection rate affect the uncertainty in our estimates? Can you characterize the relationship between detection rate and our forecasts and their uncertainties, and comment on whether improving detection rates would provide decision-makers with better information (i.e., more accurate forecasts and/or narrower prediction intervals)?
 
 ```@example scenario3
-# these new equations add I->D and H->R  to the model. 
-# this says now, that all I are undetected and u_hosp is the detection rate. 
+# these new equations add I->D and H->R  to the model.
+# this says now, that all I are undetected and u_hosp is the detection rate.
 # this assumes there is always hospital capacity
 eqs2 = [Differential(t)(S) ~ -(u_expo / N) * I * S
         Differential(t)(E) ~ (u_expo / N) * I * S - (u_conv / N) * E
@@ -233,22 +233,22 @@ plot_uncertainty_forecast(probd, accumulation_I, 0:100,
 
 ```julia
 prob2 = prob
-get_uncertainty_forecast(prob2, accumulation_I, 0:100, [u_conv => Uniform(0.0, 1.0)], 6 * 7)
+get_uncertainty_forecast(prob2, [accumulation_I], 0:100, [u_conv => Uniform(0.0, 1.0)], 6 * 7)
 ```
 
 ```julia
-plot_uncertainty_forecast(prob2, accumulation_I, 0:100, [u_conv => Uniform(0.0, 1.0)],
+plot_uncertainty_forecast(prob2, [accumulation_I], 0:100, [u_conv => Uniform(0.0, 1.0)],
                           6 * 7)
 ```
 
 ```julia
-get_uncertainty_forecast_quantiles(prob2, accumulation_I, 0:100,
+get_uncertainty_forecast_quantiles(prob2, [accumulation_I], 0:100,
                                    [u_conv => Uniform(0.0, 1.0)],
                                    6 * 7)
 ```
 
 ```julia
-plot_uncertainty_forecast_quantiles(prob2, accumulation_I, 0:100,
+plot_uncertainty_forecast_quantiles(prob2, [accumulation_I], 0:100,
                                     [u_conv => Uniform(0.0, 1.0)],
                                     6 * 7)
 ```
@@ -257,22 +257,22 @@ plot_uncertainty_forecast_quantiles(prob2, accumulation_I, 0:100,
 
 ```julia
 prob3 = prob
-get_uncertainty_forecast(prob2, accumulation_I, 0:100, [u_conv => Uniform(0.0, 1.0)], 6 * 7)
+get_uncertainty_forecast(prob2, [accumulation_I], 0:100, [u_conv => Uniform(0.0, 1.0)], 6 * 7)
 ```
 
 ```julia
-plot_uncertainty_forecast(prob2, accumulation_I, 0:100, [u_conv => Uniform(0.0, 1.0)],
+plot_uncertainty_forecast(prob2, [accumulation_I], 0:100, [u_conv => Uniform(0.0, 1.0)],
                           6 * 7)
 ```
 
 ```julia
-get_uncertainty_forecast_quantiles(prob2, accumulation_I, 0:100,
+get_uncertainty_forecast_quantiles(prob2, [accumulation_I], 0:100,
                                    [u_conv => Uniform(0.0, 1.0)],
                                    6 * 7)
 ```
 
 ```julia
-plot_uncertainty_forecast_quantiles(prob2, accumulation_I, 0:100,
+plot_uncertainty_forecast_quantiles(prob2, [accumulation_I], 0:100,
                                     [u_conv => Uniform(0.0, 1.0)],
                                     6 * 7)
 ```
@@ -280,7 +280,7 @@ plot_uncertainty_forecast_quantiles(prob2, accumulation_I, 0:100,
 > Do a 3-way structural model comparison between the SEIRD, SEIRHD, and SIRHD models.
 
 ```@example scenario3
-# 
+#
 ```
 
 ### https://github.com/SciML/EasyModelAnalysis.jl/issues/22

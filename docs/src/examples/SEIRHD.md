@@ -30,20 +30,20 @@ Let's solve a few problems:
 > Provide a forecast of cumulative Covid-19 cases and deaths over the 6-week period from May 1 – June 15, 2020 under no interventions, including 90% prediction intervals in your forecasts. Compare the accuracy of the forecasts with true data over the six-week timespan.
 
 ```@example seirhd
-get_uncertainty_forecast(prob, cumulative_I, 0:100, [β₁ => Uniform(0.0, 1.0)], 6 * 7)
+get_uncertainty_forecast(prob, [cumulative_I], 0:100, [β₁ => Uniform(0.0, 1.0)], 6 * 7)
 ```
 
 ```@example seirhd
-plot_uncertainty_forecast(prob, cumulative_I, 0:100, [β₁ => Uniform(0.0, 1.0)], 6 * 7)
+plot_uncertainty_forecast(prob, [cumulative_I], 0:100, [β₁ => Uniform(0.0, 1.0)], 6 * 7)
 ```
 
 ```@example seirhd
-get_uncertainty_forecast_quantiles(prob, cumulative_I, 0:100, [β₁ => Uniform(0.0, 1.0)],
+get_uncertainty_forecast_quantiles(prob, [cumulative_I], 0:100, [β₁ => Uniform(0.0, 1.0)],
                                    6 * 7)
 ```
 
 ```@example seirhd
-plot_uncertainty_forecast_quantiles(prob, cumulative_I, 0:100, [β₁ => Uniform(0.0, 1.0)],
+plot_uncertainty_forecast_quantiles(prob, [cumulative_I], 0:100, [β₁ => Uniform(0.0, 1.0)],
                                     6 * 7)
 ```
 
