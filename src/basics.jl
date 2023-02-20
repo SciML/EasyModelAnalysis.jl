@@ -55,7 +55,7 @@ end
 """
     plot_extrema(prob, sym)
 
-Plots the solution of the observable `sym` along with showcasing time time points where it obtains its maximum and minimum values.
+Plots the solution of the observable `sym` along with showcasing time points where it obtains its maximum and minimum values.
 """
 function plot_extrema(prob, sym)
     xmin, xminval = get_min_t(prob, sym)
@@ -69,7 +69,7 @@ end
 """
     phaseplot_extrema(prob, sym, plotsyms)
 
-Plots the phase plot solution of the observable `sym` along with showcasing time time points where it
+Plots the phase plot solution of the observable `sym` along with showcasing time points where it
 obtains its maximum and minimum values. `plotsyms` should be given as the tuple of symbols for the
 observables that define the axis of the phase plot.
 """

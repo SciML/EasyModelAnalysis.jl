@@ -25,7 +25,7 @@ end
 """
     get_sensitivity(prob, t, x, pbounds)
 
-Returns the [Sobol Indices](https://en.wikipedia.org/wiki/Variance-based_sensitivity_analysis) that quanitfy the uncertainity of the solution at time `t` and observation `x` to the parameters in `pbounds`.
+Returns the [Sobol Indices](https://en.wikipedia.org/wiki/Variance-based_sensitivity_analysis) that quantify the uncertainty of the solution at time `t` and observation `x` to the parameters in `pbounds`.
 
 ## Arguments
 
@@ -39,7 +39,7 @@ Returns the [Sobol Indices](https://en.wikipedia.org/wiki/Variance-based_sensiti
 
 # Returns
 
-  - A dictionary with the first, second and total order indices for all parameters (and pairs incase of second order).
+  - A dictionary with the first, second and total order indices for all parameters (and pairs in case of second order).
 """
 function get_sensitivity(prob, t, x, pbounds; samples = 1000)
     sensres = _get_sensitivity(prob, t, x, pbounds; samples)
@@ -63,7 +63,7 @@ end
     get_sensitivity_of_maximum(prob, t, x, pbounds; samples = 1000)
 
 Returns the [Sobol Indices](https://en.wikipedia.org/wiki/Variance-based_sensitivity_analysis) that
-quanitfy the uncertainity of the solution at time `t` and maximum of observation `x` to the
+quantify the uncertainty of the solution at time `t` and maximum of observation `x` to the
 parameters in `pbounds`.
 
 ## Arguments
