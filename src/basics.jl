@@ -134,7 +134,9 @@ end
 """
     plot_uncertainty_forecast(prob, sym, t, uncertainp, samples)
 """
-function plot_uncertainty_forecast(prob, sym, t, uncertainp, samples; label = reshape(string.(Symbol.(sym)), 1, length(sym)), kwargs...)
+function plot_uncertainty_forecast(prob, sym, t, uncertainp, samples;
+                                   label = reshape(string.(Symbol.(sym)), 1, length(sym)),
+                                   kwargs...)
     esol = get_uncertainty_forecast(prob, sym, t, uncertainp, samples)
     p = plot(Array(esol[1]'), idxs = sym; label = label, kwargs...)
     for i in 2:samples

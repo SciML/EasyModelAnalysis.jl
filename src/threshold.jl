@@ -82,7 +82,7 @@ end
 
   - `maxtime`: Maximum optimzation time. Defaults to `60`.
   - `ineq_cons`: a vector of symbolic expressions in terms of symbolic
-      parameters. The optimizer will enforce `ineq_cons .< 0`.
+    parameters. The optimizer will enforce `ineq_cons .< 0`.
 
 # Returns
 

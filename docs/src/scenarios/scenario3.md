@@ -132,12 +132,14 @@ plot_uncertainty_forecast(prob, [accumulation_I], ts, [u_conv => Uniform(0.0, 1.
 ```
 
 ```@example scenario3
-get_uncertainty_forecast_quantiles(prob, [accumulation_I], ts, [u_conv => Uniform(0.0, 1.0)],
+get_uncertainty_forecast_quantiles(prob, [accumulation_I], ts,
+                                   [u_conv => Uniform(0.0, 1.0)],
                                    6 * 7)
 ```
 
 ```@example scenario3
-plot_uncertainty_forecast_quantiles(prob, [accumulation_I], ts, [u_conv => Uniform(0.0, 1.0)],
+plot_uncertainty_forecast_quantiles(prob, [accumulation_I], ts,
+                                    [u_conv => Uniform(0.0, 1.0)],
                                     6 * 7)
 ```
 
@@ -233,7 +235,8 @@ plot_uncertainty_forecast(probd, accumulation_I, 0:100,
 
 ```julia
 prob2 = prob
-get_uncertainty_forecast(prob2, [accumulation_I], 0:100, [u_conv => Uniform(0.0, 1.0)], 6 * 7)
+get_uncertainty_forecast(prob2, [accumulation_I], 0:100, [u_conv => Uniform(0.0, 1.0)],
+                         6 * 7)
 ```
 
 ```julia
@@ -257,7 +260,8 @@ plot_uncertainty_forecast_quantiles(prob2, [accumulation_I], 0:100,
 
 ```julia
 prob3 = prob
-get_uncertainty_forecast(prob2, [accumulation_I], 0:100, [u_conv => Uniform(0.0, 1.0)], 6 * 7)
+get_uncertainty_forecast(prob2, [accumulation_I], 0:100, [u_conv => Uniform(0.0, 1.0)],
+                         6 * 7)
 ```
 
 ```julia

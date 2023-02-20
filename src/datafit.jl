@@ -66,7 +66,7 @@ Fit paramters `p` to `data` measured at times `t`.
 ## Keyword Arguments
 
   - `maxiters`: how long to run the optimization for. Defaults to 10000. Larger values are slower but more
-     robust.
+    robust.
   - `loss`: the loss function used for fitting. Defaults to `EasyModelAnalysis.l2loss`, with an alternative
     being `EasyModelAnalysis.relative_l2loss` for relative weighted error.
 
@@ -125,9 +125,10 @@ end
 Compute the L2 distance between each problem and the dataset.
 
 Arguments:
-- `probs`: a vector of problems to simulate.
-- `ts`: time points of the dataset.
-- `dataset`: dataset of the form of `[S => zeros(n), I => zeros(n)]`.
+
+  - `probs`: a vector of problems to simulate.
+  - `ts`: time points of the dataset.
+  - `dataset`: dataset of the form of `[S => zeros(n), I => zeros(n)]`.
 
 Output: the L2 distance from the dataset for each problem.
 """
