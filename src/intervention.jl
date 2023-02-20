@@ -11,7 +11,7 @@
 
 ## Keyword Arguments
 
-  - `maxtime`: Maximum optimzation time. Defaults to `60`.
+  - `maxtime`: Maximum optimization time. Defaults to `60`.
 
 # Returns
 
@@ -85,16 +85,15 @@ end
   - `cost`: the cost function for minimization, e.g. `α + 20 * β`.
   - `ps`: the parameters that appear in the cost, e.g. `[α, β]`.
   - `lb`: the lower bounds of the parameters e.g. `[-10, -5]`.
-  - `ub`: the uppwer bounds of the parameters e.g. `[5, 10]`.
+  - `ub`: the upper bounds of the parameters e.g. `[5, 10]`.
   - `intervention_tspan`: intervention time span, e.g. `(20.0, 30.0)`. Defaults to `prob.tspan`.
   - `duration`: Duration for the evaluation of intervention. Defaults to `prob.tspan[2] - prob.tspan[1]`.
 
-
 ## Keyword Arguments
 
-  - `maxtime`: Maximum optimzation time. Defaults to `60`.
+  - `maxtime`: Maximum optimization time. Defaults to `60`.
   - `ineq_cons`: a vector of symbolic expressions in terms of symbolic
-      parameters. The optimizer will enforce `ineq_cons .< 0`.
+    parameters. The optimizer will enforce `ineq_cons .< 0`.
 
 # Returns
 
@@ -176,21 +175,20 @@ end
   - `obs`: The observation symbolic expression.
   - `reach`: The reach for the observation, i.e., the constraint enforces that `obs` reaches `reach`.
   - `cost`: the cost function for minimization, e.g. `α + 20 * β`. It could be a
-  tuple where the first argument is a symbol object in terms of parameters, and
-  the second entry of the tuple could be an arbitrary function that takes a
-  solution object and returns a real scalar.
+    tuple where the first argument is a symbol object in terms of parameters, and
+    the second entry of the tuple could be an arbitrary function that takes a
+    solution object and returns a real scalar.
   - `ps`: the parameters that appear in the cost, e.g. `[α, β]`.
   - `lb`: the lower bounds of the parameters e.g. `[-10, -5]`.
-  - `ub`: the uppwer bounds of the parameters e.g. `[5, 10]`.
+  - `ub`: the upper bounds of the parameters e.g. `[5, 10]`.
   - `intervention_tspan`: intervention time span, e.g. `(20.0, 30.0)`. Defaults to `prob.tspan`.
   - `duration`: Duration for the evaluation of intervention. Defaults to `prob.tspan[2] - prob.tspan[1]`.
 
-
 ## Keyword Arguments
 
-  - `maxtime`: Maximum optimzation time. Defaults to `60`.
+  - `maxtime`: Maximum optimization time. Defaults to `60`.
   - `ineq_cons`: a vector of symbolic expressions in terms of symbolic
-      parameters. The optimizer will enforce `ineq_cons .< 0`.
+    parameters. The optimizer will enforce `ineq_cons .< 0`.
 
 # Returns
 

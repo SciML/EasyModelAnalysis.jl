@@ -25,6 +25,7 @@ makedocs(sitename = "EasyModelAnalysis.jl",
          authors = "Chris Rackauckas",
          modules = Module[EasyModelAnalysis],
          clean = true, doctest = false,
+         linkcheck = true,
          strict = [
              :doctest,
              :linkcheck,

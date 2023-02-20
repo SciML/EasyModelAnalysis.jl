@@ -1,6 +1,6 @@
 # Calibrating Models to Data
 
-In this tutorial we will showcase the tooling for fitting models to data. Let's take our favorite 2nd order Lorenz equation form
+In this tutorial, we will showcase the tooling for fitting models to data. Let's take our favorite 2nd order Lorenz equation form
 as our model:
 
 ```@example datafitting

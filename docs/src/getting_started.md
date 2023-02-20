@@ -32,8 +32,8 @@ prob = ODEProblem(sys, u0, tspan, p, jac = true)
 sol = solve(prob)
 ```
 
-EasyModelAnalysis.jl then makes it easy to do complex queries about the model with simple one line commands.
-For example, let's the values of `x` at times `[0.0, 1.0, 2.0]`:
+EasyModelAnalysis.jl then makes it easy to do complex queries about the model with simple one-line commands.
+For example, let's evaluate the values of `x` at times `[0.0, 1.0, 2.0]`:
 
 ```@example analysis
 get_timeseries(prob, x, [0.0, 1.0, 2.0])
@@ -78,4 +78,4 @@ and similarly for extrema:
 xmin, xminval = get_min_t(prob, abs(x + y)^2)
 ```
 
-This applies for data fitting, sensitivity analysis, thresholds, and everything!
+This applies to data fitting, sensitivity analysis, thresholds, and everything!

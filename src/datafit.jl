@@ -22,7 +22,7 @@ end
 """
     datafit(prob, p, t, data)
 
-Fit paramters `p` to `data` measured at times `t`.
+Fit parameters `p` to `data` measured at times `t`.
 
 ## Arguments
 
@@ -33,7 +33,7 @@ Fit paramters `p` to `data` measured at times `t`.
 
 ## Keyword Arguments
 
-    - `loss`: the loss function used for fitting. Defaults to `EasyModelAnalysis.l2loss`, 
+    - `loss`: the loss function used for fitting. Defaults to `EasyModelAnalysis.l2loss`,
       with an alternative being `EasyModelAnalysis.relative_l2loss` for relative weighted error.
 
 `p` does not have to contain all the parameters required to solve `prob`,
@@ -54,7 +54,7 @@ end
 """
     global_datafit(prob, pbounds, t, data; maxiters = 10000)
 
-Fit paramters `p` to `data` measured at times `t`.
+Fit parameters `p` to `data` measured at times `t`.
 
 ## Arguments
 
@@ -66,7 +66,7 @@ Fit paramters `p` to `data` measured at times `t`.
 ## Keyword Arguments
 
   - `maxiters`: how long to run the optimization for. Defaults to 10000. Larger values are slower but more
-     robust.
+    robust.
   - `loss`: the loss function used for fitting. Defaults to `EasyModelAnalysis.l2loss`, with an alternative
     being `EasyModelAnalysis.relative_l2loss` for relative weighted error.
 
@@ -107,7 +107,7 @@ end
 """
     bayesian_datafit(prob,  p, t, data)
 
-Calculate posterior distribution for paramters `p` given `data` measured at times `t`.
+Calculate posterior distribution for parameters `p` given `data` measured at times `t`.
 """
 function bayesian_datafit(prob, p, t, data; noise_prior = InverseGamma(2, 3))
     pdist = getfield.(p, :second)
@@ -125,9 +125,10 @@ end
 Compute the L2 distance between each problem and the dataset.
 
 Arguments:
-- `probs`: a vector of problems to simulate.
-- `ts`: time points of the dataset.
-- `dataset`: dataset of the form of `[S => zeros(n), I => zeros(n)]`.
+
+  - `probs`: a vector of problems to simulate.
+  - `ts`: time points of the dataset.
+  - `dataset`: dataset of the form of `[S => zeros(n), I => zeros(n)]`.
 
 Output: the L2 distance from the dataset for each problem.
 """

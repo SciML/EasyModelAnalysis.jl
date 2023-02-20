@@ -76,13 +76,13 @@ end
   - `cost`: the cost function for minimization, e.g. `α + 20 * β`.
   - `ps`: the parameters that appear in the cost, e.g. `[α, β]`.
   - `lb`: the lower bounds of the parameters e.g. `[-10, -5]`.
-  - `ub`: the uppwer bounds of the parameters e.g. `[5, 10]`.
+  - `ub`: the upper bounds of the parameters e.g. `[5, 10]`.
 
 ## Keyword Arguments
 
-  - `maxtime`: Maximum optimzation time. Defaults to `60`.
+  - `maxtime`: Maximum optimization time. Defaults to `60`.
   - `ineq_cons`: a vector of symbolic expressions in terms of symbolic
-      parameters. The optimizer will enforce `ineq_cons .< 0`.
+    parameters. The optimizer will enforce `ineq_cons .< 0`.
 
 # Returns
 

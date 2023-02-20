@@ -1,6 +1,6 @@
 # Sensitivity Analysis
 
-In this tutorial we will showcase how to perform global sensitivity analysis of a model. To get started, let's first pull in our
+In this tutorial, we will showcase how to perform global sensitivity analysis of a model. To get started, let's first pull in our
 modified second order ODE Lorenz equation model from before:
 
 ```@example sensitivity
@@ -31,13 +31,13 @@ prob = ODEProblem(sys, u0, tspan, p, jac = true)
 sol = solve(prob)
 ```
 
-On this model we wish to perform sensitivity analyses. Global sensitivity analysis requires the specification of two things:
+On this model, we wish to perform sensitivity analyses. Global sensitivity analysis requires the specification of two things:
 
  1. Global sensitivity of what? What is the value to be measured from the model that you want to assess the sensitivity of?
  2. Over what space of parameter values? This is a box of potential values for the parameters of the model.
 
 The function `get_sensitivity(prob, t, obs, bounds)` first takes `(t,obs)`, where `t` is the time point to take measurements from
-the model and `y` is the desired observable to measure. `bounds` is specified as an array of pairs which maps parameter symbols
+the model and `y` is the desired observable to measure. `bounds` is specified as an array of pairs, which maps parameter symbols
 to arrays specifying the lower and upper bounds of its parameter range.
 
 Thus for example, let's calculate the sensitivity of `y(100)` over the parameters `(ρ, β)` where
@@ -69,7 +69,7 @@ The second order indices then say how much can be attributed to changes of combi
 ```
 
 which thus gives the percentage of variance explained by the nonlinearities of ρ and β combined. These sensitivity functions only
-output up to the second indices since there is a combinatorial explosion in the number of terms that need to be computed for models
+output up to the second indices, since there is a combinatorial explosion in the number of terms that need to be computed for models
 with more parameters. However, in this tutorial there are only two variables, and thus all variance should be explained by just these
 two parameters. This means that `ρ_first_order + β_first_order + ρ_β_second_order` should be approximately equal to 1, as all variance
 should be explained by the linearity or second order interactions between the two variables. Let's check this in action:
@@ -81,12 +81,12 @@ sensres[:ρ_first_order] + sensres[:β_first_order] + sensres[:ρ_β_second_orde
 This is not exactly equal to 1 due to the numerical error in the integral approximations, but you can see theory in action!
 (Also, this is a good test for correctness of the implementation).
 
-Now if you had more than two variables, is there a good way to get a sense of the "sensitivity due to ρ"? Using the first indices
-is a bad approximation to this value since it's only the measurement of the independent or linear sensitivity of the output due
-to ρ. Instead what one would want to do is say get the sum of the first order index `ρ_first_order`, plus all second order effects
-which include `ρ`, plus all third order effects that include `ρ`, plus ... all the way to the `N`th order for `N` variables.
-Surprisingly, this summation can be computed without requiring the computation of all of the higher order indices. This is known
-as the "total order index" of a variable. In a two parameter model, we can see this in action:
+Now, if you had more than two variables, is there a good way to get a sense of the “sensitivity due to ρ”? Using the first indices
+is a bad approximation to this value, since it's only the measurement of the independent or linear sensitivity of the output due
+to ρ. Instead, what one would want to do, is to get the sum of the first order index `ρ_first_order`, plus all second order effects
+which include `ρ`, plus all third order effects that include `ρ`, plus … all the way to the `N`th order for `N` variables.
+Surprisingly, this summation can be computed without requiring the computation of all the higher order indices. This is known
+as the “total order index” of a variable. In a two parameter model, we can see this in action:
 
 ```@example sensitivity
 sensres[:ρ_first_order] + sensres[:ρ_β_second_order], sensres[:ρ_total_order]
@@ -96,7 +96,7 @@ sensres[:ρ_first_order] + sensres[:ρ_β_second_order], sensres[:ρ_total_order
 sensres[:β_first_order] + sensres[:ρ_β_second_order], sensres[:β_total_order]
 ```
 
-Thus the total indices are a good measurement of the relative size of the total effect of each parameter on the solution of the
+Thus, the total indices are a good measurement of the relative size of the total effect of each parameter on the solution of the
 model.
 
 In summary:
