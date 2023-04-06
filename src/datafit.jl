@@ -85,39 +85,39 @@ function global_datafit(prob, pbounds, t, data; maxiters = 10000, loss = l2loss)
     Pair.(pkeys, res.u)
 end
 
-@model function bayesianODE(prob, t, p, data, noise_prior)
-    σ ~ noise_prior
-    pdist = getfield.(p, :second)
-    pkeys = getfield.(p, :first)
-    pprior ~ product_distribution(pdist)
+# @model function bayesianODE(prob, t, p, data, noise_prior)
+#     σ ~ noise_prior
+#     pdist = getfield.(p, :second)
+#     pkeys = getfield.(p, :first)
+#     pprior ~ product_distribution(pdist)
 
-    prob = remake(prob, tspan = (prob.tspan[1], t[end]), p = Pair.(pkeys, pprior))
-    sol = solve(prob, saveat = t)
-    failure = size(sol, 2) < length(t)
-    if failure
-        Turing.DynamicPPL.acclogp!!(__varinfo__, -Inf)
-        return nothing
-    end
-    for i in eachindex(data)
-        data[i].second ~ MvNormal(sol[data[i].first], σ^2 * I)
-    end
-    return nothing
-end
+#     prob = remake(prob, tspan = (prob.tspan[1], t[end]), p = Pair.(pkeys, pprior))
+#     sol = solve(prob, saveat = t)
+#     failure = size(sol, 2) < length(t)
+#     if failure
+#         Turing.DynamicPPL.acclogp!!(__varinfo__, -Inf)
+#         return nothing
+#     end
+#     for i in eachindex(data)
+#         data[i].second ~ MvNormal(sol[data[i].first], σ^2 * I)
+#     end
+#     return nothing
+# end
 
-"""
-    bayesian_datafit(prob,  p, t, data)
+# """
+#     bayesian_datafit(prob,  p, t, data)
 
-Calculate posterior distribution for parameters `p` given `data` measured at times `t`.
-"""
-function bayesian_datafit(prob, p, t, data; noise_prior = InverseGamma(2, 3))
-    pdist = getfield.(p, :second)
-    pkeys = getfield.(p, :first)
+# Calculate posterior distribution for parameters `p` given `data` measured at times `t`.
+# """
+# function bayesian_datafit(prob, p, t, data; noise_prior = InverseGamma(2, 3))
+#     pdist = getfield.(p, :second)
+#     pkeys = getfield.(p, :first)
 
-    model = bayesianODE(prob, t, p, data, noise_prior)
-    chain = sample(model, NUTS(0.65), MCMCSerial(), 1000, 3; progress = true)
-    [Pair(pkeys[i], collect(chain["pprior[" * string(i) * "]"])[:])
-     for i in eachindex(pkeys)]
-end
+#     model = bayesianODE(prob, t, p, data, noise_prior)
+#     chain = sample(model, NUTS(0.65), MCMCSerial(), 1000, 3; progress = true)
+#     [Pair(pkeys[i], collect(chain["pprior[" * string(i) * "]"])[:])
+#      for i in eachindex(pkeys)]
+# end
 
 """
     model_forecast_score(probs::AbstractVector, ts::AbstractVector, dataset::AbstractVector{<:Pair})

@@ -3,7 +3,7 @@
 *.jl.mem
 /docs/build/
 /docs/src/modules
-Manifest.toml
+# Manifest.toml # because i want to use nightlies and https://github.com/TuringLang/Turing.jl/issues/1713 turing is not compatible with it, so i use the workaround
 *.swp
 
 # vscode stuff

@@ -6,7 +6,7 @@ using Reexport
 @reexport using ModelingToolkit
 @reexport using Distributions
 using Optimization, OptimizationBBO, OptimizationNLopt
-using GlobalSensitivity, Turing
+using GlobalSensitivity
 using SciMLExpectations
 @reexport using Plots
 using SciMLBase.EnsembleAnalysis
