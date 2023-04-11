@@ -1,3 +1,10 @@
+using Catlab, AlgebraicPetri, ModelingToolkit, DifferentialEquations, UnPack, SciMLBase,
+      Distributions, Symbolics, DiffEqBase, Plots, EasyModelAnalysis
+using DifferentialEquations.EnsembleAnalysis
+using Catlab.CategoricalAlgebra
+using OpenAIReplMode
+using CSV, DataFrames
+
 dir = "/Users/anand/code/python/mira/notebooks/ensemble"
 fns = filter(endswith("json"), readdir(dir; join = true))
 sch_fn = "/Users/anand/code/python/algj/py-acsets/src/acsets/schemas/catlab/PropertyLabelledReactionNet.json"
