@@ -1,3 +1,4 @@
+t0 = time()
 using AlgebraicPetri, DataFrames, DifferentialEquations, ModelingToolkit, Symbolics,
       EasyModelAnalysis, Catlab, Catlab.CategoricalAlgebra, JSON3, UnPack, CSV, DataFrames,
       Downloads, URIs, CSV, DataFrames, MathML, NLopt
@@ -300,27 +301,31 @@ mapping = Dict([Deaths => :deaths, Cases => :cases, Hospitalizations => :hosp])
 
 osols = []
 
-ensemble_res = [calibrate(prob, dfx, mapping) for prob in probs]
-new_probs = [remake(prob, u0 = res.u, p = res.u)
-             for (prob, res) in zip(probs, ensemble_res)]
+# ensemble_res = [calibrate(prob, dfx, mapping) for prob in probs]
+# new_probs = [remake(prob, u0 = res.u, p = res.u)
+#              for (prob, res) in zip(probs, ensemble_res)]
 
-# train losses/scores
-EasyModelAnalysis.model_forecast_score(new_probs, dfx.t, to_data(dfx, mapping))
-EasyModelAnalysis.model_forecast_score(new_probs, dfy.t, to_data(dfy, mapping))
+# # train losses/scores
+# EasyModelAnalysis.model_forecast_score(new_probs, dfx.t, to_data(dfx, mapping))
+# EasyModelAnalysis.model_forecast_score(new_probs, dfy.t, to_data(dfy, mapping))
 
-prob = new_probs[3]
+# prob = new_probs[3]
 
-# reforcast with calibrated parameters/u0
-fit_ps = first.(p) .=> res.u
-rprob = remake(prob; u0 = fit_ps, p = fit_ps)
-sol = solve(prob; saveat = dfi.t)
+# # reforcast with calibrated parameters/u0
+# fit_ps = first.(p) .=> res.u
+# rprob = remake(prob; u0 = fit_ps, p = fit_ps)
+# sol = solve(prob; saveat = dfi.t)
 
-plt = plot_covidhub(dfi)
-scatter!(plt, sol, vars = [Deaths, Cases, Hospitalizations])
-map(x -> l2loss_from_sol(solve(x; saveat = dfi.t), dfi, mapping), new_probs)
-
+# plt = plot_covidhub(dfi)
+# scatter!(plt, sol, vars = [Deaths, Cases, Hospitalizations])
+# map(x -> l2loss_from_sol(solve(x; saveat = dfi.t), dfi, mapping), new_probs)
+t1 = time()
 xscores = []
 yscores = []
+
+ress = []
+
+calibrated_probs = []
 
 for dfi in dfs
     @info "" dfi
@@ -331,18 +336,25 @@ for dfi in dfs
     ydata = to_data(dfy, mapping)
 
     ensemble_res = [calibrate(prob, dfx, mapping) for prob in probs]
+    push!(ress, ensemble_res)
+
     new_probs = [remake(prob, u0 = res.u, p = res.u)
                  for (prob, res) in zip(probs, ensemble_res)]
-    
+
+    push!(calibrated_probs, new_probs)
     push!(xscores, EasyModelAnalysis.model_forecast_score(new_probs, dfx.t, xdata))
     push!(yscores, EasyModelAnalysis.model_forecast_score(new_probs, dfy.t, ydata))
-                              
+
     ts = dfi.t
     data = to_data(dfi, mapping)
 
-    sol = solve(prob; saveat = ts)
-    plt = plot_covidhub(dfi)
-    # todo change the color of the forecasted points
-    scatter!(plt, sol, vars = [Deaths, Cases, Hospitalizations])
-    display(plt)
+    for prob in new_probs
+        sol = solve(prob; saveat = ts)
+        plt = plot_covidhub(dfi)
+        # todo change the color of the forecasted points
+        scatter!(plt, sol, vars = [Deaths, Cases, Hospitalizations])
+        display(plt)
+    end
 end
+
+# still todo is the weighted sums for the ensemble
