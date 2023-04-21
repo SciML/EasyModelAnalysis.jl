@@ -1,6 +1,11 @@
+t1 = time()
 using AlgebraicPetri, DataFrames, DifferentialEquations, ModelingToolkit, Symbolics,
       EasyModelAnalysis, Catlab, Catlab.CategoricalAlgebra, JSON3, UnPack, CSV, DataFrames,
       Downloads, URIs, CSV, DataFrames, MathML, NLopt
+using EasyModelAnalysis: NLopt
+
+MTK = ModelingToolkit
+meqs = MTK.equations
 
 function download_covidhub_data(urls, filenames)
     begin for (url, filename) in zip(urls, filenames)
@@ -114,7 +119,6 @@ function ModelingToolkit.ODESystem(p::PropertyLabelledReactionNet{Number, Number
     ps_sub_map = mira_st_ps .=> mira_p
     # mira_p = [first(@parameters $k = v) for (k, v) in mira_ps]
 
-
     D = Differential(t)
 
     tm = TransitionMatrices(p)
@@ -127,8 +131,8 @@ function ModelingToolkit.ODESystem(p::PropertyLabelledReactionNet{Number, Number
     mrl_vars = union(Symbolics.get_variables.(sym_rate_exprs)...)
     sts_that_should_be_ps = setdiff(mrl_vars, S)
     # sts_that_should_be_ps2 = setdiff(sts_that_should_be_ps, mira_st_ps)
-    # append!(mira_p, MTK.toparam.(sts_that_should_be_ps2))
-    # append!(ps_sub_map, sts_that_should_be_ps2 .=> MTK.toparam.(sts_that_should_be_ps2))
+    # append!(mira_p, MTK.toparam.(sts_that_should_be_ps2)) 
+    # append!(ps_sub_map, sts_that_should_be_ps2 .=> MTK.toparam.(sts_that_should_be_ps2)) # why ben, why!! XXlambdaXX
 
     default_p = [r .=> p[:rate]; mira_p .=> last.(collect(mira_ps))]
     default_u0 = S .=> p[:concentration]
@@ -139,12 +143,21 @@ function ModelingToolkit.ODESystem(p::PropertyLabelledReactionNet{Number, Number
     full_sub_map = [st_sub_map; ps_sub_map]
     sym_rate_exprs = [substitute(sym_rate_expr, ps_sub_map)
                       for sym_rate_expr in sym_rate_exprs]
-    transition_rates = [sym_rate_exprs[tr] for tr in 1:nt(p)]
+
+    tm = TransitionMatrices(p)
+
+    coefficients = tm.output - tm.input
+
+    transition_rates = [r[tr] * prod(S[s]^tm.input[tr, s] for s in 1:ns(p))
+                        for tr in 1:nt(p)]
+
+    # disabling this for now
+    # transition_rates = [sym_rate_exprs[tr] for tr in 1:nt(p)]
 
     observable_species_idxs = filter(i -> sprop(p, i)["is_observable"], 1:ns(p))
     observable_species_names = Symbolics.getname.(S[observable_species_idxs])
 
-    # todo, this really needs to be validated, since idk if it's correct
+    # todo, this really needs to be validated, since idk if it's correct, update: pretty sure its busted.
     deqs = [D(S[s]) ~ transition_rates' * coefficients[:, s]
             for s in 1:ns(p) if Symbolics.getname(S[s]) ∉ observable_species_names]
 
@@ -156,77 +169,6 @@ function ModelingToolkit.ODESystem(p::PropertyLabelledReactionNet{Number, Number
     sys = ODESystem(eqs, t, S, first.(default_p); name = name, defaults, kws...)
 end
 
-
-urls = [
-    "https://github.com/reichlab/covid19-forecast-hub/raw/master/data-truth/truth-Incident%20Cases.csv",
-    "https://github.com/reichlab/covid19-forecast-hub/raw/master/data-truth/truth-Incident%20Deaths.csv",
-    "https://github.com/reichlab/covid19-forecast-hub/raw/master/data-truth/truth-Incident%20Hospitalizations.csv",
-]
-
-filenames = [URIs.unescapeuri(split(url, "/")[end]) for url in urls]
-download_covidhub_data(urls, filenames)
-# Read the local CSV files into DataFrames
-dfc = CSV.read(filenames[1], DataFrame)
-dfd = CSV.read(filenames[2], DataFrame)
-dfh = CSV.read(filenames[3], DataFrame)
-covidhub = calibration_data(dfc, dfh, dfd, use_hosp = true)
-df = groupby_week(covidhub)
-plot_covidhub(df)
-
-# NOTE: i modified all of the  "rate": null, to be 0.1 just so that we can make defaults easier to handle
-petri_fns = [
-    "BIOMD0000000955_miranet.json",
-    "BIOMD0000000960_miranet.json",
-    "BIOMD0000000983_miranet.json",
-]
-abs_fns = [joinpath(@__DIR__, "../data/", fn) for fn in petri_fns]
-T_PLRN = PropertyLabelledReactionNet{Number, Number, Dict}
-petris = read_json_acset.((T_PLRN,), abs_fns)
-p = petri = petris[3]
-sys = ODESystem(petri)
-sys2 = ODESystem(p)
-sys2 = structural_simplify(ODESystem(p))
-prob = ODEProblem(sys2, [], (0,100))
-sol = solve(prob)
-plot(sol)
-
-
-sidarthe_old_obs = sidarthe = sys = ODESystem(petri) # this is just so we can get the syms out, the real sys used is recreated below
-
-@unpack Susceptible, Infected, Diagnosed, Ailing, Recognized, Threatened, Healed, Extinct = sidarthe
-@variables t Hospitalizations(t) Cases(t) Deaths(t)
-S, I, D, A, R, T, H, E = Susceptible, Infected, Diagnosed, Ailing, Recognized, Threatened,
-                         Healed, Extinct
-
-ssnames = string.(snames(petri))
-psnames = string.(tnames(petri))
-
-ps = psnames .=> petri[:rate]
-u0 = ssnames .=> (petri[:concentration] .* 300_000_000)
-
-syms = sys_syms(sys)
-symsnames = symbolize_args(u0, syms)
-sympsnames = symbolize_args(ps, syms)
-u0syms = first.(collect(symsnames))
-pssyms = first.(collect(sympsnames))
-defaults = collect(merge(symsnames, sympsnames))
-defaults = Num.(first.(defaults)) .=> last.(defaults)
-tspan = (0.0, 100.0)
-
-# here is where we're adding in the observed 
-eqs = [ModelingToolkit.equations(sys)[1:(end - 3)];
-       Hospitalizations ~ Recognized + Threatened;
-       Cases ~ Diagnosed + Recognized + Threatened; Deaths ~ Extinct]
-
-sidarthe = sys = structural_simplify(ODESystem(eqs, t, u0syms, pssyms; defaults, tspan,
-                                               name = :sidarthe))
-prob = ODEProblem(sys)
-sol = solve(prob)
-plot(sol)
-
-total_pop = 300_000_000
-
-dfs = select_timeperiods(df, 6)
 function u0_defs(sys)
     begin filter(x -> !ModelingToolkit.isparameter(x[1]),
                  collect(ModelingToolkit.defaults(sys))) end
@@ -235,6 +177,125 @@ function p_defs(sys)
     begin filter(x -> ModelingToolkit.isparameter(x[1]),
                  collect(ModelingToolkit.defaults(sys))) end
 end
+
+urls = [
+    "https://github.com/reichlab/covid19-forecast-hub/raw/master/data-truth/truth-Incident%20Cases.csv",
+    "https://github.com/reichlab/covid19-forecast-hub/raw/master/data-truth/truth-Incident%20Deaths.csv",
+    "https://github.com/reichlab/covid19-forecast-hub/raw/master/data-truth/truth-Incident%20Hospitalizations.csv",
+]
+
+filenames = [joinpath(@__DIR__, "../data/", URIs.unescapeuri(split(url, "/")[end]))
+             for url in urls]
+download_covidhub_data(urls, filenames)
+
+# Read the local CSV files into DataFrames
+dfc = CSV.read(filenames[1], DataFrame)
+dfd = CSV.read(filenames[2], DataFrame)
+dfh = CSV.read(filenames[3], DataFrame)
+covidhub = calibration_data(dfc, dfh, dfd, use_hosp = true)
+df = groupby_week(covidhub)
+plot_covidhub(df)
+
+# MODEL MODIFCATION LOG
+# modified all of the  "rate": null, to be 0.1 just so that we can make defaults easier to handle
+# deleted all the uses of the XXlambdaXX parameter, since it doesn't get defined anywhere and seems to be a loose end
+# noting that BIOMD983 is giving ┌ Warning: Internal error: Variable Quarantined(t) was marked as being in Differential(t)(Quarantined(t)) ~ beta*sigma*Infected_unreported(t)*Susceptible_unconfined(t) + beta*n*sigma*Infected_reported(t)*Susceptible_unconfined(t) - theta*(1.0 - Quarantined(t)) - theta*Quarantined(t), but was actually zero
+
+petri_fns = [
+    "BIOMD0000000955_miranet.json",
+    "BIOMD0000000960_miranet.json",
+    "BIOMD0000000983_miranet.json",
+]
+
+abs_fns = [joinpath(@__DIR__, "../data/", fn) for fn in petri_fns]
+T_PLRN = PropertyLabelledReactionNet{Number, Number, Dict}
+
+for fn in abs_fns
+    @info fn
+    p = read_json_acset(T_PLRN, fn)
+    sys = structural_simplify(ODESystem(p))
+    prob = ODEProblem(sys, [], (0, 100))
+    sol = solve(prob)
+    display(plot(sol))
+    @test sol.retcode == ReturnCode.Success
+end
+
+petris = read_json_acset.((T_PLRN,), abs_fns)
+syss = structural_simplify.(ODESystem.(petris))
+probs = map(x -> ODEProblem(x, [], (0, 100)), syss)
+
+petri = petris[1]
+sys = syss[1]
+prob = probs[1]
+sol = solve(prob)
+prob = remake(prob; tspan = (0, 1e4))
+sol = solve(prob)
+
+petri = petris[1]
+lrn = LabelledReactionNet{Number, Number}(petri)
+sys = ODESystem(petri)
+sidarthe = ssys = structural_simplify(sys)
+sym_vars = syms = sys_syms(sys)
+
+incoming_values = [snames(petri) .=> petri[:concentration]; tnames(petri) .=> petri[:rate]]
+defs = symbolize_args(incoming_values, sym_vars)
+
+x = @which ODESystem(lrn; defaults = defs)
+@test AlgebraicPetri.ModelingToolkitInterop == x.module
+sys2 = structural_simplify(ODESystem(lrn; defaults = defs))
+prob = ODEProblem(ssys, [], (0, 100))
+prob2 = ODEProblem(sys2, [], (0, 100))
+sol = solve(prob)
+sol2 = solve(prob2)
+
+# this is testing that the mira mml rate laws are all mass action and solve the same as if we used the normal petri net dispatch
+# it doesn't really validate all that much for the non mass action laws 
+# i disabled rate laws 
+@test isapprox(sol.u[end], sol2.u[end][1:8]; rtol = 1e-4)
+
+petridefs = [snames(petri) .=> petri[:concentration]; tnames(petri) .=> petri[:rate]]
+# sidarthe_old_obs = sidarthe = sys = ODESystem(petri) # this is just so we can get the syms out, the real sys used is recreated below
+
+petri = petris[2]
+lrn = LabelledReactionNet{Number, Number}(petri)
+sys = ODESystem(petri)
+ssys = structural_simplify(sys)
+sym_vars = syms = sys_syms(sys)
+
+incoming_values = [snames(petri) .=> petri[:concentration]; tnames(petri) .=> petri[:rate]]
+defs = symbolize_args(incoming_values, sym_vars)
+
+x = @which ODESystem(lrn; defaults = defs)
+@test AlgebraicPetri.ModelingToolkitInterop == x.module
+sys2 = structural_simplify(ODESystem(lrn; defaults = defs))
+prob = ODEProblem(ssys, [], (0, 100))
+prob2 = ODEProblem(sys2, [], (0, 100))
+sol = solve(prob)
+sol2 = solve(prob2)
+plot(sol)
+plot(sol2)
+
+# actual demo stuff
+petri = petris[1]
+sys = ODESystem(petri)
+sidarthe = ssys = structural_simplify(sys)
+sym_vars = syms = sys_syms(sys)
+
+@unpack Susceptible, Infected, Diagnosed, Ailing, Recognized, Threatened, Healed, Extinct, Deaths, Hospitalizations, Cases = sidarthe
+S, I, D, A, R, T, H, E, De, Ho, Ca = Susceptible, Infected, Diagnosed, Ailing, Recognized,
+                                     Threatened,
+                                     Healed, Extinct, Deaths, Hospitalizations, Cases
+
+tspan = (0.0, 100.0)
+defaults = ModelingToolkit.defaults(sidarthe)
+for st in [Susceptible, Infected, Diagnosed, Ailing, Recognized, Threatened, Healed, Extinct]
+    defaults[st] *= total_pop # this actually mutates the return of ModelingToolkit.defaults
+end
+
+# prob = ODEProblem(sidarthe, defaults, tspan, defaults)
+prob = ODEProblem(sidarthe, [], tspan)
+sol = solve(prob)
+plot(sol)
 
 """ 
 if the data are observables, it's not necesarily true that a consistent assignment for u0 exists
@@ -249,33 +310,48 @@ if the data are observables, it's not necesarily true that a consistent assignme
     we can only determine u0 for D, but there are infinite solutions for H and C
 """
 nothing
-ddefaults = Dict(defaults)
-ddefaults[Num(Cases)] = u01.cases
+# ddefaults = Dict(defaults)
 
-remake(pro)
+total_pop = 300_000_000
 
+dfs = select_timeperiods(df, 10)
 dfi = dfs[1]
-dfx = dfi[1:3, :]
-dfy = dfi[4:end, :]
+dfx = dfi[1:5, :]
+dfy = dfi[6:end, :]
 
-p = collect(sympsnames)
+# p = p_defs(sys)
+# p = collect(defaults)
 ts = dfx.t
 data = [Deaths => dfx.deaths, Cases => dfx.cases, Hospitalizations => dfx.hosp]
-loss = EasyModelAnalysis.l2loss
-function mycallback2(p, l)
-    display((p, l, opt_step_count))
-    global opt_step_count += 1
-    if opt_step_count > 100
-        return true
+# loss = EasyModelAnalysis.l2loss
+function myloss(pvals, (prob, pkeys, t, data))
+    # np = length(pkeys)
+    # p = Pair.(pkeys, pvals[1:np])
+    # u0 = Pair.(ukeys, pvals[np+1:end])
+    new_defs = pkeys .=> pvals
+    prob = remake(prob, tspan = (prob.tspan[1], t[end]), p = new_defs, u0 = new_defs)
+    sol = solve(prob, saveat = t)
+    tot_loss = 0.0
+    for pairs in data
+        tot_loss += sum((sol[pairs.first] .- pairs.second) .^ 2)
     end
-    return false
+    return tot_loss
 end
+
+# function mycallback2(p, l)
+#     display((p, l, opt_step_count))
+#     global opt_step_count += 1
+#     if opt_step_count > 100
+#         return true
+#     end
+#     return false
+# end
 global opt_step_count = 0
 losses = Float64[]
 function mycallback(p, l)
-    return true
+    # return true
     global opt_step_count += 1
-    @info ((p, l, opt_step_count))
+    @info ((l, opt_step_count))
     push!(losses, l)
     if opt_step_count % 10 == 0
         plt = plot(losses, yaxis = :log, ylabel = "Loss", xlabel = "Iteration",
@@ -290,47 +366,43 @@ function mycallback(p, l)
     return false
 end
 
-using EasyModelAnalysis: NLopt
-pvals = getfield.(p, :second)
+# all_fits = []
+# for dfi in dfs
+@info dfi
+# p = p_defs(sys)
+p = collect(defaults)
 pkeys = getfield.(p, :first)
+pvals = getfield.(p, :second)
+oargs = (prob, first.(p), ts, data);
+myloss(pvals, oargs)
+t2 = time()
 
 # how best should the domain knowledge that the transition rates for a petri net are always ∈ [0, Inf) be encoded?
-oprob = OptimizationProblem(loss, pvals,
+oprob = OptimizationProblem(myloss, pvals,
                             lb = fill(0, length(p)),
                             ub = fill(Inf, length(p)), (prob, pkeys, ts, data))
 res = solve(oprob, NLopt.LN_SBPLX(); callback = mycallback)
 fitps = Pair.(pkeys, res.u)
 
-rprob = remake(prob, p = fitps)
-plt = covidhub_plot(dfi)
-rsol = solve(rprob; saveat = dfi.ts)
+rprob = remake(prob; u0 = fitps, p = fitps)
+plt = plot_covidhub(dfi)
+rsol = solve(rprob; saveat = dfi.t)
+scatter!(plt, rsol, vars = [Deaths, Cases, Hospitalizations])
 
-using Optim
 
-# Extract initial values from the first row of the dataframe
-initial_cases = dfs[1].cases[1]
-initial_deaths = dfs[1].deaths[1]
-initial_hosp = dfs[1].hosp[1]
 
-# Define the objective function
-function objective_function(initial_conditions)
-    sol = solve(remake(prob; u0 = initial_conditions))
-    sum(abs2,
-        sol[[Cases, Deaths, Hospitalizations]][1] .-
-        [initial_cases, initial_deaths, initial_hosp])
-end
+# function u0_from_obs_df(df)
+# # Extract initial values from the first row of the dataframe
+# initial_cases = df.cases[1]
+# initial_deaths = df.deaths[1]
+# initial_hosp = df.hosp[1]
 
-# Optimize the initial conditions
-# initial_guess = [sys.u0[:Susceptible], sys.u0[:Infected], sys.u0[:Diagnosed], sys.u0[:Ailing], sys.u0[:Recognized], sys.u0[:Healed], sys.u0[:Threatened], sys.u0[:Extinct]]
-result = optimize(objective_function, prob.u0, BFGS())
 
-# Update the ODE system with the optimized initial conditions
-optimized_initial_conditions = result.minimizer
-sys.u0[:Susceptible] = optimized_initial_conditions[1]
-sys.u0[:Infected] = optimized_initial_conditions[2]
-sys.u0[:Diagnosed] = optimized_initial_conditions[3]
-sys.u0[:Ailing] = optimized_initial_conditions[4]
-sys.u0[:Recognized] = optimized_initial_conditions[5]
-sys.u0[:Healed] = optimized_initial_conditions[6]
-sys.u0[:Threatened] = optimized_initial_conditions[7]
-sys.u0[:Extinct] = optimized_initial_conditions[8]
+# # Use the relationships between observables and states to estimate the initial conditions
+# initial_diagnosed = initial_cases - initial_hosp
+# initial_extinct = initial_deaths
+# initial_recognized_and_threatened = initial_hosp
+
+# # Assuming the Recognized and Threatened compartments have similar proportions
+# initial_recognized = initial_recognized_and_threatened * 0.5
+# initial_threatened = initial_recognized_and_threatened * 0.5
