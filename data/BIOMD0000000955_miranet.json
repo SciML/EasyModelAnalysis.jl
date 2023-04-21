@@ -213,8 +213,8 @@
     "parameter_value": 0.034,
     "parameter_distribution": "{\"type\": \"StandardUniform1\", \"parameters\": {\"minimum\": 0.027200000000000002, \"maximum\": 0.0408}}",
     "mira_template": "{\"rate_law\": \"Infected*\", \"type\": \"NaturalConversion\", \"subject\": {\"name\": \"Infected\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {}}, \"outcome\": {\"name\": \"Healed\", \"identifiers\": {\"ido\": \"0000592\"}, \"context\": {}}, \"provenance\": []}",
-    "mira_rate_law": "Infected*",
-    "mira_rate_law_mathml": "<apply><times/><ci>Infected</ci><ci></ci></apply>",
+    "mira_rate_law": "Infected",
+    "mira_rate_law_mathml": "<ci>Infected</ci>",
     "mira_parameters": "{\"lambda\": 0.034}",
     "mira_parameter_distributions": "{\"lambda\": {\"parameters\": {\"maximum\": 0.0408, \"minimum\": 0.027200000000000002}, \"type\": \"StandardUniform1\"}}"
    },
