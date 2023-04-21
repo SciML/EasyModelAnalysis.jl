@@ -9,3 +9,5 @@
 # vscode stuff
 .vscode
 .vscode/*
+
+*.csv

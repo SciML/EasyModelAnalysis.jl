@@ -1,0 +1,398 @@
+{
+ "S": [
+  {
+   "sname": "Susceptible_unconfined",
+   "sprop": {
+    "is_observable": false,
+    "mira_ids": "[('identity', 'ido:0000514')]",
+    "mira_context": "[('quarantined', 'ncit:C68851')]",
+    "mira_concept": "{\"name\": \"Susceptible_unconfined\", \"identifiers\": {\"ido\": \"0000514\"}, \"context\": {\"quarantined\": \"ncit:C68851\"}}"
+   },
+   "concentration": 66990000.0
+  },
+  {
+   "sname": "Exposed",
+   "sprop": {
+    "is_observable": false,
+    "mira_ids": "[('identity', 'apollosv:00000154')]",
+    "mira_context": "[]",
+    "mira_concept": "{\"name\": \"Exposed\", \"identifiers\": {\"apollosv\": \"00000154\"}, \"context\": {}}"
+   },
+   "concentration": 112.0
+  },
+  {
+   "sname": "Infected_reported",
+   "sprop": {
+    "is_observable": false,
+    "mira_ids": "[('identity', 'ido:0000511')]",
+    "mira_context": "[('diagnosis', 'ncit:C15220')]",
+    "mira_concept": "{\"name\": \"Infected_reported\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {\"diagnosis\": \"ncit:C15220\"}}"
+   },
+   "concentration": 12.0
+  },
+  {
+   "sname": "Infected_unreported",
+   "sprop": {
+    "is_observable": false,
+    "mira_ids": "[('identity', 'ido:0000511')]",
+    "mira_context": "[('diagnosed', 'ncit:C113725')]",
+    "mira_concept": "{\"name\": \"Infected_unreported\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {\"diagnosed\": \"ncit:C113725\"}}"
+   },
+   "concentration": 50.0
+  },
+  {
+   "sname": "Quarantined",
+   "sprop": {
+    "is_observable": false,
+    "mira_ids": "[('identity', 'ido:0000514')]",
+    "mira_context": "[('quarantined', 'ncit:C71902')]",
+    "mira_concept": "{\"name\": \"Quarantined\", \"identifiers\": {\"ido\": \"0000514\"}, \"context\": {\"quarantined\": \"ncit:C71902\"}}"
+   },
+   "concentration": 36.0
+  },
+  {
+   "sname": "Recovered",
+   "sprop": {
+    "is_observable": false,
+    "mira_ids": "[('identity', 'ido:0000592')]",
+    "mira_context": "[]",
+    "mira_concept": "{\"name\": \"Recovered\", \"identifiers\": {\"ido\": \"0000592\"}, \"context\": {}}"
+   },
+   "concentration": 0.0
+  },
+  {
+   "sname": "Deceased",
+   "sprop": {
+    "is_observable": false,
+    "mira_ids": "[('identity', 'ncit:C28554')]",
+    "mira_context": "[]",
+    "mira_concept": "{\"name\": \"Deceased\", \"identifiers\": {\"ncit\": \"C28554\"}, \"context\": {}}"
+   },
+   "concentration": 0.0
+  },
+  {
+   "sname": "Cases",
+   "concentration": 0.0,
+   "sprop": {
+    "concept": "{\"name\": \"Cases\", \"mira_ids\": {\"ido\": \"0000511\"}, \"mira_context\": {\"diagnosed\": \"ncit:C113725\"}}",
+    "expression": "Infected_reported",
+    "mira_parameters": "{}",
+    "mira_parameter_distributions": "{}",
+    "is_observable": true
+   }
+  },
+  {
+   "sname": "Hospitalizations",
+   "concentration": 0.0,
+   "sprop": {
+    "concept": "{\"name\": \"Hospitalizations\", \"mira_ids\": {\"ido\": \"0000511\"}, \"mira_context\": {\"hospitalization\": \"ncit:C25179\"}}",
+    "expression": "Infected_reported*h",
+    "mira_parameters": "{\"h\": 0.05}",
+    "mira_parameter_distributions": "{\"h\": {\"parameters\": {\"maximum\": 0.060000000000000005, \"minimum\": 0.04}, \"type\": \"StandardUniform1\"}}",
+    "is_observable": true
+   }
+  },
+  {
+   "sname": "Deaths",
+   "concentration": 0.0,
+   "sprop": {
+    "concept": "{\"name\": \"Deaths\", \"mira_ids\": {\"ncit\": \"C28554\"}, \"mira_context\": {}}",
+    "expression": "Deceased",
+    "mira_parameters": "{}",
+    "mira_parameter_distributions": "{}",
+    "is_observable": true
+   }
+  }
+ ],
+ "T": [
+  {
+   "tname": "t1",
+   "tprop": {
+    "template_type": "ControlledConversion",
+    "parameter_name": "p_petri_1",
+    "parameter_value": 0.1,
+    "parameter_distribution": null,
+    "mira_template": "{\"rate_law\": \"Infected_reported*Susceptible_unconfined*beta*n*(1.0 - sigma)\", \"type\": \"ControlledConversion\", \"controller\": {\"name\": \"Infected_reported\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {\"diagnosis\": \"ncit:C15220\"}}, \"subject\": {\"name\": \"Susceptible_unconfined\", \"identifiers\": {\"ido\": \"0000514\"}, \"context\": {\"quarantined\": \"ncit:C68851\"}}, \"outcome\": {\"name\": \"Exposed\", \"identifiers\": {\"apollosv\": \"00000154\"}, \"context\": {}}, \"provenance\": []}",
+    "mira_rate_law": "Infected_reported*Susceptible_unconfined*beta*n*(1.0 - sigma)",
+    "mira_rate_law_mathml": "<apply><times/><ci>Infected_reported</ci><ci>Susceptible_unconfined</ci><ci>beta</ci><ci>n</ci><apply><minus/><cn>1.0</cn><ci>sigma</ci></apply></apply>",
+    "mira_parameters": "{\"beta\": 2.115e-08, \"n\": 0.5, \"sigma\": 0.2}",
+    "mira_parameter_distributions": "{\"beta\": {\"parameters\": {\"maximum\": 2.538e-08, \"minimum\": 1.6920000000000002e-08}, \"type\": \"StandardUniform1\"}, \"n\": {\"parameters\": {\"maximum\": 0.6, \"minimum\": 0.4}, \"type\": \"StandardUniform1\"}, \"sigma\": {\"parameters\": {\"maximum\": 0.24000000000000002, \"minimum\": 0.16}, \"type\": \"StandardUniform1\"}}"
+   },
+   "rate": 0.1
+  },
+  {
+   "tname": "t2",
+   "tprop": {
+    "template_type": "ControlledConversion",
+    "parameter_name": "p_petri_2",
+    "parameter_value": 0.1,
+    "parameter_distribution": null,
+    "mira_template": "{\"rate_law\": \"Infected_unreported*Susceptible_unconfined*beta*(1.0 - sigma)\", \"type\": \"ControlledConversion\", \"controller\": {\"name\": \"Infected_unreported\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {\"diagnosed\": \"ncit:C113725\"}}, \"subject\": {\"name\": \"Susceptible_unconfined\", \"identifiers\": {\"ido\": \"0000514\"}, \"context\": {\"quarantined\": \"ncit:C68851\"}}, \"outcome\": {\"name\": \"Exposed\", \"identifiers\": {\"apollosv\": \"00000154\"}, \"context\": {}}, \"provenance\": []}",
+    "mira_rate_law": "Infected_unreported*Susceptible_unconfined*beta*(1.0 - sigma)",
+    "mira_rate_law_mathml": "<apply><times/><ci>Infected_unreported</ci><ci>Susceptible_unconfined</ci><ci>beta</ci><apply><minus/><cn>1.0</cn><ci>sigma</ci></apply></apply>",
+    "mira_parameters": "{\"beta\": 2.115e-08, \"sigma\": 0.2}",
+    "mira_parameter_distributions": "{\"beta\": {\"parameters\": {\"maximum\": 2.538e-08, \"minimum\": 1.6920000000000002e-08}, \"type\": \"StandardUniform1\"}, \"sigma\": {\"parameters\": {\"maximum\": 0.24000000000000002, \"minimum\": 0.16}, \"type\": \"StandardUniform1\"}}"
+   },
+   "rate": 0.1
+  },
+  {
+   "tname": "t3",
+   "tprop": {
+    "template_type": "ControlledConversion",
+    "parameter_name": "p_petri_3",
+    "parameter_value": 0.1,
+    "parameter_distribution": null,
+    "mira_template": "{\"rate_law\": \"Infected_reported*Susceptible_unconfined*beta*n*sigma\", \"type\": \"ControlledConversion\", \"controller\": {\"name\": \"Infected_reported\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {\"diagnosis\": \"ncit:C15220\"}}, \"subject\": {\"name\": \"Susceptible_unconfined\", \"identifiers\": {\"ido\": \"0000514\"}, \"context\": {\"quarantined\": \"ncit:C68851\"}}, \"outcome\": {\"name\": \"Quarantined\", \"identifiers\": {\"ido\": \"0000514\"}, \"context\": {\"quarantined\": \"ncit:C71902\"}}, \"provenance\": []}",
+    "mira_rate_law": "Infected_reported*Susceptible_unconfined*beta*n*sigma",
+    "mira_rate_law_mathml": "<apply><times/><ci>Infected_reported</ci><ci>Susceptible_unconfined</ci><ci>beta</ci><ci>n</ci><ci>sigma</ci></apply>",
+    "mira_parameters": "{\"beta\": 2.115e-08, \"n\": 0.5, \"sigma\": 0.2}",
+    "mira_parameter_distributions": "{\"beta\": {\"parameters\": {\"maximum\": 2.538e-08, \"minimum\": 1.6920000000000002e-08}, \"type\": \"StandardUniform1\"}, \"n\": {\"parameters\": {\"maximum\": 0.6, \"minimum\": 0.4}, \"type\": \"StandardUniform1\"}, \"sigma\": {\"parameters\": {\"maximum\": 0.24000000000000002, \"minimum\": 0.16}, \"type\": \"StandardUniform1\"}}"
+   },
+   "rate": 0.1
+  },
+  {
+   "tname": "t4",
+   "tprop": {
+    "template_type": "ControlledConversion",
+    "parameter_name": "p_petri_4",
+    "parameter_value": 0.1,
+    "parameter_distribution": null,
+    "mira_template": "{\"rate_law\": \"Infected_unreported*Susceptible_unconfined*beta*sigma\", \"type\": \"ControlledConversion\", \"controller\": {\"name\": \"Infected_unreported\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {\"diagnosed\": \"ncit:C113725\"}}, \"subject\": {\"name\": \"Susceptible_unconfined\", \"identifiers\": {\"ido\": \"0000514\"}, \"context\": {\"quarantined\": \"ncit:C68851\"}}, \"outcome\": {\"name\": \"Quarantined\", \"identifiers\": {\"ido\": \"0000514\"}, \"context\": {\"quarantined\": \"ncit:C71902\"}}, \"provenance\": []}",
+    "mira_rate_law": "Infected_unreported*Susceptible_unconfined*beta*sigma",
+    "mira_rate_law_mathml": "<apply><times/><ci>Infected_unreported</ci><ci>Susceptible_unconfined</ci><ci>beta</ci><ci>sigma</ci></apply>",
+    "mira_parameters": "{\"beta\": 2.115e-08, \"sigma\": 0.2}",
+    "mira_parameter_distributions": "{\"beta\": {\"parameters\": {\"maximum\": 2.538e-08, \"minimum\": 1.6920000000000002e-08}, \"type\": \"StandardUniform1\"}, \"sigma\": {\"parameters\": {\"maximum\": 0.24000000000000002, \"minimum\": 0.16}, \"type\": \"StandardUniform1\"}}"
+   },
+   "rate": 0.1
+  },
+  {
+   "tname": "t5",
+   "tprop": {
+    "template_type": "NaturalConversion",
+    "parameter_name": "p_petri_5",
+    "parameter_value": 0.1,
+    "parameter_distribution": null,
+    "mira_template": "{\"rate_law\": \"Quarantined*theta\", \"type\": \"NaturalConversion\", \"subject\": {\"name\": \"Quarantined\", \"identifiers\": {\"ido\": \"0000514\"}, \"context\": {\"quarantined\": \"ncit:C71902\"}}, \"outcome\": {\"name\": \"Infected_reported\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {\"diagnosis\": \"ncit:C15220\"}}, \"provenance\": []}",
+    "mira_rate_law": "Quarantined*theta",
+    "mira_rate_law_mathml": "<apply><times/><ci>Quarantined</ci><cn>1</cn><ci>theta</ci></apply>",
+    "mira_parameters": "{\"lambda\": 0.3, \"theta\": 0.07142857}",
+    "mira_parameter_distributions": "{\"lambda\": {\"parameters\": {\"maximum\": 0.36, \"minimum\": 0.24}, \"type\": \"StandardUniform1\"}, \"theta\": {\"parameters\": {\"maximum\": 0.085714284, \"minimum\": 0.057142856}, \"type\": \"StandardUniform1\"}}"
+   },
+   "rate": 0.1
+  },
+  {
+   "tname": "t6",
+   "tprop": {
+    "template_type": "NaturalConversion",
+    "parameter_name": "p_petri_6",
+    "parameter_value": 0.1,
+    "parameter_distribution": null,
+    "mira_template": "{\"rate_law\": \"Exposed*f*mu\", \"type\": \"NaturalConversion\", \"subject\": {\"name\": \"Exposed\", \"identifiers\": {\"apollosv\": \"00000154\"}, \"context\": {}}, \"outcome\": {\"name\": \"Infected_reported\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {\"diagnosis\": \"ncit:C15220\"}}, \"provenance\": []}",
+    "mira_rate_law": "Exposed*f*mu",
+    "mira_rate_law_mathml": "<apply><times/><ci>Exposed</ci><ci>f</ci><ci>mu</ci></apply>",
+    "mira_parameters": "{\"f\": 0.2, \"mu\": 0.2}",
+    "mira_parameter_distributions": "{\"f\": {\"parameters\": {\"maximum\": 0.24000000000000002, \"minimum\": 0.16}, \"type\": \"StandardUniform1\"}, \"mu\": {\"parameters\": {\"maximum\": 0.24000000000000002, \"minimum\": 0.16}, \"type\": \"StandardUniform1\"}}"
+   },
+   "rate": 0.1
+  },
+  {
+   "tname": "t7",
+   "tprop": {
+    "template_type": "NaturalConversion",
+    "parameter_name": "p_petri_7",
+    "parameter_value": 0.1,
+    "parameter_distribution": null,
+    "mira_template": "{\"rate_law\": \"Exposed*mu*(1.0 - f)\", \"type\": \"NaturalConversion\", \"subject\": {\"name\": \"Exposed\", \"identifiers\": {\"apollosv\": \"00000154\"}, \"context\": {}}, \"outcome\": {\"name\": \"Infected_unreported\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {\"diagnosed\": \"ncit:C113725\"}}, \"provenance\": []}",
+    "mira_rate_law": "Exposed*mu*(1.0 - f)",
+    "mira_rate_law_mathml": "<apply><times/><ci>Exposed</ci><ci>mu</ci><apply><minus/><cn>1.0</cn><ci>f</ci></apply></apply>",
+    "mira_parameters": "{\"f\": 0.2, \"mu\": 0.2}",
+    "mira_parameter_distributions": "{\"f\": {\"parameters\": {\"maximum\": 0.24000000000000002, \"minimum\": 0.16}, \"type\": \"StandardUniform1\"}, \"mu\": {\"parameters\": {\"maximum\": 0.24000000000000002, \"minimum\": 0.16}, \"type\": \"StandardUniform1\"}}"
+   },
+   "rate": 0.1
+  },
+  {
+   "tname": "t8",
+   "tprop": {
+    "template_type": "NaturalConversion",
+    "parameter_name": "eta_r",
+    "parameter_value": 0.1,
+    "parameter_distribution": "{\"type\": \"StandardUniform1\", \"parameters\": {\"minimum\": 0.08, \"maximum\": 0.12000000000000001}}",
+    "mira_template": "{\"rate_law\": \"Infected_reported*eta_r\", \"type\": \"NaturalConversion\", \"subject\": {\"name\": \"Infected_reported\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {\"diagnosis\": \"ncit:C15220\"}}, \"outcome\": {\"name\": \"Recovered\", \"identifiers\": {\"ido\": \"0000592\"}, \"context\": {}}, \"provenance\": []}",
+    "mira_rate_law": "Infected_reported*eta_r",
+    "mira_rate_law_mathml": "<apply><times/><ci>Infected_reported</ci><ci>eta_r</ci></apply>",
+    "mira_parameters": "{\"eta_r\": 0.1}",
+    "mira_parameter_distributions": "{\"eta_r\": {\"parameters\": {\"maximum\": 0.12000000000000001, \"minimum\": 0.08}, \"type\": \"StandardUniform1\"}}"
+   },
+   "rate": 0.1
+  },
+  {
+   "tname": "t9",
+   "tprop": {
+    "template_type": "NaturalConversion",
+    "parameter_name": "eta_u",
+    "parameter_value": 0.25,
+    "parameter_distribution": "{\"type\": \"StandardUniform1\", \"parameters\": {\"minimum\": 0.2, \"maximum\": 0.3}}",
+    "mira_template": "{\"rate_law\": \"Infected_unreported*eta_u\", \"type\": \"NaturalConversion\", \"subject\": {\"name\": \"Infected_unreported\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {\"diagnosed\": \"ncit:C113725\"}}, \"outcome\": {\"name\": \"Recovered\", \"identifiers\": {\"ido\": \"0000592\"}, \"context\": {}}, \"provenance\": []}",
+    "mira_rate_law": "Infected_unreported*eta_u",
+    "mira_rate_law_mathml": "<apply><times/><ci>Infected_unreported</ci><ci>eta_u</ci></apply>",
+    "mira_parameters": "{\"eta_u\": 0.25}",
+    "mira_parameter_distributions": "{\"eta_u\": {\"parameters\": {\"maximum\": 0.3, \"minimum\": 0.2}, \"type\": \"StandardUniform1\"}}"
+   },
+   "rate": 0.25
+  },
+  {
+   "tname": "t10",
+   "tprop": {
+    "template_type": "NaturalConversion",
+    "parameter_name": "p_petri_10",
+    "parameter_value": 0.1,
+    "parameter_distribution": null,
+    "mira_template": "{\"rate_law\": \"theta*(1.0 - Quarantined)\", \"type\": \"NaturalConversion\", \"subject\": {\"name\": \"Quarantined\", \"identifiers\": {\"ido\": \"0000514\"}, \"context\": {\"quarantined\": \"ncit:C71902\"}}, \"outcome\": {\"name\": \"Susceptible_unconfined\", \"identifiers\": {\"ido\": \"0000514\"}, \"context\": {\"quarantined\": \"ncit:C68851\"}}, \"provenance\": []}",
+    "mira_rate_law": "theta*(1.0 - Quarantined)",
+    "mira_rate_law_mathml": "<apply><times/><cn>1</cn><ci>theta</ci><apply><minus/><cn>1.0</cn><ci>Quarantined</ci></apply></apply>",
+    "mira_parameters": "{\"lambda\": 0.3, \"theta\": 0.07142857}",
+    "mira_parameter_distributions": "{\"lambda\": {\"parameters\": {\"maximum\": 0.36, \"minimum\": 0.24}, \"type\": \"StandardUniform1\"}, \"theta\": {\"parameters\": {\"maximum\": 0.085714284, \"minimum\": 0.057142856}, \"type\": \"StandardUniform1\"}}"
+   },
+   "rate": 0.1
+  },
+  {
+   "tname": "t11",
+   "tprop": {
+    "template_type": "NaturalConversion",
+    "parameter_name": "p_petri_11",
+    "parameter_value": 0.1,
+    "parameter_distribution": null,
+    "mira_template": "{\"rate_law\": \"Infected_reported*eta_r*(1 - q)\", \"type\": \"NaturalConversion\", \"subject\": {\"name\": \"Infected_reported\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {\"diagnosis\": \"ncit:C15220\"}}, \"outcome\": {\"name\": \"Deceased\", \"identifiers\": {\"ncit\": \"C28554\"}, \"context\": {}}, \"provenance\": []}",
+    "mira_rate_law": "Infected_reported*eta_r*(1 - q)",
+    "mira_rate_law_mathml": "<apply><times/><ci>Infected_reported</ci><ci>eta_r</ci><apply><minus/><cn>1</cn><ci>q</ci></apply></apply>",
+    "mira_parameters": "{\"eta_r\": 0.1, \"q\": 0.83}",
+    "mira_parameter_distributions": "{\"eta_r\": {\"parameters\": {\"maximum\": 0.12000000000000001, \"minimum\": 0.08}, \"type\": \"StandardUniform1\"}, \"q\": {\"parameters\": {\"maximum\": 0.996, \"minimum\": 0.6639999999999999}, \"type\": \"StandardUniform1\"}}"
+   },
+   "rate": 0.1
+  }
+ ],
+ "I": [
+  {
+   "is": 3,
+   "it": 1
+  },
+  {
+   "is": 1,
+   "it": 1
+  },
+  {
+   "is": 4,
+   "it": 2
+  },
+  {
+   "is": 1,
+   "it": 2
+  },
+  {
+   "is": 3,
+   "it": 3
+  },
+  {
+   "is": 1,
+   "it": 3
+  },
+  {
+   "is": 4,
+   "it": 4
+  },
+  {
+   "is": 1,
+   "it": 4
+  },
+  {
+   "is": 5,
+   "it": 5
+  },
+  {
+   "is": 2,
+   "it": 6
+  },
+  {
+   "is": 2,
+   "it": 7
+  },
+  {
+   "is": 3,
+   "it": 8
+  },
+  {
+   "is": 4,
+   "it": 9
+  },
+  {
+   "is": 5,
+   "it": 10
+  },
+  {
+   "is": 3,
+   "it": 11
+  }
+ ],
+ "O": [
+  {
+   "os": 3,
+   "ot": 1
+  },
+  {
+   "os": 2,
+   "ot": 1
+  },
+  {
+   "os": 4,
+   "ot": 2
+  },
+  {
+   "os": 2,
+   "ot": 2
+  },
+  {
+   "os": 3,
+   "ot": 3
+  },
+  {
+   "os": 5,
+   "ot": 3
+  },
+  {
+   "os": 4,
+   "ot": 4
+  },
+  {
+   "os": 5,
+   "ot": 4
+  },
+  {
+   "os": 3,
+   "ot": 5
+  },
+  {
+   "os": 3,
+   "ot": 6
+  },
+  {
+   "os": 4,
+   "ot": 7
+  },
+  {
+   "os": 6,
+   "ot": 8
+  },
+  {
+   "os": 6,
+   "ot": 9
+  },
+  {
+   "os": 1,
+   "ot": 10
+  },
+  {
+   "os": 7,
+   "ot": 11
+  }
+ ]
+}

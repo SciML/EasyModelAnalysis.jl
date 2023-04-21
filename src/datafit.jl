@@ -41,7 +41,7 @@ it can be a subset of parameters. Other parameters necessary to solve `prob`
 default to the parameter values found in `prob.p`.
 Similarly, not all states must be measured.
 """
-function datafit(prob, p::Vector{Pair{Num, Float64}}, t, data; loss = l2loss)
+function datafit(prob, p::Vector{Pair{Union{Num, SymbolicUtils.BasicSymbolic}, Float64}}, t, data; loss = l2loss)
     pvals = getfield.(p, :second)
     pkeys = getfield.(p, :first)
     oprob = OptimizationProblem(loss, pvals,

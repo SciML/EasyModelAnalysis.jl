@@ -1,0 +1,523 @@
+{
+ "S": [
+  {
+   "sname": "Susceptible",
+   "sprop": {
+    "is_observable": false,
+    "mira_ids": "[('identity', 'ido:0000514')]",
+    "mira_context": "[]",
+    "mira_concept": "{\"name\": \"Susceptible\", \"identifiers\": {\"ido\": \"0000514\"}, \"context\": {}}"
+   },
+   "concentration": 0.9999963
+  },
+  {
+   "sname": "Infected",
+   "sprop": {
+    "is_observable": false,
+    "mira_ids": "[('identity', 'ido:0000511')]",
+    "mira_context": "[]",
+    "mira_concept": "{\"name\": \"Infected\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {}}"
+   },
+   "concentration": 3.33333333e-06
+  },
+  {
+   "sname": "Diagnosed",
+   "sprop": {
+    "is_observable": false,
+    "mira_ids": "[('identity', 'ido:0000511')]",
+    "mira_context": "[('diagnosis', 'ncit:C15220')]",
+    "mira_concept": "{\"name\": \"Diagnosed\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {\"diagnosis\": \"ncit:C15220\"}}"
+   },
+   "concentration": 3.33333333e-07
+  },
+  {
+   "sname": "Ailing",
+   "sprop": {
+    "is_observable": false,
+    "mira_ids": "[('identity', 'ido:0000511')]",
+    "mira_context": "[('diagnosis', 'ncit:C113725'), ('disease_severity', 'ncit:C25269')]",
+    "mira_concept": "{\"name\": \"Ailing\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {\"disease_severity\": \"ncit:C25269\", \"diagnosis\": \"ncit:C113725\"}}"
+   },
+   "concentration": 1.66666666e-08
+  },
+  {
+   "sname": "Recognized",
+   "sprop": {
+    "is_observable": false,
+    "mira_ids": "[('identity', 'ido:0000511')]",
+    "mira_context": "[('diagnosis', 'ncit:C15220')]",
+    "mira_concept": "{\"name\": \"Recognized\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {\"diagnosis\": \"ncit:C15220\"}}"
+   },
+   "concentration": 3.33333333e-08
+  },
+  {
+   "sname": "Healed",
+   "sprop": {
+    "is_observable": false,
+    "mira_ids": "[('identity', 'ido:0000592')]",
+    "mira_context": "[]",
+    "mira_concept": "{\"name\": \"Healed\", \"identifiers\": {\"ido\": \"0000592\"}, \"context\": {}}"
+   },
+   "concentration": 0.0
+  },
+  {
+   "sname": "Threatened",
+   "sprop": {
+    "is_observable": false,
+    "mira_ids": "[('identity', 'ido:0000511')]",
+    "mira_context": "[('disease_severity', 'ncit:C25467')]",
+    "mira_concept": "{\"name\": \"Threatened\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {\"disease_severity\": \"ncit:C25467\"}}"
+   },
+   "concentration": 0.0
+  },
+  {
+   "sname": "Extinct",
+   "sprop": {
+    "is_observable": false,
+    "mira_ids": "[('identity', 'ncit:C28554')]",
+    "mira_context": "[]",
+    "mira_concept": "{\"name\": \"Extinct\", \"identifiers\": {\"ncit\": \"C28554\"}, \"context\": {}}"
+   },
+   "concentration": 0.0
+  },
+  {
+   "sname": "Cases",
+   "concentration": 0.0,
+   "sprop": {
+    "concept": "{\"name\": \"Cases\", \"mira_ids\": {\"ido\": \"0000511\"}, \"mira_context\": {\"diagnosed\": \"ncit:C113725\"}}",
+    "expression": "Diagnosed + Recognized + Threatened",
+    "mira_parameters": "{}",
+    "mira_parameter_distributions": "{}",
+    "is_observable": true
+   }
+  },
+  {
+   "sname": "Hospitalizations",
+   "concentration": 0.0,
+   "sprop": {
+    "concept": "{\"name\": \"Hospitalizations\", \"mira_ids\": {\"ido\": \"0000511\"}, \"mira_context\": {\"hospitalization\": \"ncit:C25179\"}}",
+    "expression": "Recognized + Threatened",
+    "mira_parameters": "{}",
+    "mira_parameter_distributions": "{}",
+    "is_observable": true
+   }
+  },
+  {
+   "sname": "Deaths",
+   "concentration": 0.0,
+   "sprop": {
+    "concept": "{\"name\": \"Deaths\", \"mira_ids\": {\"ncit\": \"C28554\"}, \"mira_context\": {}}",
+    "expression": "Extinct",
+    "mira_parameters": "{}",
+    "mira_parameter_distributions": "{}",
+    "is_observable": true
+   }
+  }
+ ],
+ "T": [
+  {
+   "tname": "t1",
+   "tprop": {
+    "template_type": "ControlledConversion",
+    "parameter_name": "beta",
+    "parameter_value": 0.011,
+    "parameter_distribution": "{\"type\": \"StandardUniform1\", \"parameters\": {\"minimum\": 0.008799999999999999, \"maximum\": 0.0132}}",
+    "mira_template": "{\"rate_law\": \"Diagnosed*Susceptible*beta\", \"type\": \"ControlledConversion\", \"controller\": {\"name\": \"Diagnosed\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {\"diagnosis\": \"ncit:C15220\"}}, \"subject\": {\"name\": \"Susceptible\", \"identifiers\": {\"ido\": \"0000514\"}, \"context\": {}}, \"outcome\": {\"name\": \"Infected\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {}}, \"provenance\": []}",
+    "mira_rate_law": "Diagnosed*Susceptible*beta",
+    "mira_rate_law_mathml": "<apply><times/><ci>Diagnosed</ci><ci>Susceptible</ci><ci>beta</ci></apply>",
+    "mira_parameters": "{\"beta\": 0.011}",
+    "mira_parameter_distributions": "{\"beta\": {\"parameters\": {\"maximum\": 0.0132, \"minimum\": 0.008799999999999999}, \"type\": \"StandardUniform1\"}}"
+   },
+   "rate": 0.011
+  },
+  {
+   "tname": "t2",
+   "tprop": {
+    "template_type": "ControlledConversion",
+    "parameter_name": "gamma",
+    "parameter_value": 0.456,
+    "parameter_distribution": "{\"type\": \"StandardUniform1\", \"parameters\": {\"minimum\": 0.3648, \"maximum\": 0.5472}}",
+    "mira_template": "{\"rate_law\": \"Ailing*Susceptible*gamma\", \"type\": \"ControlledConversion\", \"controller\": {\"name\": \"Ailing\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {\"disease_severity\": \"ncit:C25269\", \"diagnosis\": \"ncit:C113725\"}}, \"subject\": {\"name\": \"Susceptible\", \"identifiers\": {\"ido\": \"0000514\"}, \"context\": {}}, \"outcome\": {\"name\": \"Infected\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {}}, \"provenance\": []}",
+    "mira_rate_law": "Ailing*Susceptible*gamma",
+    "mira_rate_law_mathml": "<apply><times/><ci>Ailing</ci><ci>Susceptible</ci><ci>gamma</ci></apply>",
+    "mira_parameters": "{\"gamma\": 0.456}",
+    "mira_parameter_distributions": "{\"gamma\": {\"parameters\": {\"maximum\": 0.5472, \"minimum\": 0.3648}, \"type\": \"StandardUniform1\"}}"
+   },
+   "rate": 0.456
+  },
+  {
+   "tname": "t3",
+   "tprop": {
+    "template_type": "ControlledConversion",
+    "parameter_name": "delta",
+    "parameter_value": 0.011,
+    "parameter_distribution": "{\"type\": \"StandardUniform1\", \"parameters\": {\"minimum\": 0.008799999999999999, \"maximum\": 0.0132}}",
+    "mira_template": "{\"rate_law\": \"Recognized*Susceptible*delta\", \"type\": \"ControlledConversion\", \"controller\": {\"name\": \"Recognized\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {\"diagnosis\": \"ncit:C15220\"}}, \"subject\": {\"name\": \"Susceptible\", \"identifiers\": {\"ido\": \"0000514\"}, \"context\": {}}, \"outcome\": {\"name\": \"Infected\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {}}, \"provenance\": []}",
+    "mira_rate_law": "Recognized*Susceptible*delta",
+    "mira_rate_law_mathml": "<apply><times/><ci>Recognized</ci><ci>Susceptible</ci><ci>delta</ci></apply>",
+    "mira_parameters": "{\"delta\": 0.011}",
+    "mira_parameter_distributions": "{\"delta\": {\"parameters\": {\"maximum\": 0.0132, \"minimum\": 0.008799999999999999}, \"type\": \"StandardUniform1\"}}"
+   },
+   "rate": 0.011
+  },
+  {
+   "tname": "t4",
+   "tprop": {
+    "template_type": "ControlledConversion",
+    "parameter_name": "alpha",
+    "parameter_value": 0.57,
+    "parameter_distribution": "{\"type\": \"StandardUniform1\", \"parameters\": {\"minimum\": 0.45599999999999996, \"maximum\": 0.6839999999999999}}",
+    "mira_template": "{\"rate_law\": \"Infected*Susceptible*alpha\", \"type\": \"ControlledConversion\", \"controller\": {\"name\": \"Infected\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {}}, \"subject\": {\"name\": \"Susceptible\", \"identifiers\": {\"ido\": \"0000514\"}, \"context\": {}}, \"outcome\": {\"name\": \"Infected\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {}}, \"provenance\": []}",
+    "mira_rate_law": "Infected*Susceptible*alpha",
+    "mira_rate_law_mathml": "<apply><times/><ci>Infected</ci><ci>Susceptible</ci><ci>alpha</ci></apply>",
+    "mira_parameters": "{\"alpha\": 0.57}",
+    "mira_parameter_distributions": "{\"alpha\": {\"parameters\": {\"maximum\": 0.6839999999999999, \"minimum\": 0.45599999999999996}, \"type\": \"StandardUniform1\"}}"
+   },
+   "rate": 0.57
+  },
+  {
+   "tname": "t5",
+   "tprop": {
+    "template_type": "NaturalConversion",
+    "parameter_name": "epsilon",
+    "parameter_value": 0.171,
+    "parameter_distribution": "{\"type\": \"StandardUniform1\", \"parameters\": {\"minimum\": 0.1368, \"maximum\": 0.20520000000000002}}",
+    "mira_template": "{\"rate_law\": \"Infected*epsilon\", \"type\": \"NaturalConversion\", \"subject\": {\"name\": \"Infected\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {}}, \"outcome\": {\"name\": \"Diagnosed\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {\"diagnosis\": \"ncit:C15220\"}}, \"provenance\": []}",
+    "mira_rate_law": "Infected*epsilon",
+    "mira_rate_law_mathml": "<apply><times/><ci>Infected</ci><ci>epsilon</ci></apply>",
+    "mira_parameters": "{\"epsilon\": 0.171}",
+    "mira_parameter_distributions": "{\"epsilon\": {\"parameters\": {\"maximum\": 0.20520000000000002, \"minimum\": 0.1368}, \"type\": \"StandardUniform1\"}}"
+   },
+   "rate": 0.171
+  },
+  {
+   "tname": "t6",
+   "tprop": {
+    "template_type": "NaturalConversion",
+    "parameter_name": "zeta",
+    "parameter_value": 0.125,
+    "parameter_distribution": "{\"type\": \"StandardUniform1\", \"parameters\": {\"minimum\": 0.1, \"maximum\": 0.15}}",
+    "mira_template": "{\"rate_law\": \"Infected*zeta\", \"type\": \"NaturalConversion\", \"subject\": {\"name\": \"Infected\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {}}, \"outcome\": {\"name\": \"Ailing\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {\"disease_severity\": \"ncit:C25269\", \"diagnosis\": \"ncit:C113725\"}}, \"provenance\": []}",
+    "mira_rate_law": "Infected*zeta",
+    "mira_rate_law_mathml": "<apply><times/><ci>Infected</ci><ci>zeta</ci></apply>",
+    "mira_parameters": "{\"zeta\": 0.125}",
+    "mira_parameter_distributions": "{\"zeta\": {\"parameters\": {\"maximum\": 0.15, \"minimum\": 0.1}, \"type\": \"StandardUniform1\"}}"
+   },
+   "rate": 0.125
+  },
+  {
+   "tname": "t7",
+   "tprop": {
+    "template_type": "NaturalConversion",
+    "parameter_name": "lambda",
+    "parameter_value": 0.034,
+    "parameter_distribution": "{\"type\": \"StandardUniform1\", \"parameters\": {\"minimum\": 0.027200000000000002, \"maximum\": 0.0408}}",
+    "mira_template": "{\"rate_law\": \"Infected*\", \"type\": \"NaturalConversion\", \"subject\": {\"name\": \"Infected\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {}}, \"outcome\": {\"name\": \"Healed\", \"identifiers\": {\"ido\": \"0000592\"}, \"context\": {}}, \"provenance\": []}",
+    "mira_rate_law": "Infected*",
+    "mira_rate_law_mathml": "<apply><times/><ci>Infected</ci><ci></ci></apply>",
+    "mira_parameters": "{\"lambda\": 0.034}",
+    "mira_parameter_distributions": "{\"lambda\": {\"parameters\": {\"maximum\": 0.0408, \"minimum\": 0.027200000000000002}, \"type\": \"StandardUniform1\"}}"
+   },
+   "rate": 0.034
+  },
+  {
+   "tname": "t8",
+   "tprop": {
+    "template_type": "NaturalConversion",
+    "parameter_name": "eta",
+    "parameter_value": 0.125,
+    "parameter_distribution": "{\"type\": \"StandardUniform1\", \"parameters\": {\"minimum\": 0.1, \"maximum\": 0.15}}",
+    "mira_template": "{\"rate_law\": \"Diagnosed*eta\", \"type\": \"NaturalConversion\", \"subject\": {\"name\": \"Diagnosed\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {\"diagnosis\": \"ncit:C15220\"}}, \"outcome\": {\"name\": \"Recognized\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {\"diagnosis\": \"ncit:C15220\"}}, \"provenance\": []}",
+    "mira_rate_law": "Diagnosed*eta",
+    "mira_rate_law_mathml": "<apply><times/><ci>Diagnosed</ci><ci>eta</ci></apply>",
+    "mira_parameters": "{\"eta\": 0.125}",
+    "mira_parameter_distributions": "{\"eta\": {\"parameters\": {\"maximum\": 0.15, \"minimum\": 0.1}, \"type\": \"StandardUniform1\"}}"
+   },
+   "rate": 0.125
+  },
+  {
+   "tname": "t9",
+   "tprop": {
+    "template_type": "NaturalConversion",
+    "parameter_name": "rho",
+    "parameter_value": 0.034,
+    "parameter_distribution": "{\"type\": \"StandardUniform1\", \"parameters\": {\"minimum\": 0.027200000000000002, \"maximum\": 0.0408}}",
+    "mira_template": "{\"rate_law\": \"Diagnosed*rho\", \"type\": \"NaturalConversion\", \"subject\": {\"name\": \"Diagnosed\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {\"diagnosis\": \"ncit:C15220\"}}, \"outcome\": {\"name\": \"Healed\", \"identifiers\": {\"ido\": \"0000592\"}, \"context\": {}}, \"provenance\": []}",
+    "mira_rate_law": "Diagnosed*rho",
+    "mira_rate_law_mathml": "<apply><times/><ci>Diagnosed</ci><ci>rho</ci></apply>",
+    "mira_parameters": "{\"rho\": 0.034}",
+    "mira_parameter_distributions": "{\"rho\": {\"parameters\": {\"maximum\": 0.0408, \"minimum\": 0.027200000000000002}, \"type\": \"StandardUniform1\"}}"
+   },
+   "rate": 0.034
+  },
+  {
+   "tname": "t10",
+   "tprop": {
+    "template_type": "NaturalConversion",
+    "parameter_name": "theta",
+    "parameter_value": 0.371,
+    "parameter_distribution": "{\"type\": \"StandardUniform1\", \"parameters\": {\"minimum\": 0.2968, \"maximum\": 0.4452}}",
+    "mira_template": "{\"rate_law\": \"Ailing*theta\", \"type\": \"NaturalConversion\", \"subject\": {\"name\": \"Ailing\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {\"disease_severity\": \"ncit:C25269\", \"diagnosis\": \"ncit:C113725\"}}, \"outcome\": {\"name\": \"Recognized\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {\"diagnosis\": \"ncit:C15220\"}}, \"provenance\": []}",
+    "mira_rate_law": "Ailing*theta",
+    "mira_rate_law_mathml": "<apply><times/><ci>Ailing</ci><ci>theta</ci></apply>",
+    "mira_parameters": "{\"theta\": 0.371}",
+    "mira_parameter_distributions": "{\"theta\": {\"parameters\": {\"maximum\": 0.4452, \"minimum\": 0.2968}, \"type\": \"StandardUniform1\"}}"
+   },
+   "rate": 0.371
+  },
+  {
+   "tname": "t11",
+   "tprop": {
+    "template_type": "NaturalConversion",
+    "parameter_name": "kappa",
+    "parameter_value": 0.017,
+    "parameter_distribution": "{\"type\": \"StandardUniform1\", \"parameters\": {\"minimum\": 0.013600000000000001, \"maximum\": 0.0204}}",
+    "mira_template": "{\"rate_law\": \"Ailing*kappa\", \"type\": \"NaturalConversion\", \"subject\": {\"name\": \"Ailing\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {\"disease_severity\": \"ncit:C25269\", \"diagnosis\": \"ncit:C113725\"}}, \"outcome\": {\"name\": \"Healed\", \"identifiers\": {\"ido\": \"0000592\"}, \"context\": {}}, \"provenance\": []}",
+    "mira_rate_law": "Ailing*kappa",
+    "mira_rate_law_mathml": "<apply><times/><ci>Ailing</ci><ci>kappa</ci></apply>",
+    "mira_parameters": "{\"kappa\": 0.017}",
+    "mira_parameter_distributions": "{\"kappa\": {\"parameters\": {\"maximum\": 0.0204, \"minimum\": 0.013600000000000001}, \"type\": \"StandardUniform1\"}}"
+   },
+   "rate": 0.017
+  },
+  {
+   "tname": "t12",
+   "tprop": {
+    "template_type": "NaturalConversion",
+    "parameter_name": "mu",
+    "parameter_value": 0.017,
+    "parameter_distribution": "{\"type\": \"StandardUniform1\", \"parameters\": {\"minimum\": 0.013600000000000001, \"maximum\": 0.0204}}",
+    "mira_template": "{\"rate_law\": \"Ailing*mu\", \"type\": \"NaturalConversion\", \"subject\": {\"name\": \"Ailing\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {\"disease_severity\": \"ncit:C25269\", \"diagnosis\": \"ncit:C113725\"}}, \"outcome\": {\"name\": \"Threatened\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {\"disease_severity\": \"ncit:C25467\"}}, \"provenance\": []}",
+    "mira_rate_law": "Ailing*mu",
+    "mira_rate_law_mathml": "<apply><times/><ci>Ailing</ci><ci>mu</ci></apply>",
+    "mira_parameters": "{\"mu\": 0.017}",
+    "mira_parameter_distributions": "{\"mu\": {\"parameters\": {\"maximum\": 0.0204, \"minimum\": 0.013600000000000001}, \"type\": \"StandardUniform1\"}}"
+   },
+   "rate": 0.017
+  },
+  {
+   "tname": "t13",
+   "tprop": {
+    "template_type": "NaturalConversion",
+    "parameter_name": "nu",
+    "parameter_value": 0.027,
+    "parameter_distribution": "{\"type\": \"StandardUniform1\", \"parameters\": {\"minimum\": 0.0216, \"maximum\": 0.0324}}",
+    "mira_template": "{\"rate_law\": \"Recognized*nu\", \"type\": \"NaturalConversion\", \"subject\": {\"name\": \"Recognized\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {\"diagnosis\": \"ncit:C15220\"}}, \"outcome\": {\"name\": \"Threatened\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {\"disease_severity\": \"ncit:C25467\"}}, \"provenance\": []}",
+    "mira_rate_law": "Recognized*nu",
+    "mira_rate_law_mathml": "<apply><times/><ci>Recognized</ci><ci>nu</ci></apply>",
+    "mira_parameters": "{\"nu\": 0.027}",
+    "mira_parameter_distributions": "{\"nu\": {\"parameters\": {\"maximum\": 0.0324, \"minimum\": 0.0216}, \"type\": \"StandardUniform1\"}}"
+   },
+   "rate": 0.027
+  },
+  {
+   "tname": "t14",
+   "tprop": {
+    "template_type": "NaturalConversion",
+    "parameter_name": "xi",
+    "parameter_value": 0.017,
+    "parameter_distribution": "{\"type\": \"StandardUniform1\", \"parameters\": {\"minimum\": 0.013600000000000001, \"maximum\": 0.0204}}",
+    "mira_template": "{\"rate_law\": \"Recognized*xi\", \"type\": \"NaturalConversion\", \"subject\": {\"name\": \"Recognized\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {\"diagnosis\": \"ncit:C15220\"}}, \"outcome\": {\"name\": \"Healed\", \"identifiers\": {\"ido\": \"0000592\"}, \"context\": {}}, \"provenance\": []}",
+    "mira_rate_law": "Recognized*xi",
+    "mira_rate_law_mathml": "<apply><times/><ci>Recognized</ci><ci>xi</ci></apply>",
+    "mira_parameters": "{\"xi\": 0.017}",
+    "mira_parameter_distributions": "{\"xi\": {\"parameters\": {\"maximum\": 0.0204, \"minimum\": 0.013600000000000001}, \"type\": \"StandardUniform1\"}}"
+   },
+   "rate": 0.017
+  },
+  {
+   "tname": "t15",
+   "tprop": {
+    "template_type": "NaturalConversion",
+    "parameter_name": "tau",
+    "parameter_value": 0.01,
+    "parameter_distribution": "{\"type\": \"StandardUniform1\", \"parameters\": {\"minimum\": 0.008, \"maximum\": 0.012}}",
+    "mira_template": "{\"rate_law\": \"Threatened*tau\", \"type\": \"NaturalConversion\", \"subject\": {\"name\": \"Threatened\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {\"disease_severity\": \"ncit:C25467\"}}, \"outcome\": {\"name\": \"Extinct\", \"identifiers\": {\"ncit\": \"C28554\"}, \"context\": {}}, \"provenance\": []}",
+    "mira_rate_law": "Threatened*tau",
+    "mira_rate_law_mathml": "<apply><times/><ci>Threatened</ci><ci>tau</ci></apply>",
+    "mira_parameters": "{\"tau\": 0.01}",
+    "mira_parameter_distributions": "{\"tau\": {\"parameters\": {\"maximum\": 0.012, \"minimum\": 0.008}, \"type\": \"StandardUniform1\"}}"
+   },
+   "rate": 0.01
+  },
+  {
+   "tname": "t16",
+   "tprop": {
+    "template_type": "NaturalConversion",
+    "parameter_name": "sigma",
+    "parameter_value": 0.017,
+    "parameter_distribution": "{\"type\": \"StandardUniform1\", \"parameters\": {\"minimum\": 0.013600000000000001, \"maximum\": 0.0204}}",
+    "mira_template": "{\"rate_law\": \"Threatened*sigma\", \"type\": \"NaturalConversion\", \"subject\": {\"name\": \"Threatened\", \"identifiers\": {\"ido\": \"0000511\"}, \"context\": {\"disease_severity\": \"ncit:C25467\"}}, \"outcome\": {\"name\": \"Healed\", \"identifiers\": {\"ido\": \"0000592\"}, \"context\": {}}, \"provenance\": []}",
+    "mira_rate_law": "Threatened*sigma",
+    "mira_rate_law_mathml": "<apply><times/><ci>Threatened</ci><ci>sigma</ci></apply>",
+    "mira_parameters": "{\"sigma\": 0.017}",
+    "mira_parameter_distributions": "{\"sigma\": {\"parameters\": {\"maximum\": 0.0204, \"minimum\": 0.013600000000000001}, \"type\": \"StandardUniform1\"}}"
+   },
+   "rate": 0.017
+  }
+ ],
+ "I": [
+  {
+   "is": 3,
+   "it": 1
+  },
+  {
+   "is": 1,
+   "it": 1
+  },
+  {
+   "is": 4,
+   "it": 2
+  },
+  {
+   "is": 1,
+   "it": 2
+  },
+  {
+   "is": 5,
+   "it": 3
+  },
+  {
+   "is": 1,
+   "it": 3
+  },
+  {
+   "is": 2,
+   "it": 4
+  },
+  {
+   "is": 1,
+   "it": 4
+  },
+  {
+   "is": 2,
+   "it": 5
+  },
+  {
+   "is": 2,
+   "it": 6
+  },
+  {
+   "is": 2,
+   "it": 7
+  },
+  {
+   "is": 3,
+   "it": 8
+  },
+  {
+   "is": 3,
+   "it": 9
+  },
+  {
+   "is": 4,
+   "it": 10
+  },
+  {
+   "is": 4,
+   "it": 11
+  },
+  {
+   "is": 4,
+   "it": 12
+  },
+  {
+   "is": 5,
+   "it": 13
+  },
+  {
+   "is": 5,
+   "it": 14
+  },
+  {
+   "is": 7,
+   "it": 15
+  },
+  {
+   "is": 7,
+   "it": 16
+  }
+ ],
+ "O": [
+  {
+   "os": 3,
+   "ot": 1
+  },
+  {
+   "os": 2,
+   "ot": 1
+  },
+  {
+   "os": 4,
+   "ot": 2
+  },
+  {
+   "os": 2,
+   "ot": 2
+  },
+  {
+   "os": 5,
+   "ot": 3
+  },
+  {
+   "os": 2,
+   "ot": 3
+  },
+  {
+   "os": 2,
+   "ot": 4
+  },
+  {
+   "os": 2,
+   "ot": 4
+  },
+  {
+   "os": 3,
+   "ot": 5
+  },
+  {
+   "os": 4,
+   "ot": 6
+  },
+  {
+   "os": 6,
+   "ot": 7
+  },
+  {
+   "os": 5,
+   "ot": 8
+  },
+  {
+   "os": 6,
+   "ot": 9
+  },
+  {
+   "os": 5,
+   "ot": 10
+  },
+  {
+   "os": 6,
+   "ot": 11
+  },
+  {
+   "os": 7,
+   "ot": 12
+  },
+  {
+   "os": 7,
+   "ot": 13
+  },
+  {
+   "os": 6,
+   "ot": 14
+  },
+  {
+   "os": 8,
+   "ot": 15
+  },
+  {
+   "os": 6,
+   "ot": 16
+  }
+ ]
+}
