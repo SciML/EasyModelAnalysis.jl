@@ -266,7 +266,7 @@ version = "0.3.11"
 
 [[deps.Catlab]]
 deps = ["Colors", "CompTime", "Compose", "DataStructures", "GeneralizedGenerated", "JSON", "LightXML", "LinearAlgebra", "Logging", "MLStyle", "Pkg", "PrettyTables", "Random", "Reexport", "Requires", "SparseArrays", "StaticArrays", "Statistics", "StructEquality", "Tables"]
-path = "/Users/anand/.julia/dev/Catlab"
+git-tree-sha1 = "5416f7dbc9efd46616f538630764486917db5731"
 uuid = "134e5e36-593f-5add-ad60-77f754baafbe"
 version = "0.14.16"
 

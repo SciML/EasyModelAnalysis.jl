@@ -77,33 +77,34 @@ ress = []
 
 calibrated_probs = []
 
-for dfi in dfs
-    @info "" dfi
-    # train/test split, calibrate, reforecast, plot
-    dfx = dfi[1:(N_weeks ÷ 2), :]
-    dfy = dfi[((N_weeks ÷ 2) + 1):end, :]
-    xdata = to_data(dfx, mapping)
-    ydata = to_data(dfy, mapping)
+# takes too long, but is needed to make the nice plot from the doc
+# for dfi in dfs
+#     @info "" dfi
+#     # train/test split, calibrate, reforecast, plot
+#     dfx = dfi[1:(N_weeks ÷ 2), :]
+#     dfy = dfi[((N_weeks ÷ 2) + 1):end, :]
+#     xdata = to_data(dfx, mapping)
+#     ydata = to_data(dfy, mapping)
 
-    ensemble_res = [calibrate(prob, dfx, mapping) for prob in probs]
-    push!(ress, ensemble_res)
+#     ensemble_res = [calibrate(prob, dfx, mapping) for prob in probs]
+#     push!(ress, ensemble_res)
 
-    new_probs = [remake(prob, u0 = res.u, p = res.u)
-                 for (prob, res) in zip(probs, ensemble_res)]
+#     new_probs = [remake(prob, u0 = res.u, p = res.u)
+#                  for (prob, res) in zip(probs, ensemble_res)]
 
-    push!(calibrated_probs, new_probs)
-    push!(xscores, EasyModelAnalysis.model_forecast_score(new_probs, dfx.t, xdata))
-    push!(yscores, EasyModelAnalysis.model_forecast_score(new_probs, dfy.t, ydata))
+#     push!(calibrated_probs, new_probs)
+#     push!(xscores, EasyModelAnalysis.model_forecast_score(new_probs, dfx.t, xdata))
+#     push!(yscores, EasyModelAnalysis.model_forecast_score(new_probs, dfy.t, ydata))
 
-    ts = dfi.t
-    data = to_data(dfi, mapping)
+#     ts = dfi.t
+#     data = to_data(dfi, mapping)
 
-    for prob in new_probs
-        sol = solve(prob; saveat = ts)
-        plt = plot_covidhub(dfi)
-        # todo change the color of the forecasted points
-        scatter!(plt, sol, idxs = [Deaths, Cases, Hospitalizations])
-        display(plt)
-    end
-end
+#     for prob in new_probs
+#         sol = solve(prob; saveat = ts)
+#         plt = plot_covidhub(dfi)
+#         # todo change the color of the forecasted points
+#         scatter!(plt, sol, idxs = [Deaths, Cases, Hospitalizations])
+#         display(plt)
+#     end
+# end
 
