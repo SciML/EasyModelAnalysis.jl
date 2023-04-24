@@ -178,6 +178,36 @@ function p_defs(sys)
                  collect(ModelingToolkit.defaults(sys))) end
 end
 
+"this differs from EMA l2 in that we also are optimizing for the u0 to account for there not being a 1-1 way to map the observed dataset onto the u0 of the system"
+function myloss(pvals, (prob, pkeys, t, data))
+    new_defs = pkeys .=> pvals
+    prob = remake(prob, tspan = (prob.tspan[1], t[end]), p = new_defs, u0 = new_defs)
+    sol = solve(prob, saveat = t)
+    tot_loss = 0.0
+    for pairs in data
+        tot_loss += sum((sol[pairs.first] .- pairs.second) .^ 2)
+    end
+    return tot_loss
+end
+
+function mycallback(p, l)
+    # return true
+    global opt_step_count += 1
+    @info ((l, opt_step_count))
+    push!(losses, l)
+    if opt_step_count % 10 == 0
+        plt = plot(losses, yaxis = :log, ylabel = "Loss", xlabel = "Iteration",
+                   legend = false)
+        display(plt)
+    end
+
+    if opt_step_count > 100
+        return true
+    end
+
+    return false
+end
+
 urls = [
     "https://github.com/reichlab/covid19-forecast-hub/raw/master/data-truth/truth-Incident%20Cases.csv",
     "https://github.com/reichlab/covid19-forecast-hub/raw/master/data-truth/truth-Incident%20Deaths.csv",
@@ -297,6 +327,27 @@ prob = ODEProblem(sidarthe, [], tspan)
 sol = solve(prob)
 plot(sol)
 
+sys = ODESystem(petris[2])
+seiahrd = structural_simplify(sys)
+prob = ODEProblem(seiahrd, [], tspan)
+sol = solve(prob)
+plot(sol)
+defaults = ModelingToolkit.defaults(seiahrd)
+for st in states(seiahrd)
+    defaults[st] *= total_pop # this actually mutates the return of ModelingToolkit.defaults
+end
+
+sys = ODESystem(petris[3])
+sys3 = structural_simplify(sys)
+prob = ODEProblem(sys3, [], tspan)
+sol = solve(prob)
+plot(sol)
+defaults = ModelingToolkit.defaults(sys3)
+# sys3 has defaults in population, not proportion
+# for st in states(seiahrd)
+#     defaults[st] *= total_pop # this actually mutates the return of ModelingToolkit.defaults
+# end
+
 """ 
 if the data are observables, it's not necesarily true that a consistent assignment for u0 exists
     in the BIOMD0000000955 example, 
@@ -314,95 +365,39 @@ nothing
 
 total_pop = 300_000_000
 
-dfs = select_timeperiods(df, 10)
+N_weeks = 10
+
+dfs = select_timeperiods(df, N_weeks)
 dfi = dfs[1]
-dfx = dfi[1:5, :]
-dfy = dfi[6:end, :]
+dfx = dfi[1:(N_weeks÷2), :]
+dfy = dfi[((N_weeks÷2)+1):end, :]
 
 # p = p_defs(sys)
 # p = collect(defaults)
 ts = dfx.t
 data = [Deaths => dfx.deaths, Cases => dfx.cases, Hospitalizations => dfx.hosp]
-# loss = EasyModelAnalysis.l2loss
-function myloss(pvals, (prob, pkeys, t, data))
-    # np = length(pkeys)
-    # p = Pair.(pkeys, pvals[1:np])
-    # u0 = Pair.(ukeys, pvals[np+1:end])
-    new_defs = pkeys .=> pvals
-    prob = remake(prob, tspan = (prob.tspan[1], t[end]), p = new_defs, u0 = new_defs)
-    sol = solve(prob, saveat = t)
-    tot_loss = 0.0
-    for pairs in data
-        tot_loss += sum((sol[pairs.first] .- pairs.second) .^ 2)
-    end
-    return tot_loss
-end
-
-# function mycallback2(p, l)
-#     display((p, l, opt_step_count))
-#     global opt_step_count += 1
-#     if opt_step_count > 100
-#         return true
-#     end
-#     return false
-# end
-global opt_step_count = 0
-losses = Float64[]
-function mycallback(p, l)
-    # return true
-    global opt_step_count += 1
-    @info ((l, opt_step_count))
-    push!(losses, l)
-    if opt_step_count % 10 == 0
-        plt = plot(losses, yaxis = :log, ylabel = "Loss", xlabel = "Iteration",
-                   legend = false)
-        display(plt)
-    end
-
-    if opt_step_count > 100
-        return true
-    end
-
-    return false
-end
 
 # all_fits = []
 # for dfi in dfs
 @info dfi
-# p = p_defs(sys)
+p = p_defs(sys)
 p = collect(defaults)
 pkeys = getfield.(p, :first)
 pvals = getfield.(p, :second)
-oargs = (prob, first.(p), ts, data);
-myloss(pvals, oargs)
-t2 = time()
+# oargs = (prob, first.(p), ts, data);
+# myloss(pvals, oargs)
+# t2 = time()
 
 # how best should the domain knowledge that the transition rates for a petri net are always ∈ [0, Inf) be encoded?
+global opt_step_count = 0
+losses = Float64[]
 oprob = OptimizationProblem(myloss, pvals,
                             lb = fill(0, length(p)),
                             ub = fill(Inf, length(p)), (prob, pkeys, ts, data))
-res = solve(oprob, NLopt.LN_SBPLX(); callback = mycallback)
-fitps = Pair.(pkeys, res.u)
+@time res = solve(oprob, NLopt.LN_SBPLX(); maxiters=1000)
 
+fitps = Pair.(pkeys, res.u)
 rprob = remake(prob; u0 = fitps, p = fitps)
 plt = plot_covidhub(dfi)
 rsol = solve(rprob; saveat = dfi.t)
 scatter!(plt, rsol, vars = [Deaths, Cases, Hospitalizations])
-
-
-
-# function u0_from_obs_df(df)
-# # Extract initial values from the first row of the dataframe
-# initial_cases = df.cases[1]
-# initial_deaths = df.deaths[1]
-# initial_hosp = df.hosp[1]
-
-
-# # Use the relationships between observables and states to estimate the initial conditions
-# initial_diagnosed = initial_cases - initial_hosp
-# initial_extinct = initial_deaths
-# initial_recognized_and_threatened = initial_hosp
-
-# # Assuming the Recognized and Threatened compartments have similar proportions
-# initial_recognized = initial_recognized_and_threatened * 0.5
-# initial_threatened = initial_recognized_and_threatened * 0.5

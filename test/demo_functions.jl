@@ -184,6 +184,7 @@ end
 function mycallback(p, l)
     global opt_step_count += 1
     @info ((l, opt_step_count))
+    return true
     push!(losses, l)
     if opt_step_count % 10 == 0
         plt = plot(losses, yaxis = :log, ylabel = "Loss", xlabel = "Iteration",
@@ -192,14 +193,14 @@ function mycallback(p, l)
     end
 
     # todo find out why this doesn't trigger early stopping
-    # if opt_step_count > 100
-    #     return true
-    # end
+    if opt_step_count > 100
+        return true
+    end
 
     return false
 end
 
-function calibrate(prob, train_df, mapping;
+function mycalibrate(prob, train_df, mapping;
                    p = collect(ModelingToolkit.defaults(prob.f.sys)))
     ts = train_df.t
     data = [k => train_df[:, v] for (k, v) in mapping]
@@ -217,7 +218,7 @@ function calibrate(prob, train_df, mapping;
     oprob = OptimizationProblem(myloss, pvals,
                                 lb = fill(0, length(p)),
                                 ub = fill(Inf, length(p)), (prob, pkeys, ts, data))
-    solve(oprob, NLopt.LN_SBPLX(); cb = mycallback) # why isn't it calling the callback?
+    solve(oprob, NLopt.LN_SBPLX(); callback = mycallback, maxiters=1000) 
 end
 
 function l2loss_from_sol(sol, df, mapping)
