@@ -407,8 +407,8 @@ function forecast_plot(df, sols)
     cs = ["blue", "orange", "green"]
     plt = plot_covidhub(df)
     for (j, c) in enumerate(eachcol(obsm))
-        display(scatter!(plt, soldf.timestamp, c; ms = 2, label = string(obs_sts[j]),
-                         color = cs[j]))
+        scatter!(plt, soldf.timestamp, c; ms = 2, label = string(obs_sts[j]),
+                         color = cs[j])
     end
     # end
     plt
