@@ -99,11 +99,11 @@ function groupby_week(df)
     weekly_summary
 end
 
-function plot_covidhub(df)
-    plt = plot()
-    plot!(plt, df.t, df.deaths; label = "incident deaths", color = "blue")
-    plot!(plt, df.t, df.hosp; label = "incident hosp", color = "orange")
-    plot!(plt, df.t, df.cases; label = "incident cases", color = "green")
+function plot_covidhub(df; labs = ["incident deaths", "incident hosp", "incident cases"], kws...)
+    plt = plot(kws...)
+    plot!(plt, df.t, df.deaths; label = labs[1], color = "blue")
+    plot!(plt, df.t, df.hosp; label = labs[2], color = "orange")
+    plot!(plt, df.t, df.cases; label = labs[3], color = "green")
     plt
 end
 
@@ -463,11 +463,6 @@ function build_all_weights_df(ensemble_remade_probs, dfs)
                                              maxiters = 1000)
                    for (dfi, prbs) in zip(dfs, eachcol(ensemble_remade_probs))]
     weights_df = DataFrame(stack(map(x -> x.u, all_weights))', :auto)
-
-    all_esols = [ensemble_solve(prbs, dfi.t)
-                 for (dfi, prbs) in zip(dfs, eachcol(ensemble_remade_probs))]
-    [build_weighted_ensemble_df(weights, esol)
-     for (weights, esol) in zip(all_weights, all_esols)]
 
     weights_df
 end
