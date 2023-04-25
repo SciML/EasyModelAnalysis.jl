@@ -319,7 +319,8 @@ it can be a subset of parameters. Other parameters necessary to solve `prob`
 default to the parameter values found in `prob.p`.
 Similarly, not all states must be measured.
 """
-function my_global_datafit(prob, pbounds, t, data; maxiters = 1000, loss = EMA.l2loss)
+function my_global_datafit(prob, pbounds, t, data; maxiters = 1000, loss = EMA.l2loss,
+                           doplot = false)
     plb = getindex.(getfield.(pbounds, :second), 1)
     pub = getindex.(getfield.(pbounds, :second), 2)
     pkeys = getfield.(pbounds, :first)
@@ -328,10 +329,11 @@ function my_global_datafit(prob, pbounds, t, data; maxiters = 1000, loss = EMA.l
     global losses = []
     res = solve(oprob, BBO_adaptive_de_rand_1_bin_radiuslimited(); maxiters,
                 callback = mycallback)
-
-    plt = plot(losses, yaxis = :log, ylabel = "Loss", xlabel = "Iteration",
-               legend = false)
-    display(plt)
+    if doplot
+        plt = plot(losses, yaxis = :log, ylabel = "Loss", xlabel = "Iteration",
+                   legend = false)
+        display(plt)
+    end
     res
     # Pair.(pkeys, res.u)
 end
@@ -408,7 +410,7 @@ function forecast_plot(df, sols)
     plt = plot_covidhub(df)
     for (j, c) in enumerate(eachcol(obsm))
         scatter!(plt, soldf.timestamp, c; ms = 2, label = string(obs_sts[j]),
-                         color = cs[j])
+                 color = cs[j])
     end
     # end
     plt
@@ -422,13 +424,17 @@ end
 function ensemble_loss_plot(loss_mat)
     plt = plot()
     [plot!(plt, loss_i; label = "$i", yscale = :log10, xaxis = "timeperiod",
-                   yaxis = "log l2 loss") for (i, loss_i) in enumerate(eachrow(loss_mat))]
+           yaxis = "log l2 loss") for (i, loss_i) in enumerate(eachrow(loss_mat))]
     plt
 end
 
-function optimize_ensemble_weights(odeprobs, t, data; maxiters = 100)
+function ensemble_solve(odeprobs, t)
     eprob = EnsembleProblem(odeprobs; prob_func = (odeprobs, i, reset) -> odeprobs[i])
     esol = solve(eprob; trajectories = length(odeprobs), saveat = t)
+end
+
+function optimize_ensemble_weights(odeprobs, t, data; maxiters = 100)
+    esol = ensemble_solve(odeprobs, t)
     eo = esol[obs_sts]
     initial_guess = fill(1 / length(odeprobs), length(odeprobs))
     oprob = OptimizationProblem(ensemble_l2loss, initial_guess,
@@ -446,7 +452,37 @@ function ensemble_l2loss(pvals, (eo, data))
 end
 
 function build_weighted_ensemble_df(weights, esol)
-    weighted_ensemble_df = DataFrame(stack(sum(weights .* esol[obs_sts]))', [:deaths, :hosp, :cases])
-    insertcols!(weighted_ensemble_df, 1, :t => dfi.t)
+    weighted_ensemble_df = DataFrame(stack(sum(weights .* esol[obs_sts]))',
+                                     [:deaths, :hosp, :cases])
+    insertcols!(weighted_ensemble_df, 1, :t => esol[1].t)
     weighted_ensemble_df
+end
+
+function build_all_weights_df(ensemble_remade_probs, dfs)
+    all_weights = [optimize_ensemble_weights(prbs, dfi.t, Matrix(dfi[:, 2:end]);
+                                             maxiters = 1000)
+                   for (dfi, prbs) in zip(dfs, eachcol(ensemble_remade_probs))]
+    weights_df = DataFrame(stack(map(x -> x.u, all_weights))', :auto)
+
+    all_esols = [ensemble_solve(prbs, dfi.t)
+                 for (dfi, prbs) in zip(dfs, eachcol(ensemble_remade_probs))]
+    [build_weighted_ensemble_df(weights, esol)
+     for (weights, esol) in zip(all_weights, all_esols)]
+
+    weights_df
+end
+
+function stitched_ensemble_df(ensemble_remade_probs, dfs)
+    all_weights = [optimize_ensemble_weights(prbs, dfi.t, Matrix(dfi[:, 2:end]);
+                                             maxiters = 1000)
+                   for (dfi, prbs) in zip(dfs, eachcol(ensemble_remade_probs))]
+
+    weights_df = DataFrame(stack(map(x -> x.u, all_weights))', :auto)
+
+    all_esols = [ensemble_solve(prbs, dfi.t)
+                 for (dfi, prbs) in zip(dfs, eachcol(ensemble_remade_probs))]
+                 
+    [build_weighted_ensemble_df(weights, esol)
+     for (weights, esol) in zip(all_weights, all_esols)]
+
 end
