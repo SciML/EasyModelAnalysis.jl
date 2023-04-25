@@ -6,6 +6,61 @@ function download_covidhub_data(urls, filenames)
     end
 end
 
+function load_ensemble()
+    petri_fns = [
+        "BIOMD0000000955_miranet.json",
+        "BIOMD0000000960_miranet.json",
+        "BIOMD0000000983_miranet.json",
+    ]
+
+    abs_fns = [joinpath(dd, fn) for fn in petri_fns]
+    T_PLRN = PropertyLabelledReactionNet{Number, Number, Dict}
+
+    petris = read_json_acset.((T_PLRN,), abs_fns)
+    syss = structural_simplify.(ODESystem.(petris))
+    defs = map(x -> ModelingToolkit.defaults(x), syss)
+    petris, syss, defs
+end
+
+function get_dataframes(; dd = "/Users/anand/.julia/dev/EasyModelAnalysis/data")
+    urls = [
+        "https://github.com/reichlab/covid19-forecast-hub/raw/master/data-truth/truth-Incident%20Cases.csv",
+        "https://github.com/reichlab/covid19-forecast-hub/raw/master/data-truth/truth-Incident%20Deaths.csv",
+        "https://github.com/reichlab/covid19-forecast-hub/raw/master/data-truth/truth-Incident%20Hospitalizations.csv",
+    ]
+    filenames = [joinpath(dd, URIs.unescapeuri(split(url, "/")[end]))
+                 for url in urls]
+    download_covidhub_data(urls, filenames)
+
+    # Read the local CSV files into DataFrames
+    dfc = CSV.read(filenames[1], DataFrame)
+    dfd = CSV.read(filenames[2], DataFrame)
+    dfh = CSV.read(filenames[3], DataFrame)
+    covidhub = calibration_data(dfc, dfh, dfd, use_hosp = true)
+    # adjust_covid_data(covidhub)
+    df = groupby_week(covidhub)
+    df, dfc, dfd, dfh, covidhub
+end
+
+"TODO validate that this is correct"
+function adjust_covid_data(df::DataFrame; infection_duration = 10, hosp_duration = 12)
+    n_weeks_infect = ceil(Int, infection_duration / 7)
+    n_weeks_hosp = ceil(Int, hosp_duration / 7)
+
+    new_df = copy(df)
+    # new_df.active_cases = zeros(nrow(df))
+    # new_df.ongoing_hosp = zeros(nrow(df))
+
+    for i in 1:nrow(df)
+        start_infect = max(1, i - n_weeks_infect + 1)
+        start_hosp = max(1, i - n_weeks_hosp + 1)
+        new_df.cases[i] = sum(df.cases[start_infect:i])
+        new_df.hosp[i] = sum(df.hosp[start_hosp:i])
+    end
+
+    return new_df
+end
+
 function calibration_data(dfc, dfd, dfh; use_hosp = false, location = "US")
     us_ = dfc[dfc.location .== location, :]
     usd_ = dfd[dfd.location .== location, :]
@@ -44,18 +99,21 @@ end
 
 function plot_covidhub(df)
     plt = plot()
-    plot!(plt, df.t, df.cases; label = "incident cases")
-    plot!(plt, df.t, df.deaths; label = "incident deaths")
-    plot!(plt, df.t, df.hosp; label = "incident hosp")
+    plot!(plt, df.t, df.deaths; label = "incident deaths", color = "blue")
+    plot!(plt, df.t, df.hosp; label = "incident hosp", color = "orange")
+    plot!(plt, df.t, df.cases; label = "incident cases", color = "green")
     plt
 end
 
-function select_timeperiods(df::DataFrame, split_length::Int)
+function select_timeperiods(df::DataFrame, split_length::Int; step::Int = split_length)
     if split_length < 1
         error("Split length must be a positive integer.")
     end
+    if step < 1
+        error("Step must be a positive integer.")
+    end
     return [df[i:(i + split_length - 1), :]
-            for i in 1:split_length:(nrow(df) - split_length + 1)]
+            for i in 1:step:(nrow(df) - split_length + 1)]
 end
 
 """
@@ -64,13 +122,14 @@ Transform list of args into Symbolics variables
 function symbolize_args(incoming_values, sys_vars)
     pairs = collect(incoming_values)
     ks, values = unzip(pairs)
-    symbols = Symbol.(ks)
+    symbols = Symbol.(remove_t.(String.(ks)))
     vars_as_symbols = Symbolics.getname.(sys_vars)
     symbols_to_vars = Dict(vars_as_symbols .=> sys_vars)
     Dict([symbols_to_vars[vars_as_symbols[findfirst(x -> x == symbol, vars_as_symbols)]]
           for symbol in symbols] .=> values)
 end
 sys_syms(sys) = [states(sys); parameters(sys)]
+remove_t(x) = Symbol(replace(String(x), "(t)" => ""))
 
 function ModelingToolkit.ODESystem(p::PropertyLabelledReactionNet{Number, Number, Dict};
                                    name = :PropMiraNet, kws...)
@@ -183,25 +242,20 @@ end
 
 function mycallback(p, l)
     global opt_step_count += 1
-    @info ((l, opt_step_count))
-    return true
-    push!(losses, l)
-    if opt_step_count % 10 == 0
-        plt = plot(losses, yaxis = :log, ylabel = "Loss", xlabel = "Iteration",
-                   legend = false)
-        display(plt)
-    end
+    # @info ((l, opt_step_count))
 
-    # todo find out why this doesn't trigger early stopping
-    if opt_step_count > 100
-        return true
+    if opt_step_count % 100 == 0
+        push!(losses, l)
+        #     plt = plot(losses, yaxis = :log, ylabel = "Loss", xlabel = "Iteration",
+        #                legend = false)
+        #     display(plt)
     end
 
     return false
 end
 
 function mycalibrate(prob, train_df, mapping;
-                   p = collect(ModelingToolkit.defaults(prob.f.sys)))
+                     p = collect(ModelingToolkit.defaults(prob.f.sys)))
     ts = train_df.t
     data = [k => train_df[:, v] for (k, v) in mapping]
     prob = remake(prob; tspan = extrema(ts))
@@ -218,7 +272,7 @@ function mycalibrate(prob, train_df, mapping;
     oprob = OptimizationProblem(myloss, pvals,
                                 lb = fill(0, length(p)),
                                 ub = fill(Inf, length(p)), (prob, pkeys, ts, data))
-    solve(oprob, NLopt.LN_SBPLX(); callback = mycallback, maxiters=1000) 
+    solve(oprob, NLopt.LN_SBPLX(); callback = mycallback, maxiters = 1000)
 end
 
 function l2loss_from_sol(sol, df, mapping)
@@ -237,4 +291,153 @@ to_data(df, mapping) = [k => df[:, v] for (k, v) in mapping]
 function train_test_split(dfi; train_weeks = nrow(dfi) ÷ 2)
     @assert train_weeks < nrow(dfi)
     dfi[1:train_weeks, :], dfi[(train_weeks + 1):end, :]
+end
+
+"""
+    global_datafit(prob, pbounds, t, data; maxiters = 1000)
+
+Fit parameters `p` to `data` measured at times `t`.
+
+## Arguments
+
+  - `prob`: ODEProblem
+  - `pbounds`: Vector of pairs of symbolic parameters to vectors of lower and upper bounds for the parameters.
+  - `t`: Vector of time-points
+  - `data`: Vector of pairs of symbolic states and measurements of these states at times `t`.
+
+## Keyword Arguments
+
+  - `maxiters`: how long to run the optimization for. Defaults to 10000. Larger values are slower but more
+    robust.
+  - `loss`: the loss function used for fitting. Defaults to `EasyModelAnalysis.l2loss`, with an alternative
+    being `EasyModelAnalysis.relative_l2loss` for relative weighted error.
+
+`p` does not have to contain all the parameters required to solve `prob`,
+it can be a subset of parameters. Other parameters necessary to solve `prob`
+default to the parameter values found in `prob.p`.
+Similarly, not all states must be measured.
+"""
+function my_global_datafit(prob, pbounds, t, data; maxiters = 1000, loss = EMA.l2loss)
+    plb = getindex.(getfield.(pbounds, :second), 1)
+    pub = getindex.(getfield.(pbounds, :second), 2)
+    pkeys = getfield.(pbounds, :first)
+    oprob = OptimizationProblem(loss, (pub .+ plb) ./ 2,
+                                lb = plb, ub = pub, (prob, pkeys, t, data))
+    global losses = []
+    res = solve(oprob, BBO_adaptive_de_rand_1_bin_radiuslimited(); maxiters,
+                callback = mycallback)
+
+    plt = plot(losses, yaxis = :log, ylabel = "Loss", xlabel = "Iteration",
+               legend = false)
+    display(plt)
+    res
+    # Pair.(pkeys, res.u)
+end
+
+Base.@propagate_inbounds function Base.getindex(A::SciMLBase.AbstractEnsembleSolution, sym)
+    map(sol -> getindex(sol, sym), A.u)
+end
+
+Base.@propagate_inbounds function Base.getindex(A::SciMLBase.AbstractEnsembleSolution{T, N},
+                                                i::Int) where {T, N}
+    A.u[i]
+end
+
+function make_bounds(sys; st_bound = (0.0, 1e8), p_bound = (0.0, 1.0))
+    st_space = states(sys) .=> (st_bound,)
+    p_space = parameters(sys) .=> (p_bound,)
+    [st_space; p_space]
+end
+
+""
+function global_ensemble_fit(odeprobs, dfs, mapping; kws...)
+    all_gress = []
+    for prob in odeprobs
+        sys = prob.f.sys
+        gress = []
+        bounds = make_bounds(sys)
+        for dfi in dfs
+            saveat = dfi.t
+            gres = my_global_datafit(prob, bounds, saveat, to_data(dfi, mapping);
+                                     maxiters = 1000, kws...)
+            push!(gress, gres)
+        end
+        push!(all_gress, gress)
+    end
+    return all_gress
+end
+
+function calculate_losses_and_solutions(all_gress, odeprobs, dfs)
+    loss_mat = zeros(length(odeprobs), length(dfs))
+    prob_mat = Matrix(undef, length(odeprobs), length(dfs))
+
+    all_sols = []
+    for (i, (gress, prob)) in enumerate(zip(all_gress, odeprobs))
+        sols = []
+        for (j, (dfi, gres)) in enumerate(zip(dfs, gress))
+            # @info 
+            saveat = dfi.t
+            sys = prob.f.sys
+            ndefs = first.(make_bounds(syss[i])) .=> gres.u
+
+            np = remake(prob; u0 = ndefs, p = ndefs, tspan = extrema(saveat))
+            prob_mat[i, j] = np
+            sol = solve(np; saveat = saveat)
+            loss_mat[i, j] = gres.objective
+            push!(sols, sol)
+        end
+        push!(all_sols, sols)
+    end
+    return loss_mat, prob_mat, all_sols
+end
+
+function forecast_plot(df, sols)
+    plt = plot_covidhub(df)
+    all_obs = map(x -> x[obs_sts], sols)
+    obsvecs = reduce(vcat, all_obs)
+    obsm = stack(obsvecs)'
+
+    soldf = reduce(vcat, DataFrame.(sols))
+    cs = ["blue", "orange", "green"]
+    for (j, c) in enumerate(eachcol(obsm))
+        display(scatter!(plt, soldf.timestamp, c; ms = 2, label = string(obs_sts[j]),
+                         color = cs[j]))
+    end
+    # end
+    plt
+end
+
+function fitvec_to_df(fits, syms)
+    DataFrame(stack(map(x -> x.u, fits))',
+              string.(Symbolics.getname.(syms)))
+end
+function ensemble_loss_plot(loss_mat)
+    plt = plot()
+    [display(plot!(plt, loss_i; label = "$i", yscale = :log10, xaxis = "timeperiod",
+                   yaxis = "log l2 loss")) for (i, loss_i) in enumerate(eachrow(loss_mat))]
+end
+
+function optimize_ensemble_weights(odeprobs, t, data; maxiters = 100)
+    eprob = EnsembleProblem(odeprobs; prob_func = (odeprobs, i, reset) -> odeprobs[i])
+    esol = solve(eprob; trajectories = length(odeprobs), saveat = t)
+    eo = esol[obs_sts]
+    initial_guess = fill(1 / length(odeprobs), length(odeprobs))
+    oprob = OptimizationProblem(ensemble_l2loss, initial_guess,
+                                lb = zeros(length(odeprobs)), ub = ones(length(odeprobs)),
+                                (eo, data))
+    global losses = []
+    res = solve(oprob, BBO_adaptive_de_rand_1_bin_radiuslimited(); maxiters,
+                callback = mycallback)
+    # Pair.(pkeys, res.u)
+end
+
+# a*eo[1] + b*eo[2] + c*eo[3] = data
+function ensemble_l2loss(pvals, (eo, data))
+    sum(abs2, data .- stack(sum(pvals .* eo))')
+end
+
+function build_weighted_ensemble_df(weights, esol)
+    weighted_ensemble_df = DataFrame(stack(sum(weights .* esol[obs_sts]))', [:deaths, :hosp, :cases])
+    insertcols!(weighted_ensemble_df, 1, :t => dfi.t)
+    weighted_ensemble_df
 end
