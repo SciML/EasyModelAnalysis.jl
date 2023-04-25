@@ -1,3 +1,7 @@
+MTK = ModelingToolkit
+EMA = EasyModelAnalysis
+meqs = MTK.equations
+dd = "/Users/anand/.julia/dev/EasyModelAnalysis/data"
 function download_covidhub_data(urls, filenames)
     for (url, filename) in zip(urls, filenames)
         if !isfile(filename)
@@ -48,8 +52,6 @@ function adjust_covid_data(df::DataFrame; infection_duration = 10, hosp_duration
     n_weeks_hosp = ceil(Int, hosp_duration / 7)
 
     new_df = copy(df)
-    # new_df.active_cases = zeros(nrow(df))
-    # new_df.ongoing_hosp = zeros(nrow(df))
 
     for i in 1:nrow(df)
         start_infect = max(1, i - n_weeks_infect + 1)
@@ -391,14 +393,19 @@ function calculate_losses_and_solutions(all_gress, odeprobs, dfs)
     return loss_mat, prob_mat, all_sols
 end
 
-function forecast_plot(df, sols)
-    plt = plot_covidhub(df)
+function forecast_stitch(df, sols)
     all_obs = map(x -> x[obs_sts], sols)
     obsvecs = reduce(vcat, all_obs)
     obsm = stack(obsvecs)'
 
     soldf = reduce(vcat, DataFrame.(sols))
+    soldf, obsm
+end
+
+function forecast_plot(df, sols)
+    soldf, obsm = forecast_stitch(df, sols)
     cs = ["blue", "orange", "green"]
+    plt = plot_covidhub(df)
     for (j, c) in enumerate(eachcol(obsm))
         display(scatter!(plt, soldf.timestamp, c; ms = 2, label = string(obs_sts[j]),
                          color = cs[j]))
@@ -411,10 +418,12 @@ function fitvec_to_df(fits, syms)
     DataFrame(stack(map(x -> x.u, fits))',
               string.(Symbolics.getname.(syms)))
 end
+
 function ensemble_loss_plot(loss_mat)
     plt = plot()
-    [display(plot!(plt, loss_i; label = "$i", yscale = :log10, xaxis = "timeperiod",
-                   yaxis = "log l2 loss")) for (i, loss_i) in enumerate(eachrow(loss_mat))]
+    [plot!(plt, loss_i; label = "$i", yscale = :log10, xaxis = "timeperiod",
+                   yaxis = "log l2 loss") for (i, loss_i) in enumerate(eachrow(loss_mat))]
+    plt
 end
 
 function optimize_ensemble_weights(odeprobs, t, data; maxiters = 100)

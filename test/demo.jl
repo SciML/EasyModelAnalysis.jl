@@ -1,5 +1,4 @@
-using AlgebraicPetri, DataFrames, DifferentialEquations, ModelingToolkit, Symbolics, EasyModelAnalysis, Catlab, Catlab.CategoricalAlgebra, JSON3, UnPack, Downloads, URIs, CSV, MathML, NLopt
-using Plots, StatsPlots
+using AlgebraicPetri, DataFrames, DifferentialEquations, ModelingToolkit, Symbolics, EasyModelAnalysis, Catlab, Catlab.CategoricalAlgebra, JSON3, UnPack, Downloads, URIs, CSV, MathML, NLopt, Plots, StatsPlots, OptimizationBBO, QuasiMonteCarlo
 @info "usings"
 MTK = ModelingToolkit
 EMA = EasyModelAnalysis
@@ -27,9 +26,6 @@ defs = map(x -> ModelingToolkit.defaults(x), syss)
 
 
 
-total_pop = 300_000_000
-N_weeks = 20
-global opt_step_count = 0
 
 all_ts = df.t
 dfs = select_timeperiods(df, N_weeks; step=5)
@@ -43,6 +39,9 @@ all_syms = [sys_syms(sys) for sys in syss]
 # adjust the defaults to be in terms of the total population. now all 3 models have defaults in terms of pop
 # this is a weak link in the workflow
 # TODO: scale the outputs for loss instead of the u0
+total_pop = 300_000_000
+N_weeks = 20
+global opt_step_count = 0
 for i in 1:2 # only the first two are in proportions 
     for st in states(syss[i])
         defs[i][st] *= total_pop # this mutates the return of ModelingToolkit.defaults
@@ -67,6 +66,9 @@ losses, remade_probs, remade_solutions = calculate_losses_and_solutions(single_m
 fitdf = fitvec_to_df(single_model_fits[1], syms)
 
 # this is a bit buggy if the step size in `select_timeperiods` is not == N_weeks
+model1_df, model1_obs = forecast_stitch(df, remade_solutions[1][1:4:end])
+plot(model1_df.timestamp, model1_obs[:, 1]; label="deaths")
+plot!(df.t, df.deaths; label="ground truth deaths")
 plt = forecast_plot(df, remade_solutions[1][1:4:end])
 plot(fitdf.beta; label="beta")
 
@@ -81,14 +83,13 @@ forecast_plts = [forecast_plot(df, ensemble_sol) for ensemble_sol in ensemble_so
 # this plot shows that the second model consistently underperforms 
 ensemble_loss_plot(losses)
 
+
 dfi = dfs[1]
-
-# interface for solving collections of models at a time, used to do the second phase of optimization
 prbs = ensemble_remade_probs[:, 1]
-
 # optimize linear conbination weights for the ensemble for first timeperiod
 weights = optimize_ensemble_weights(prbs, dfi.t, Matrix(dfi[:, 2:end]); maxiters=1000)
 
+# interface for solving collections of models at a time, used to do the second phase of optimization
 eprob = EnsembleProblem(prbs; prob_func=(probs, i, reset) -> probs[i])
 esol = solve(eprob; trajectories=length(prbs), saveat=dfi.t)
 
