@@ -10,13 +10,8 @@ function download_covidhub_data(urls, filenames)
     end
 end
 
-function load_ensemble()
-    petri_fns = [
-        "BIOMD0000000955_miranet.json",
-        "BIOMD0000000960_miranet.json",
-        "BIOMD0000000983_miranet.json",
-    ]
 
+function load_ensemble(petri_fns)
     abs_fns = [joinpath(dd, fn) for fn in petri_fns]
     T_PLRN = PropertyLabelledReactionNet{Number, Number, Dict}
 
@@ -371,8 +366,9 @@ function global_ensemble_fit(odeprobs, dfs, mapping; kws...)
     return all_gress
 end
 
-function calculate_losses_and_solutions(all_gress, odeprobs, dfs)
-    loss_mat = zeros(length(odeprobs), length(dfs))
+function calculate_losses_and_solutions(all_gress, odeprobs, dfs, mapping)
+    train_loss_mat = zeros(length(odeprobs), length(dfs))
+    test_loss_mat = zeros(length(odeprobs), length(dfs))
     prob_mat = Matrix(undef, length(odeprobs), length(dfs))
 
     all_sols = []
@@ -387,12 +383,14 @@ function calculate_losses_and_solutions(all_gress, odeprobs, dfs)
             np = remake(prob; u0 = ndefs, p = ndefs, tspan = extrema(saveat))
             prob_mat[i, j] = np
             sol = solve(np; saveat = saveat)
-            loss_mat[i, j] = gres.objective
+            train_loss_mat[i, j] = gres.objective
+            L = l2loss_from_sol(sol, dfi, mapping)
+            test_loss_mat[i, j] = L - gres.objective
             push!(sols, sol)
         end
         push!(all_sols, sols)
     end
-    return loss_mat, prob_mat, all_sols
+    return train_loss_mat, test_loss_mat, prob_mat, all_sols
 end
 
 function forecast_stitch(df, sols)
@@ -443,11 +441,11 @@ function optimize_ensemble_weights(odeprobs, t, data; maxiters = 100)
     global losses = []
     res = solve(oprob, BBO_adaptive_de_rand_1_bin_radiuslimited(); maxiters,
                 callback = mycallback)
-    # Pair.(pkeys, res.u)
 end
 
 # a*eo[1] + b*eo[2] + c*eo[3] = data
 function ensemble_l2loss(pvals, (eo, data))
+    pvals = pvals ./ sum(pvals) # impose sum to 1 constraint
     sum(abs2, data .- stack(sum(pvals .* eo))')
 end
 
