@@ -10,7 +10,6 @@ function download_covidhub_data(urls, filenames)
     end
 end
 
-
 function load_ensemble(petri_fns)
     abs_fns = [joinpath(dd, fn) for fn in petri_fns]
     T_PLRN = PropertyLabelledReactionNet{Number, Number, Dict}
@@ -94,7 +93,8 @@ function groupby_week(df)
     weekly_summary
 end
 
-function plot_covidhub(df; labs = ["incident deaths", "incident hosp", "incident cases"], kws...)
+function plot_covidhub(df; labs = ["incident deaths", "incident hosp", "incident cases"],
+                       kws...)
     plt = plot(kws...)
     plot!(plt, df.t, df.deaths; label = labs[1], color = "blue")
     plot!(plt, df.t, df.hosp; label = labs[2], color = "orange")
@@ -195,7 +195,10 @@ function ModelingToolkit.ODESystem(p::PropertyLabelledReactionNet{Number, Number
 
     coefficients = tm.output - tm.input
 
-    transition_rates = [r[tr] * prod(S[s]^tm.input[tr, s] for s in 1:ns(p))
+    # transition_rates = [r[tr] * prod(S[s]^tm.input[tr, s] for s in 1:ns(p))
+    #                     for tr in 1:nt(p)]
+
+    transition_rates= [sym_rate_exprs[tr] * prod(S[s]^tm.input[tr, s] for s in 1:ns(p))
                         for tr in 1:nt(p)]
 
     # disabling this for now
@@ -213,7 +216,8 @@ function ModelingToolkit.ODESystem(p::PropertyLabelledReactionNet{Number, Number
                           Dict(full_sub_map))
                for i in observable_species_idxs]
     eqs = [deqs; obs_eqs]
-    sys = ODESystem(eqs, t, S, first.(default_p); name = name, defaults, kws...)
+    eqs = map(identity, eqs)
+    sys = ODESystem(eqs, t, S, first.(default_p); name = name, defaults=Dict(defaults), kws...)
 end
 
 function u0_defs(sys)
@@ -474,8 +478,7 @@ function stitched_ensemble_df(ensemble_remade_probs, dfs)
 
     all_esols = [ensemble_solve(prbs, dfi.t)
                  for (dfi, prbs) in zip(dfs, eachcol(ensemble_remade_probs))]
-                 
+
     [build_weighted_ensemble_df(weights, esol)
      for (weights, esol) in zip(all_weights, all_esols)]
-
 end
