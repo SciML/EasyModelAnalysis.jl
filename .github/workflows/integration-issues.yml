@@ -15,7 +15,7 @@ jobs:
     name: Add integration issue to project
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/add-to-project@80dff8360364fc9d8c5ca58b41c535e66b66c331
+      - uses: actions/add-to-project@701d4fe4b8b5b63c138451f99abe97991ab07cac
         with:
           project-url: https://github.com/orgs/DARPA-ASKEM/projects/5
           github-token: ${{ secrets.ADD_TO_PROJECT_PAT }}
