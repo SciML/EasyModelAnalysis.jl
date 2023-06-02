@@ -1,0 +1,1 @@
+{"T":[{"tname":"inf"},{"tname":"rec"},{"tname":"hosp"},{"tname":"hrec"}],"S":[{"sname":"S"},{"sname":"I"},{"sname":"R"},{"sname":"H"}],"I":[{"it":1,"is":1},{"it":1,"is":2},{"it":2,"is":2},{"it":3,"is":2},{"it":4,"is":4}],"O":[{"ot":1,"os":2},{"ot":1,"os":2},{"ot":2,"os":3},{"ot":3,"os":4},{"ot":4,"os":3}]}
