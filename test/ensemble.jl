@@ -1,16 +1,12 @@
 # @time @time_imports using EasyModelAnalysis
 using EasyModelAnalysis
 using DataFrames, AlgebraicPetri, Catlab, Setfield, MathML, JSON3, CommonSolve
+using Downloads, CSV, URIs, DataFrames, Dates, AlgebraicPetri, MathML, Setfield
 using Catlab.CategoricalAlgebra: read_json_acset
 import Catlab.ACSetInterface: has_subpart
-
 EMA = EasyModelAnalysis
-# rescale data to be proportion of population
-# function scale_df!(df)
-#     for c in names(df)[2:end]
-#         df[!, c] = df[!, c] ./ total_pop
-#     end
-# end
+datadir = joinpath(@__DIR__, "../data/")
+mkpath(datadir)
 
 function generate_sys_args(p::AbstractPetriNet)
     t = first(@variables t)
@@ -55,12 +51,19 @@ function CommonSolve.solve(sys::ODESystem; prob_kws = (;), solve_kws = (;), kws.
     solve(ODEProblem(sys; prob_kws..., kws...); solve_kws..., kws...)
 end
 
+function CommonSolve.solve(sys::SDESystem; prob_kws = (;), solve_kws = (;), kws...)
+    solve(SDEProblem(sys; prob_kws..., kws...); solve_kws..., kws...)
+end
+
 to_ssys(sys::ODESystem) = complete(structural_simplify(sys))
 to_ssys(pn) = to_ssys(ODESystem(pn))
 
 EMA.solve(pn::AbstractPetriNet; kws...) = solve(to_ssys(pn); kws...)
 getsys(sol) = sol.prob.f.sys
 getsys(prob::ODEProblem) = prob.f.sys
+
+ModelingToolkit.parameters(prob::ODEProblem) = parameters(getsys(prob))
+ModelingToolkit.states(prob::ODEProblem) = states(getsys(prob))
 
 "this doesn't necesarily get everything, use with caution"
 sys_syms(sys) = [states(sys); parameters(sys)]
@@ -76,22 +79,6 @@ function p_defs(sys)
 end
 
 to_data(df, mapping) = [k => df[:, v] for (k, v) in mapping]
-# gi(xs, y) = map(x -> x[y], xs)
-# cv(x) = collect(values(x))
-# read_replace_write(fn, rs) = write(fn, replace(read(fn, String), rs...))
-# function fits_to_df(fits)
-#     DataFrame(namedtuple.([Symbolics.getname.(ks) .=> vs for (ks, vs) in EMA.unzip.(fits)]))
-# end
-
-# function logged_p_df(pkeys, logged_p)
-#     DataFrame(stack(logged_p)', Symbolics.getname.(pkeys))
-# end
-
-# function fit_plot(sol, df, sts)
-#     plt = EMA.plot_covidhub(df)
-#     plt = scatter!(plt, sol; idxs = sts)
-#     display(plt)
-# end
 
 """
 Separate keys and values    
@@ -151,17 +138,35 @@ function sol_df_to_t_data(df)
     df.timestamp, sts .=> collect(eachcol(df)[2:end])
 end
 
-EMA = EasyModelAnalysis
-datadir = joinpath(@__DIR__, "../data/")
-mkpath(datadir)
+"helper to easily "
+function petri_bounds(prob; ps = parameters(getsys(prob)),
+                      ranges = fill((0.0, 1.0), length(ps)))
+    ps .=> ranges
+end
 
-fns = readdir(datadir; join = true)
+global losses = []
+global logged_p = []
+global opt_step = 0
+
+callback = function (p, l)
+    global opt_step += 1
+    if opt_step % 100 == 0
+        @show opt_step, l
+        push!(losses, deepcopy(l))
+        push!(logged_p, deepcopy(p))
+        # display(plot(losses))
+    end
+    return false
+end
+# fns = readdir(datadir; join = true)
+fns = joinpath.((datadir,), (["sir", "sirh", "sird", "sirhd"] .* ".json"))
 pns = [read_json_acset(LabelledPetriNet, fn) for fn in fns]
 p = pns[1]
 sir, sird, sirh, sirhd = pns
 
 tspan = (0.0, 100.0)
 saveat = 1
+
 s_defs = [
     :S => 0.99,
     :I => 0.01,
@@ -178,6 +183,9 @@ ps_defs = [
     :hrec => 0.05,
     :death => 0.01,
 ]
+sd = Dict(s_defs)
+psd = Dict(ps_defs)
+defs = merge(sd, psd)
 
 rn = LabelledReactionNet{Number, Number}(sirhd, s_defs, ps_defs)
 sol = solve(rn; tspan, saveat) # shortcut 
@@ -193,36 +201,68 @@ rns = [LabelledReactionNet{Number, Number}(pn, s_defs, ps_defs) for pn in pns]
 syss = [to_ssys(rn) for rn in rns]
 sir, sird, sirh, sirhd = syss
 rprobs = [ODEProblem(sys, [], tspan) for sys in syss] # why does Distributions export `probs`?
-
-all_bounds = [parameters(sys) .=> ((0.0, 1.0),) for sys in syss]
+sols = solve.(rprobs; saveat)
 
 ists = intersect(states.(syss)...)
-
 data = to_data(sol; sts = ists)
 
-EMA.global_datafit(rprobs[1], bounds, df.timestamp, data)
+rprob = rprobs[1]
+fit = EMA.global_datafit(rprob, petri_bounds(rprob), df.timestamp, data;
+                         solve_kws = (; callback))
+before_loss = EMA.l2loss(rprob.p, (rprob, parameters(rprob), df.timestamp, data))
+after_loss = EMA.l2loss(last.(fit), (rprob, first.(fit), df.timestamp, data))
 
-scores = [:sir, :sird, :sirh, :sirhd] .=> EMA.model_forecast_score(rprobs, df.timestamp, data)
+scores = [:sir, :sird, :sirh, :sirhd] .=>
+    EMA.model_forecast_score(rprobs, df.timestamp, data)
 
 fits = []
-for (prob, bounds) in zip(rprobs, all_bounds)
-    fit = EMA.global_datafit(prob, bounds, df.timestamp, data)
+for prob in rprobs
+    fit = EMA.global_datafit(prob, petri_bounds(prob), df.timestamp, data)
     push!(fits, fit)
 end
 
-# #
-# sir = LabelledReactionNet((:S => 0.99, :I => 0.01, :R => 0),
-#                           (:inf, 0.3 / 1000) => ((:S, :I) => (:I, :I)),
-#                           (:rec, 0.2) => (:I => :R))
+fits = [EMA.global_datafit(prob, petri_bounds(prob), df.timestamp, data) for prob in rprobs]
+# this was the "easy" case because state and parameter names overlapped, and allowed us to treat them as the same, using the same data across all fits
 
-# sirh = LabelledReactionNet((:S => 0.99, :I => 0.01, :R => 0),
-#                            (:inf, 0.3 / 1000) => ((:S, :I) => (:I, :I)),
-#                            (:rec, 0.2) => (:I => :R))
+# to get around this for the case where we have a model that has states Sus, Inf, Rec, and parameters infection_rate, recovery_rate
+sir2_rn = LabelledReactionNet{Number, Number}((:Sus => 0.99, :Inf => 0.01, :Rec => 0),
+                                              (:infection_rate, 0.3 / 1000) => ((:Sus, :Inf) => (:Inf,
+                                                                                                 :Inf)),
+                                              (:recovery_rate, 0.2) => (:Inf => :Rec))
 
-# sirhd = LabelledReactionNet((:S => 0.99, :I => 0.01, :R => 0),
-#                             (:inf, 0.3 / 1000) => ((:S, :I) => (:I, :I)),
-#                             (:rec, 0.2) => (:I => :R))
+sir2 = complete(ODESystem(sir2_rn))
+prob2 = ODEProblem(sir2, [], tspan)
+# we need to provide a mapping to the data, so that we can use the same data across all fits
+# so what we do is create pairs that map states to fit against to DataFrame column names, which allows us to construct `data`
 
-# sird = LabelledReactionNet((:S => 0.99, :I => 0.01, :R => 0),
-#                            (:inf, 0.3 / 1000) => ((:S, :I) => (:I, :I)),
-#                            (:rec, 0.2) => (:I => :R))
+
+function Base.getindex(sys::ODESystem, s::Symbol)
+    syms = sys_syms(sys)
+    syms[findfirst(==(s), Symbolics.getname.(syms))]
+end
+
+function Base.getindex(sys::ODESystem, syms::AbstractArray{Symbol})
+    [sys[s] for s in syms]
+end
+
+# datad = Dict(data)
+fit_syms = Symbol.(ists)
+fit_ns = Symbolics.getname.(ists)
+
+mapping2 = [
+    sir2.Sus => Symbol("S(t)"),
+    sir2.Inf => Symbol("I(t)"),
+    sir2.Rec => Symbol("R(t)"),
+]
+data2 = to_data(df, mapping2)
+
+mapping = sys[fit_ns] .=> fit_syms
+prob_mapping_ps = []
+
+bounds = parameters(getsys(prob2)) .=> ((0.0, 1.0),)
+
+fit = EMA.global_datafit(prob2, bounds, df.timestamp, data2)
+
+# function EMA.global_datafit(probs)
+
+# function amr_to_odesys(fn)

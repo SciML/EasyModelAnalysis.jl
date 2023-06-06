@@ -1,0 +1,102 @@
+{
+    "T": [
+        {
+            "tname": "inf",
+            "tprop": {
+                "output": [
+                    "I",
+                    "I"
+                ],
+                "properties": {
+                    "name": "Infection"
+                },
+                "id": "inf",
+                "input": [
+                    "S",
+                    "I"
+                ]
+            }
+        },
+        {
+            "tname": "rec",
+            "tprop": {
+                "output": [
+                    "R"
+                ],
+                "properties": {
+                    "name": "Recovery"
+                },
+                "id": "rec",
+                "input": [
+                    "I"
+                ]
+            }
+        }
+    ],
+    "S": [
+        {
+            "sname": "S",
+            "sprop": {
+                "name": "Susceptible",
+                "id": "S",
+                "grounding": {
+                    "identifiers": {
+                        "ido": "0000514"
+                    }
+                }
+            }
+        },
+        {
+            "sname": "I",
+            "sprop": {
+                "name": "Infected",
+                "id": "I",
+                "grounding": {
+                    "identifiers": {
+                        "ido": "0000511"
+                    }
+                }
+            }
+        },
+        {
+            "sname": "R",
+            "sprop": {
+                "name": "Recovered",
+                "id": "R",
+                "grounding": {
+                    "identifiers": {
+                        "ido": "0000592"
+                    }
+                }
+            }
+        }
+    ],
+    "I": [
+        {
+            "it": 1,
+            "is": 1
+        },
+        {
+            "it": 1,
+            "is": 2
+        },
+        {
+            "it": 2,
+            "is": 2
+        }
+    ],
+    "O": [
+        {
+            "ot": 1,
+            "os": 2
+        },
+        {
+            "ot": 1,
+            "os": 2
+        },
+        {
+            "ot": 2,
+            "os": 3
+        }
+    ]
+}
