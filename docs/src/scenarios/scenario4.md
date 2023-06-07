@@ -60,12 +60,12 @@ tdays = (tend - tstart).value
 ```@example scenario4
 function formSEIISRD()
     SEIRHD = LabelledPetriNet([:S, :E, :I, :IS, :R, :D],
-                              :expo => ((:S, :I) => (:E, :I)),
-                              :conv => (:E => :I),
-                              :rec => (:I => :R),
-                              :test => (:I => :IS),
-                              :leave => (:IS => :R),
-                              :death => (:I => :D))
+        :expo => ((:S, :I) => (:E, :I)),
+        :conv => (:E => :I),
+        :rec => (:I => :R),
+        :test => (:I => :IS),
+        :leave => (:IS => :R),
+        :death => (:I => :D))
     return SEIRHD
 end
 sys1 = ODESystem(formSEIISRD())
@@ -116,13 +116,13 @@ plot(sol)
 ```@example scenario4
 # Minimize u_test subject to IS <= 430
 p_opt, s2, ret = optimal_parameter_threshold(prob, IS, 430, u_test, [u_test], [0.0], [NN],
-                                             maxtime = 10);
+    maxtime = 10);
 plot(s2, idxs = [IS])
 ```
 
 ```@example scenario4
 p_opt, s2, ret = optimal_parameter_threshold(prob, D, 430, u_test, [u_test], [0.0], [NN],
-                                             maxtime = 10);
+    maxtime = 10);
 plot(s2, idxs = [I, IS, D])
 ```
 
@@ -135,6 +135,6 @@ plot(s2, idxs = [I, IS, D])
 ```@example scenario4
 # Minimize u_test subject to IS <= 430
 p_opt, s2, ret = optimal_parameter_threshold(prob, IS, 430, 5 * u_test, [u_test], [0.0],
-                                             [NN], maxtime = 10);
+    [NN], maxtime = 10);
 plot(s2, idxs = [IS])
 ```

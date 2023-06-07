@@ -12,14 +12,14 @@ Dₜ = Differential(t)
 @variables T(t)=10000.0 η(t)=0.0 cumulative_I(t)=0.0
 @parameters β₁=0.06 β₂=0.015 β₃=0.005 α=0.003 γ₁=0.007 γ₂=0.001 δ=0.2 μ=0.04
 eqs = [T ~ S + E + I + R + H + D
-       η ~ (β₁ * E + β₂ * I + β₃ * H)
-       Dₜ(S) ~ -η * S
-       Dₜ(E) ~ η * S - α * E
-       Dₜ(I) ~ α * E - (γ₁ + δ) * I
-       Dₜ(cumulative_I) ~ I
-       Dₜ(R) ~ γ₁ * I + γ₂ * H
-       Dₜ(H) ~ δ * I - (μ + γ₂) * H
-       Dₜ(D) ~ μ * H];
+    η ~ (β₁ * E + β₂ * I + β₃ * H)
+    Dₜ(S) ~ -η * S
+    Dₜ(E) ~ η * S - α * E
+    Dₜ(I) ~ α * E - (γ₁ + δ) * I
+    Dₜ(cumulative_I) ~ I
+    Dₜ(R) ~ γ₁ * I + γ₂ * H
+    Dₜ(H) ~ δ * I - (μ + γ₂) * H
+    Dₜ(D) ~ μ * H];
 @named seirhd = ODESystem(eqs)
 seirhd = structural_simplify(seirhd)
 prob = ODEProblem(seirhd, [], (0.0, 60.0), saveat = 1.0)
@@ -38,8 +38,8 @@ prior_mean = [0.06, 0.015, 0.005, 0.003, 0.007, 0.001, 0.2, 0.04]
 prior_sd = [0.006, 0.0015, 0.0005, 0.0003, 0.0007, 0.0001, 0.02, 0.004]
 p = [β₁, β₂, β₃, α, γ₁, γ₂, δ, μ]
 p_priors = Pair.(p,
-                 Truncated.(Normal.(prior_mean, prior_sd), prior_mean - 3 * prior_sd,
-                            prior_mean + 3 * prior_sd))
+    Truncated.(Normal.(prior_mean, prior_sd), prior_mean - 3 * prior_sd,
+        prior_mean + 3 * prior_sd))
 tsave = collect(0.0:1.0:60.0)
 fit = bayesian_datafit(prob, p_priors, tsave, data, noise_prior = InverseGamma(10, 0.1))
 ```
@@ -50,7 +50,7 @@ fit = bayesian_datafit(prob, p_priors, tsave, data, noise_prior = InverseGamma(1
 
 ```@example scenario2
 prob = remake(prob; u0 = u60,
-              p = Pair.(getfield.(fit, :first), mean.(getfield.(fit, :second))))
+    p = Pair.(getfield.(fit, :first), mean.(getfield.(fit, :second))))
 forecast_threemonths = solve(prob, tspan = (0.0, 90.0), saveat = 1.0)
 plot(forecast_threemonths)
 ```
@@ -90,10 +90,10 @@ function g(res, ts, p = nothing)
     start_intervention = (t == tstart) => [β₁ ~ β₁ / 2, β₂ ~ β₂ / 2, β₃ ~ β₃ / 2]
     stop_intervention = (t == tstop) => [β₁ ~ β₁ * 2, β₂ ~ β₂ * 2, β₃ ~ β₃ * 2]
     @named opttime_sys = ODESystem(eqs, t;
-                                   discrete_events = [
-                                       start_intervention,
-                                       stop_intervention,
-                                   ])
+        discrete_events = [
+            start_intervention,
+            stop_intervention,
+        ])
     opttime_sys = structural_simplify(opttime_sys)
     prob = ODEProblem(opttime_sys, [], [0.0, 90.0])
     prob = remake(prob; u0 = u60)
@@ -108,13 +108,13 @@ end
 
 optf = OptimizationFunction(f, Optimization.AutoFiniteDiff(), cons = g)
 optprob = Optimization.OptimizationProblem(optf, [0.0, 90.0], lb = [0.0, 0.0],
-                                           ub = [90.0, 90.0],
-                                           lcons = vcat(fill(-Inf, 91), 0.0),
-                                           ucons = vcat(fill(0.05, 91), Inf))
+    ub = [90.0, 90.0],
+    lcons = vcat(fill(-Inf, 91), 0.0),
+    ucons = vcat(fill(0.05, 91), Inf))
 min_intervention_timespan = solve(optprob,
-                                  OptimizationMOI.MOI.OptimizerWithAttributes(NLopt.Optimizer,
-                                                                              "algorithm" => :GN_ORIG_DIRECT,
-                                                                              "maxtime" => 60.0))
+    OptimizationMOI.MOI.OptimizerWithAttributes(NLopt.Optimizer,
+        "algorithm" => :GN_ORIG_DIRECT,
+        "maxtime" => 60.0))
 min_intervention_timespan.u
 ```
 
@@ -158,11 +158,11 @@ function g(res, reduction_rate, p = nothing)
 end
 optf = OptimizationFunction(f, Optimization.AutoFiniteDiff(), cons = g)
 optprob = OptimizationProblem(optf, [0.0], lb = [0.0], ub = [1.0], lcons = fill(-Inf, 91),
-                              ucons = fill(0.05, 91))
+    ucons = fill(0.05, 91))
 min_intervention_strength = solve(optprob,
-                                  OptimizationMOI.MOI.OptimizerWithAttributes(NLopt.Optimizer,
-                                                                              "algorithm" => :GN_ORIG_DIRECT,
-                                                                              "maxtime" => 60.0))
+    OptimizationMOI.MOI.OptimizerWithAttributes(NLopt.Optimizer,
+        "algorithm" => :GN_ORIG_DIRECT,
+        "maxtime" => 60.0))
 min_intervention_strength.u
 ```
 

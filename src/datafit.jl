@@ -47,13 +47,13 @@ default to the parameter values found in `prob.p`.
 Similarly, not all states must be measured.
 """
 function datafit(prob, p::Vector{Pair{Num, Float64}}, t, data; loss = l2loss,
-                 lb = fill(-Inf, length(p)),
-                 ub = fill(Inf, length(p)), alg = NLopt.LN_SBPLX(), solve_kws = (;))
+    lb = fill(-Inf, length(p)),
+    ub = fill(Inf, length(p)), alg = NLopt.LN_SBPLX(), solve_kws = (;))
     pvals = getfield.(p, :second)
     pkeys = getfield.(p, :first)
     oprob = OptimizationProblem(loss, pvals, (prob, pkeys, t, data);
-                                lb,
-                                ub)
+        lb,
+        ub)
     res = solve(oprob, alg; solve_kws...)
     Pair.(pkeys, res.u)
 end
@@ -86,15 +86,15 @@ default to the parameter values found in `prob.p`.
 Similarly, not all states must be measured.
 """
 function global_datafit(prob, pbounds, t, data; maxiters = 10000, loss = l2loss,
-                        alg = BBO_adaptive_de_rand_1_bin_radiuslimited(),
-                        u0 = nothing,
-                        solve_kws = (;))
+    alg = BBO_adaptive_de_rand_1_bin_radiuslimited(),
+    u0 = nothing,
+    solve_kws = (;))
     plb = getindex.(getfield.(pbounds, :second), 1)
     pub = getindex.(getfield.(pbounds, :second), 2)
     pkeys = getfield.(pbounds, :first)
     u0 = isnothing(u0) ? (pub .+ plb) ./ 2 : u0
     oprob = OptimizationProblem(loss, u0, (prob, pkeys, t, data);
-                                lb = plb, ub = pub)
+        lb = plb, ub = pub)
     res = solve(oprob, alg; maxiters, solve_kws...)
     Pair.(pkeys, res.u)
 end
@@ -147,7 +147,7 @@ Arguments:
 Output: the L2 distance from the dataset for each problem.
 """
 function model_forecast_score(probs::AbstractVector, ts::AbstractVector,
-                              dataset::AbstractVector{<:Pair})
+    dataset::AbstractVector{<:Pair})
     obs = map(first, dataset)
     data = map(last, dataset)
     map(probs) do prob

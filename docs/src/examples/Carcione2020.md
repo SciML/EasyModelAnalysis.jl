@@ -8,9 +8,9 @@ xmlfile = "../assets/Carcione2020.xml"
 
 SBMLToolkit.checksupport_file(xmlfile)
 mdl = readSBML(xmlfile, doc -> begin
-                   set_level_and_version(3, 2)(doc)
-                   convert_simplify_math(doc)
-               end)
+    set_level_and_version(3, 2)(doc)
+    convert_simplify_math(doc)
+end)
 
 rs = ReactionSystem(mdl)  # If you want to create a reaction system
 odesys = convert(ODESystem, rs)  # Alternatively: ODESystem(mdl)
