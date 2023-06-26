@@ -9,6 +9,7 @@
 [![ColPrac: Contributor's Guide on Collaborative Practices for Community Packages](https://img.shields.io/badge/ColPrac-Contributor%27s%20Guide-blueviolet)](https://github.com/SciML/ColPrac)
 [![SciML Code Style](https://img.shields.io/static/v1?label=code%20style&message=SciML&color=9558b2&labelColor=389826)](https://github.com/SciML/SciMLStyle)
 
+
 EasyModelAnalysis does exactly what it says: it makes model analysis easy. Want to know the first time
 the number of infected individuals is about 1000? What is the probability that more than 50 people will
 be infected given probability distributions for the parameters? What variables are the most sensitive?
