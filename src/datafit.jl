@@ -85,7 +85,7 @@ function global_datafit(prob, pbounds, t, data; maxiters = 10000, loss = l2loss)
     Pair.(pkeys, res.u)
 end
 
-@model function bayesianODE(prob, t, p, data, noise_prior)
+Turing.@model function bayesianODE(prob, t, p, data, noise_prior)
     σ ~ noise_prior
     pdist = getfield.(p, :second)
     pkeys = getfield.(p, :first)
@@ -114,7 +114,7 @@ function bayesian_datafit(prob, p, t, data; noise_prior = InverseGamma(2, 3))
     pkeys = getfield.(p, :first)
 
     model = bayesianODE(prob, t, p, data, noise_prior)
-    chain = sample(model, NUTS(0.65), MCMCSerial(), 1000, 3; progress = true)
+    chain = Turing.sample(model, Turing.NUTS(0.65), Turing.MCMCSerial(), 1000, 3; progress = true)
     [Pair(pkeys[i], collect(chain["pprior[" * string(i) * "]"])[:])
      for i in eachindex(pkeys)]
 end
