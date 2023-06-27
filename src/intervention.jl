@@ -24,7 +24,7 @@ function optimal_threshold_intervention(prob, p2, obs, threshold, duration; kw..
     optimal_threshold_intervention(prob, p1, p2, obs, threshold, duration; kw...)
 end
 function optimal_threshold_intervention(prob, p1, p2, obs, threshold, duration;
-                                        maxtime = 60, kw...)
+    maxtime = 60, kw...)
     t0 = prob.tspan[1]
     prob1 = remake(prob, p = p1)
     prob2 = remake(prob, p = p2)
@@ -40,15 +40,15 @@ function optimal_threshold_intervention(prob, p1, p2, obs, threshold, duration;
         violation > 0 && return violation + (duration - (x[1] - t0))
 
         prob_intervention = remake(prob2, u0 = sol_preintervention.u[end],
-                                   tspan = (x[1], x[2]))
+            tspan = (x[1], x[2]))
         sol_intervention = stop_at_threshold(prob_intervention, obs, threshold; kw...)
         violation = x[2] - sol_intervention.t[end]
         violation > 0 && return violation + (duration - (x[2] - t0))
 
         prob_postintervention = remake(prob1, u0 = sol_intervention.u[end],
-                                       tspan = (x[2], t0 + duration))
+            tspan = (x[2], t0 + duration))
         sol_postintervention = stop_at_threshold(prob_postintervention, obs, threshold;
-                                                 kw...)
+            kw...)
         violation = t0 + duration - sol_postintervention.t[end]
         return p ?
                (violation, (sol_preintervention, sol_intervention, sol_postintervention)) :
@@ -102,11 +102,11 @@ end
   - `ret`: Return code from the optimization.
 """
 function optimal_parameter_intervention_for_threshold(prob, obs, threshold,
-                                                      symbolic_cost, ps, lb, ub,
-                                                      intervention_tspan = prob.tspan,
-                                                      duration = abs(-(prob.tspan...));
-                                                      maxtime = 60, ineq_cons = nothing,
-                                                      kw...)
+    symbolic_cost, ps, lb, ub,
+    intervention_tspan = prob.tspan,
+    duration = abs(-(prob.tspan...));
+    maxtime = 60, ineq_cons = nothing,
+    kw...)
     t0 = prob.tspan[1]
     ti_start, ti_end = intervention_tspan
     symbolic_cost = Symbolics.unwrap(symbolic_cost)
@@ -126,16 +126,16 @@ function optimal_parameter_intervention_for_threshold(prob, obs, threshold,
                (violation + (duration - (ti_start - t0)))
 
         prob_intervention = remake(prob, u0 = sol_preintervention.u[end], p = ps .=> x,
-                                   tspan = (ti_start, ti_end))
+            tspan = (ti_start, ti_end))
         sol_intervention = stop_at_threshold(prob_intervention, obs, threshold; kw...)
         violation = ti_end - sol_intervention.t[end]
         violation > 0 && return p ? (sol_preintervention, sol_intervention, nothing) :
                (violation + (duration - (ti_end - ti_start)))
 
         prob_postintervention = remake(prob, u0 = sol_intervention.u[end],
-                                       tspan = (ti_end, t0 + duration))
+            tspan = (ti_end, t0 + duration))
         sol_postintervention = stop_at_threshold(prob_postintervention, obs, threshold;
-                                                 kw...)
+            kw...)
         violation = t0 + duration - sol_postintervention.t[end]
         return p ?
                (sol_preintervention, sol_intervention, sol_postintervention) :
@@ -153,7 +153,7 @@ function optimal_parameter_intervention_for_threshold(prob, obs, threshold,
     if ineq_cons !== nothing
         for con in ineq_cons
             _con = Symbolics.build_function(Symbolics.unwrap(con), ps,
-                                            expression = Val{false})
+                expression = Val{false})
             _con(init_x)
             ineq_con = (x, _) -> _con(x)
             inequality_constraint!(opt, ineq_con, 1e-16)
@@ -197,11 +197,11 @@ end
   - `ret`: Return code from the optimization.
 """
 function optimal_parameter_intervention_for_reach(prob, obs, reach,
-                                                  symbolic_cost, ps, lb, ub,
-                                                  intervention_tspan = prob.tspan,
-                                                  duration = abs(-(prob.tspan...));
-                                                  maxtime = 60, ineq_cons = nothing,
-                                                  kw...)
+    symbolic_cost, ps, lb, ub,
+    intervention_tspan = prob.tspan,
+    duration = abs(-(prob.tspan...));
+    maxtime = 60, ineq_cons = nothing,
+    kw...)
     t0 = prob.tspan[1]
     ti_start, ti_end = intervention_tspan
     if symbolic_cost isa Tuple
@@ -224,8 +224,8 @@ function optimal_parameter_intervention_for_reach(prob, obs, reach,
                 prob_preintervention = remake(prob, tspan = (t0, ti_start))
                 sol_preintervention = solve(prob_preintervention; kw...)
                 prob_intervention = remake(prob, u0 = sol_preintervention.u[end],
-                                           p = ps .=> x,
-                                           tspan = (ti_start, ti_end))
+                    p = ps .=> x,
+                    tspan = (ti_start, ti_end))
                 sol_intervention = solve(prob_intervention; kw...)
                 sol_cost = cost_sol(sol_intervention)
             end
@@ -245,7 +245,7 @@ function optimal_parameter_intervention_for_reach(prob, obs, reach,
         end
 
         prob_intervention = remake(prob, u0 = sol_preintervention.u[end], p = ps .=> x,
-                                   tspan = (ti_start, ti_end))
+            tspan = (ti_start, ti_end))
         if p
             sol_intervention = solve(prob_intervention; kw...)
         else
@@ -255,13 +255,13 @@ function optimal_parameter_intervention_for_reach(prob, obs, reach,
         end
 
         prob_postintervention = remake(prob, u0 = sol_intervention.u[end],
-                                       tspan = (ti_end, t0 + duration))
+            tspan = (ti_end, t0 + duration))
         if p
             sol_postintervention = solve(prob_postintervention; kw...)
             sol_preintervention, sol_intervention, sol_postintervention
         else
             sol_postintervention = stop_at_threshold(prob_postintervention, obs, reach;
-                                                     kw...)
+                kw...)
             reach_time = tf - sol_postintervention.t[end]
             10.0
         end
@@ -279,7 +279,7 @@ function optimal_parameter_intervention_for_reach(prob, obs, reach,
     if ineq_cons !== nothing
         for con in ineq_cons
             _con = Symbolics.build_function(Symbolics.unwrap(con), ps,
-                                            expression = Val{false})
+                expression = Val{false})
             _con(init_x)
             ineq_con = (x, _) -> _con(x)
             inequality_constraint!(opt, ineq_con, 1e-16)

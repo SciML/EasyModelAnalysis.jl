@@ -45,8 +45,8 @@ function datafit(prob, p::Vector{Pair{Num, Float64}}, t, data; loss = l2loss)
     pvals = getfield.(p, :second)
     pkeys = getfield.(p, :first)
     oprob = OptimizationProblem(loss, pvals,
-                                lb = fill(-Inf, length(p)),
-                                ub = fill(Inf, length(p)), (prob, pkeys, t, data))
+        lb = fill(-Inf, length(p)),
+        ub = fill(Inf, length(p)), (prob, pkeys, t, data))
     res = solve(oprob, NLopt.LN_SBPLX())
     Pair.(pkeys, res.u)
 end
@@ -80,7 +80,7 @@ function global_datafit(prob, pbounds, t, data; maxiters = 10000, loss = l2loss)
     pub = getindex.(getfield.(pbounds, :second), 2)
     pkeys = getfield.(pbounds, :first)
     oprob = OptimizationProblem(loss, (pub .+ plb) ./ 2,
-                                lb = plb, ub = pub, (prob, pkeys, t, data))
+        lb = plb, ub = pub, (prob, pkeys, t, data))
     res = solve(oprob, BBO_adaptive_de_rand_1_bin_radiuslimited(); maxiters)
     Pair.(pkeys, res.u)
 end
@@ -114,7 +114,12 @@ function bayesian_datafit(prob, p, t, data; noise_prior = InverseGamma(2, 3))
     pkeys = getfield.(p, :first)
 
     model = bayesianODE(prob, t, p, data, noise_prior)
-    chain = Turing.sample(model, Turing.NUTS(0.65), Turing.MCMCSerial(), 1000, 3; progress = true)
+    chain = Turing.sample(model,
+        Turing.NUTS(0.65),
+        Turing.MCMCSerial(),
+        1000,
+        3;
+        progress = true)
     [Pair(pkeys[i], collect(chain["pprior[" * string(i) * "]"])[:])
      for i in eachindex(pkeys)]
 end
@@ -133,7 +138,7 @@ Arguments:
 Output: the L2 distance from the dataset for each problem.
 """
 function model_forecast_score(probs::AbstractVector, ts::AbstractVector,
-                              dataset::AbstractVector{<:Pair})
+    dataset::AbstractVector{<:Pair})
     obs = map(first, dataset)
     data = map(last, dataset)
     map(probs) do prob
