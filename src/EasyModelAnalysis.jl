@@ -28,5 +28,6 @@ export model_forecast_score
 export optimal_threshold_intervention, prob_violating_threshold,
     optimal_parameter_intervention_for_threshold, optimal_parameter_threshold,
     optimal_parameter_intervention_for_reach
+export ensemble_weights
 
 end
