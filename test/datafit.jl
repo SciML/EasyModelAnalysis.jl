@@ -32,6 +32,18 @@ fit = datafit(prob, psub_ini, tsave, data)
 pvals_fit = getfield.(fit, :second)
 pvals = getfield.(p, :second)[[1, 3]]
 @test isapprox(pvals, pvals_fit, atol = 1e-4, rtol = 1e-4)
+
+tsave1 = [1.0, 2.0, 3.0]
+sol_data1 = solve(prob, saveat = tsave1)
+tsave2 = [0.5, 1.5, 2.5, 3.5]
+sol_data2 = solve(prob, saveat = tsave2)
+data = [x => (tsave1,sol_data1[x]), z => (tsave2,sol_data2[z])]
+
+fit = datafit(prob, [σ => 28.0, β => 8/3], data)
+pvals_fit = getfield.(fit, :second)
+pvals = getfield.(p, :second)[[1, 3]]
+@test isapprox(pvals, pvals_fit, atol = 1e-4, rtol = 1e-4)
+
 prob2 = remake(prob, p = fit)
 prob3 = remake(prob, p = psub_ini)
 scores = model_forecast_score([prob, prob2, prob3], tsave, data)
