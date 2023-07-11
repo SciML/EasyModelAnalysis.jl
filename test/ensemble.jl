@@ -50,14 +50,9 @@ eqs = [∂(S) ~ -β * c * I_total / N * S - v * Sv,
 @named sys3 = ODESystem(eqs)
 sys3 = structural_simplify(sys3)
 prob3 = ODEProblem(sys3, [], tspan);
+enprob = EnsembleProblem(probs)
 
-probs = [prob, prob2, prob3]
-function prob_func(prob, i, repeat)
-    remake(probs[i])
-end
-enprob = EnsembleProblem(prob; prob_func)
-
-sol = solve(enprob; saveat = 1, trajectories = 3);
+sol = solve(enprob; saveat = 1, trajectories=3);
 
 weights = [0.2, 0.5, 0.3]
 t_ensem = 0:21
