@@ -1,7 +1,7 @@
 name = "EasyModelAnalysis"
 uuid = "ef4b24a4-a090-4686-a932-e7e56a5a83bd"
 authors = ["SciML"]
-version = "0.1.9"
+version = "0.1.10"
 
 [deps]
 DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa"
