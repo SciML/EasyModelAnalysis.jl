@@ -191,7 +191,7 @@ Now let's train the ensemble model. We will do that by solving a bit further tha
 calibration step. Let's build that solution data:
 
 ```@example ensemble
-sol = solve(enprob);
+sol = solve(fit_enprob);
 plot(sol;idxs = S)
 scatter!(t_ensem,data_ensem[1][2])
 ```
