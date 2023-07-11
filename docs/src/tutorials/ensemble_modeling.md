@@ -228,7 +228,7 @@ Once we have obtained the ensemble model, we can forecast ahead with it:
 
 ```@example ensemble
 forecast_probs = [remake(probs[i]; p = fitparams[i], tspan = (t_train[1],t_forecast[end])) for i in 1:3]
-fit_enprob = EnsembleProblem(forecast_probs; prob_func)
+fit_enprob = EnsembleProblem(forecast_probs)
 sol = solve(fit_enprob);
 
 sol = solve(fit_enprob; saveat = t_forecast);
