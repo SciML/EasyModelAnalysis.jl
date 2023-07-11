@@ -1,4 +1,4 @@
-function l2loss(pvals, (prob, pkeys, t, data)::Tuple{Vararg{Any,4}})
+function l2loss(pvals, (prob, pkeys, t, data)::Tuple{Vararg{Any, 4}})
     p = Pair.(pkeys, pvals)
     prob = remake(prob, tspan = (prob.tspan[1], t[end]), p = p)
     sol = solve(prob, saveat = t)
@@ -9,7 +9,7 @@ function l2loss(pvals, (prob, pkeys, t, data)::Tuple{Vararg{Any,4}})
     return tot_loss
 end
 
-function l2loss(pvals, (prob, pkeys, data)::Tuple{Vararg{Any,3}})
+function l2loss(pvals, (prob, pkeys, data)::Tuple{Vararg{Any, 3}})
     p = Pair.(pkeys, pvals)
     ts = first.(last.(data))
     lastt = maximum(last.(ts))
@@ -25,7 +25,7 @@ function l2loss(pvals, (prob, pkeys, data)::Tuple{Vararg{Any,3}})
     return tot_loss
 end
 
-function relative_l2loss(pvals, (prob, pkeys, t, data)::Tuple{Vararg{Any,4}})
+function relative_l2loss(pvals, (prob, pkeys, t, data)::Tuple{Vararg{Any, 4}})
     p = Pair.(pkeys, pvals)
     _prob = remake(prob, tspan = (prob.tspan[1], t[end]), p = p)
     sol = solve(_prob, saveat = t)
@@ -36,7 +36,7 @@ function relative_l2loss(pvals, (prob, pkeys, t, data)::Tuple{Vararg{Any,4}})
     return tot_loss
 end
 
-function relative_l2loss(pvals, (prob, pkeys, data)::Tuple{Vararg{Any,3}})
+function relative_l2loss(pvals, (prob, pkeys, data)::Tuple{Vararg{Any, 3}})
     p = Pair.(pkeys, pvals)
     ts = first.(last.(data))
     lastt = maximum(last.(ts))
@@ -48,7 +48,7 @@ function relative_l2loss(pvals, (prob, pkeys, data)::Tuple{Vararg{Any,3}})
     tot_loss = 0.0
     for i in 1:length(ts)
         vals = sol(ts[i]; idxs = datakeys[i])
-        tot_loss += sum(((vals.- timeseries[i])./vals) .^ 2)
+        tot_loss += sum(((vals .- timeseries[i]) ./ vals) .^ 2)
     end
     return tot_loss
 end

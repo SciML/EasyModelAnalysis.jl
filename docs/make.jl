@@ -42,7 +42,7 @@ makedocs(sitename = "EasyModelAnalysis.jl",
             "tutorials/datafitting.md",
             "tutorials/threshold_interventions.md",
             "tutorials/probabilistic_thresholds.md",
-            "tutorials/ensemble_modeling.md"
+            "tutorials/ensemble_modeling.md",
         ],
         "Examples" => [
             "examples/petri.md",

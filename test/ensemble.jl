@@ -9,7 +9,7 @@ eqs = [∂(S) ~ -β * c * I / N * S,
     ∂(R) ~ γ * I];
 
 @named sys = ODESystem(eqs);
-tspan = (0,30)
+tspan = (0, 30)
 prob = ODEProblem(sys, [], tspan);
 
 @parameters t β=0.1 c=10.0 γ=0.25 ρ=0.1 h=0.1 d=0.1 r=0.1
@@ -38,12 +38,12 @@ eqs = [∂(S) ~ -β * c * I_total / N * S - v * Sv,
     ∂(I) ~ β * c * I_total / N * S - γ * I - h * I - ρ * I,
     ∂(R) ~ γ * I + r * H,
     ∂(H) ~ h * I - r * H - d * H,
-    ∂(D) ~ ρ * I + d * H, 
+    ∂(D) ~ ρ * I + d * H,
     ∂(Sv) ~ -β2 * c2 * I_total / N * Sv + v * Sv,
     ∂(Iv) ~ β2 * c2 * I_total / N * Sv - γ * Iv - h2 * Iv - ρ2 * Iv,
     ∂(Rv) ~ γ * I + r2 * H,
     ∂(Hv) ~ h2 * I - r2 * H - d2 * H,
-    ∂(Dv) ~ ρ2 * I + d2 * H, 
+    ∂(Dv) ~ ρ2 * I + d2 * H,
     I_total ~ I + Iv,
 ];
 
@@ -51,22 +51,22 @@ eqs = [∂(S) ~ -β * c * I_total / N * S - v * Sv,
 sys3 = structural_simplify(sys3)
 prob3 = ODEProblem(sys3, [], tspan);
 
-probs = [prob,prob2,prob3]
+probs = [prob, prob2, prob3]
 function prob_func(prob, i, repeat)
     remake(probs[i])
 end
 enprob = EnsembleProblem(prob; prob_func)
 
-sol = solve(enprob; saveat = 1, trajectories=3);
+sol = solve(enprob; saveat = 1, trajectories = 3);
 
-weights = [0.2,0.5,0.3]
+weights = [0.2, 0.5, 0.3]
 t_ensem = 0:21
 data_ensem = [
-    S => vec(sum(stack([weights[i] * sol[i][S][1:22] for i in 1:3]), dims=2)),
-    I => vec(sum(stack([weights[i] * sol[i][I][1:22] for i in 1:3]), dims=2)),
-    R => vec(sum(stack([weights[i] * sol[i][R][1:22] for i in 1:3]), dims=2)),
+    S => vec(sum(stack([weights[i] * sol[i][S][1:22] for i in 1:3]), dims = 2)),
+    I => vec(sum(stack([weights[i] * sol[i][I][1:22] for i in 1:3]), dims = 2)),
+    R => vec(sum(stack([weights[i] * sol[i][R][1:22] for i in 1:3]), dims = 2)),
 ]
 
-sol = solve(enprob; saveat = t_ensem, trajectories=3);
+sol = solve(enprob; saveat = t_ensem, trajectories = 3);
 
-@test ensemble_weights(sol, data_ensem) ≈ [0.2,0.5,0.3]
+@test ensemble_weights(sol, data_ensem) ≈ [0.2, 0.5, 0.3]

@@ -37,7 +37,7 @@ tsave1 = [1.0, 2.0, 3.0]
 sol_data1 = solve(prob, saveat = tsave1)
 tsave2 = [0.5, 1.5, 2.5, 3.5]
 sol_data2 = solve(prob, saveat = tsave2)
-data_with_t = [x => (tsave1,sol_data1[x]), z => (tsave2,sol_data2[z])]
+data_with_t = [x => (tsave1, sol_data1[x]), z => (tsave2, sol_data2[z])]
 
 fit = datafit(prob, psub_ini, data_with_t)
 pvals_fit = getfield.(fit, :second)
@@ -95,7 +95,7 @@ tsave1 = collect(10.0:10.0:100.0)
 sol_data1 = solve(prob, saveat = tsave1)
 tsave2 = collect(10.0:13.5:100.0)
 sol_data2 = solve(prob, saveat = tsave2)
-data_with_t = [x => (tsave1,sol_data1[x]), z => (tsave2,sol_data2[z])]
+data_with_t = [x => (tsave1, sol_data1[x]), z => (tsave2, sol_data2[z])]
 
 # Why is this one so much slower?
 #p_posterior = bayesian_datafit(prob, p_prior, data_with_t)
