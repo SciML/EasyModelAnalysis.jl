@@ -1,4 +1,4 @@
-function l2loss(pvals, (prob, pkeys, t, data))
+function l2loss(pvals, (prob, pkeys, t, data)::Tuple{Vararg{Any,4}})
     p = Pair.(pkeys, pvals)
     prob = remake(prob, tspan = (prob.tspan[1], t[end]), p = p)
     sol = solve(prob, saveat = t)
@@ -9,7 +9,7 @@ function l2loss(pvals, (prob, pkeys, t, data))
     return tot_loss
 end
 
-function l2loss(pvals, (prob, pkeys, data))
+function l2loss(pvals, (prob, pkeys, data)::Tuple{Vararg{Any,3}})
     p = Pair.(pkeys, pvals)
     ts = first.(last.(data))
     lastt = maximum(last.(ts))
@@ -25,7 +25,7 @@ function l2loss(pvals, (prob, pkeys, data))
     return tot_loss
 end
 
-function relative_l2loss(pvals, (prob, pkeys, t, data))
+function relative_l2loss(pvals, (prob, pkeys, t, data)::Tuple{Vararg{Any,4}})
     p = Pair.(pkeys, pvals)
     _prob = remake(prob, tspan = (prob.tspan[1], t[end]), p = p)
     sol = solve(_prob, saveat = t)
@@ -36,7 +36,7 @@ function relative_l2loss(pvals, (prob, pkeys, t, data))
     return tot_loss
 end
 
-function relative_l2loss(pvals, (prob, pkeys, data))
+function relative_l2loss(pvals, (prob, pkeys, data)::Tuple{Vararg{Any,3}})
     p = Pair.(pkeys, pvals)
     ts = first.(last.(data))
     lastt = maximum(last.(ts))
@@ -100,7 +100,6 @@ z => ([0.5, 1.5, 2.5, 3.5], [2.005502877055581, 13.626953144513832, 5.3829845156
 ```
 
 where this means x(2.0) == 11.81...
-
 """
 function datafit(prob, p::Vector{Pair{Num, Float64}}, t, data; loss = l2loss)
     pvals = getfield.(p, :second)
@@ -125,6 +124,7 @@ end
 
 """
     global_datafit(prob, pbounds, t, data; maxiters = 10000)
+    global_datafit(prob, pbounds, data; maxiters = 10000)
 
 Fit parameters `p` to `data` measured at times `t`.
 
@@ -146,6 +146,31 @@ Fit parameters `p` to `data` measured at times `t`.
 it can be a subset of parameters. Other parameters necessary to solve `prob`
 default to the parameter values found in `prob.p`.
 Similarly, not all states must be measured.
+
+## Data Definition
+
+The data definition is given as a vctor of pairs. If `t` is specified globally for the datafit,
+then those time series correspond to the time points specified. For example, 
+
+```julia
+[
+x => [11.352378507900013, 11.818374125301172, -10.72999081810307]
+z => [2.005502877055581, 13.626953144513832, 5.382984515620634, 12.232084518374545]
+]
+```
+
+then if `datafit(prob, p, t, data)`, `t` must be length 3 and these values correspond to `x(t[i])`.
+
+If `datafit(prob, p, data)`, then the data must be a tuple of (t, timeseries), for example:
+
+```julia
+[
+x => ([1.0, 2.0, 3.0], [11.352378507900013, 11.818374125301172, -10.72999081810307])
+z => ([0.5, 1.5, 2.5, 3.5], [2.005502877055581, 13.626953144513832, 5.382984515620634, 12.232084518374545])
+]
+```
+
+where this means x(2.0) == 11.81...
 """
 function global_datafit(prob, pbounds, t, data; maxiters = 10000, loss = l2loss)
     plb = getindex.(getfield.(pbounds, :second), 1)
@@ -153,6 +178,16 @@ function global_datafit(prob, pbounds, t, data; maxiters = 10000, loss = l2loss)
     pkeys = getfield.(pbounds, :first)
     oprob = OptimizationProblem(loss, (pub .+ plb) ./ 2,
         lb = plb, ub = pub, (prob, pkeys, t, data))
+    res = solve(oprob, BBO_adaptive_de_rand_1_bin_radiuslimited(); maxiters)
+    Pair.(pkeys, res.u)
+end
+
+function global_datafit(prob, pbounds, data; maxiters = 10000, loss = l2loss)
+    plb = getindex.(getfield.(pbounds, :second), 1)
+    pub = getindex.(getfield.(pbounds, :second), 2)
+    pkeys = getfield.(pbounds, :first)
+    oprob = OptimizationProblem(loss, (pub .+ plb) ./ 2,
+        lb = plb, ub = pub, (prob, pkeys, data))
     res = solve(oprob, BBO_adaptive_de_rand_1_bin_radiuslimited(); maxiters)
     Pair.(pkeys, res.u)
 end
@@ -165,8 +200,7 @@ Turing.@model function bayesianODE(prob, t, p, data, noise_prior)
 
     prob = remake(prob, tspan = (prob.tspan[1], t[end]), p = Pair.(pkeys, pprior))
     sol = solve(prob, saveat = t)
-    failure = size(sol, 2) < length(t)
-    if failure
+    if !SciMLBase.successful_retcode(sol)
         Turing.DynamicPPL.acclogp!!(__varinfo__, -Inf)
         return nothing
     end
@@ -176,16 +210,81 @@ Turing.@model function bayesianODE(prob, t, p, data, noise_prior)
     return nothing
 end
 
+Turing.@model function bayesianODE(prob, p, data, noise_prior)
+    σ ~ noise_prior
+    pdist = getfield.(p, :second)
+    pkeys = getfield.(p, :first)
+    pprior ~ product_distribution(pdist)
+
+    ts = first.(last.(data))
+    lastt = maximum(last.(ts))
+    timeseries = last.(last.(data))
+    datakeys = first.(data)
+
+    prob = remake(prob, tspan = (prob.tspan[1], lastt), p = Pair.(pkeys, pprior))
+    sol = solve(prob)
+    if !SciMLBase.successful_retcode(sol)
+        Turing.DynamicPPL.acclogp!!(__varinfo__, -Inf)
+        return nothing
+    end
+    for i in eachindex(data)
+        vals = sol(ts[i]; idxs = datakeys[i])
+        timeseries[i] ~ MvNormal(Array(vals), σ^2 * I)
+    end
+    return nothing
+end
+
 """
-    bayesian_datafit(prob,  p, t, data)
+    bayesian_datafit(prob, p, t, data)
+    bayesian_datafit(prob, p, data)
 
 Calculate posterior distribution for parameters `p` given `data` measured at times `t`.
+
+## Data Definition
+
+The data definition is given as a vctor of pairs. If `t` is specified globally for the datafit,
+then those time series correspond to the time points specified. For example, 
+
+```julia
+[
+x => [11.352378507900013, 11.818374125301172, -10.72999081810307]
+z => [2.005502877055581, 13.626953144513832, 5.382984515620634, 12.232084518374545]
+]
+```
+
+then if `datafit(prob, p, t, data)`, `t` must be length 3 and these values correspond to `x(t[i])`.
+
+If `datafit(prob, p, data)`, then the data must be a tuple of (t, timeseries), for example:
+
+```julia
+[
+x => ([1.0, 2.0, 3.0], [11.352378507900013, 11.818374125301172, -10.72999081810307])
+z => ([0.5, 1.5, 2.5, 3.5], [2.005502877055581, 13.626953144513832, 5.382984515620634, 12.232084518374545])
+]
+```
+
+where this means x(2.0) == 11.81...
 """
 function bayesian_datafit(prob, p, t, data; noise_prior = InverseGamma(2, 3))
     pdist = getfield.(p, :second)
     pkeys = getfield.(p, :first)
 
     model = bayesianODE(prob, t, p, data, noise_prior)
+    chain = Turing.sample(model,
+        Turing.NUTS(0.65),
+        Turing.MCMCSerial(),
+        1000,
+        3;
+        progress = true)
+    [Pair(pkeys[i], collect(chain["pprior[" * string(i) * "]"])[:])
+     for i in eachindex(pkeys)]
+end
+
+function bayesian_datafit(prob, p, data; noise_prior = InverseGamma(2, 3))
+    pdist = getfield.(p, :second)
+    pkeys = getfield.(p, :first)
+
+    model = bayesianODE(prob, p, data, noise_prior)
     chain = Turing.sample(model,
         Turing.NUTS(0.65),
         Turing.MCMCSerial(),
