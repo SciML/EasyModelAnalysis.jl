@@ -16,6 +16,7 @@ include("datafit.jl")
 include("sensitivity.jl")
 include("threshold.jl")
 include("intervention.jl")
+include("ensemble.jl")
 
 export get_timeseries, get_min_t, get_max_t, plot_extrema, phaseplot_extrema
 export get_uncertainty_forecast, get_uncertainty_forecast_quantiles
@@ -27,5 +28,6 @@ export model_forecast_score
 export optimal_threshold_intervention, prob_violating_threshold,
     optimal_parameter_intervention_for_threshold, optimal_parameter_threshold,
     optimal_parameter_intervention_for_reach
+export ensemble_weights
 
 end

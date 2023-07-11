@@ -206,7 +206,7 @@ the solution's data against the wanted trajectory:
 
 ```@example ensemble
 sol = solve(enprob; saveat = t_ensem, trajectories=3);
-ensem_weights = stack([sol[i][S] for i in 1:3]) \ data_ensem[1][2]
+ensem_weights = ensemble_weights(sol, data_ensem)
 ```
 
 Now we can extrapolate forward with these ensemble weights as follows:
@@ -219,6 +219,13 @@ plot!(t_ensem, ensem_prediction, lw=3)
 scatter!(t_ensem,data_ensem[1][2])
 ```
 
+```@example ensemble
+sol = solve(enprob; saveat = t_ensem, trajectories=3);
+ensem_prediction = sum(stack([ensem_weights[i] * sol[i][I] for i in 1:3]), dims = 2)
+plot(sol; idxs = I)
+plot!(t_ensem, ensem_prediction, lw=3)
+scatter!(t_ensem,data_ensem[2][2])
+```
 ## Forecasting the Trained Ensemble
 
 Once we have obtained the ensemble model, we can forecast ahead with it:
