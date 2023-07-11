@@ -166,9 +166,8 @@ Let's see how each of our models in the ensemble compare against the data when c
 to use the fit parameters:
 
 ```@example ensemble
-fit_enprob = EnsembleProblem(fit_probs)
 fit_probs = [remake(probs[i]; p = fitparams[i], tspan = (t_train[1],t_ensem[end])) for i in 1:3]
-fit_enprob = EnsembleProblem(fit_probs; prob_func)
+fit_enprob = EnsembleProblem(fit_probs)
 sol = solve(fit_enprob);
 
 plot(sol; idxs = S)
