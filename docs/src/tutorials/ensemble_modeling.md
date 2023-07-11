@@ -215,7 +215,7 @@ scatter!(t_ensem, data_ensem[1][2])
 ```
 
 ```@example ensemble
-sol = solve(enprob; saveat = t_ensem);
+sol = solve(fit_enprob; saveat = t_ensem);
 ensem_prediction = sum(stack([ensem_weights[i] * sol[i][I] for i in 1:3]), dims = 2)
 plot(sol; idxs = I)
 plot!(t_ensem, ensem_prediction, lw = 3)
