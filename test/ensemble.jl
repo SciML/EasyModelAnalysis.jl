@@ -51,8 +51,13 @@ eqs = [∂(S) ~ -β * c * I_total / N * S - v * Sv,
 sys3 = structural_simplify(sys3)
 prob3 = ODEProblem(sys3, [], tspan);
 
-enprob = EnsembleProblem(probs; prob_func)
-sol = solve(enprob; saveat = 1);
+probs = [prob,prob2,prob3]
+function prob_func(prob, i, repeat)
+    remake(probs[i])
+end
+enprob = EnsembleProblem(prob; prob_func)
+
+sol = solve(enprob; saveat = 1, trajectories=3);
 
 weights = [0.2,0.5,0.3]
 t_ensem = 0:21
@@ -62,6 +67,6 @@ data_ensem = [
     R => vec(sum(stack([weights[i] * sol[i][R][1:22] for i in 1:3]), dims=2)),
 ]
 
-sol = solve(enprob; saveat = t_ensem);
+sol = solve(enprob; saveat = t_ensem, trajectories=3);
 
 @test ensemble_weights(sol, data_ensem) ≈ [0.2,0.5,0.3]
