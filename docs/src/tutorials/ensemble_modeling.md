@@ -80,7 +80,8 @@ prototype problem, which we are effectively ignoring for our use case.
 Thus a simple `EnsembleProblem` which ensembles the three models built above is as follows:
 
 ```@example ensemble
-enprob = EnsembleProblem(probs; prob_func)
+probs = [prob, prob2, prob3]
+enprob = EnsembleProblem(probs)
 ```
 
 Here, `prob_func` returns model `i` on the `i`th iteration, and thus if we solve with
