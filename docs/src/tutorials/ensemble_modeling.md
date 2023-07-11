@@ -169,7 +169,7 @@ to use the fit parameters:
 fit_enprob = EnsembleProblem(fit_probs)
 fit_probs = [remake(probs[i]; p = fitparams[i], tspan = (t_train[1],t_ensem[end])) for i in 1:3]
 fit_enprob = EnsembleProblem(fit_probs; prob_func)
-sol = solve(enprob);
+sol = solve(fit_enprob);
 
 plot(sol; idxs = S)
 scatter!(t_train, data_train[1][2])
