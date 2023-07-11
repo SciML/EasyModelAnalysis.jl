@@ -80,18 +80,14 @@ prototype problem, which we are effectively ignoring for our use case.
 Thus a simple `EnsembleProblem` which ensembles the three models built above is as follows:
 
 ```@example ensemble
-probs = [prob, prob2, prob3]
-function prob_func(prob, i, repeat)
-    remake(probs[i])
-end
-enprob = EnsembleProblem(prob; prob_func)
+enprob = EnsembleProblem(probs; prob_func)
 ```
 
 Here, `prob_func` returns model `i` on the `i`th iteration, and thus if we solve with
 3 trajectories we will get the solution to all three models. This looks like:
 
 ```@example ensemble
-sol = solve(enprob; saveat = 1, trajectories = 3);
+sol = solve(enprob; saveat = 1);
 ```
 
 We can access the 3 solutions as `sol[i]` respectively. Let's get the time series
@@ -170,11 +166,10 @@ Let's see how each of our models in the ensemble compare against the data when c
 to use the fit parameters:
 
 ```@example ensemble
-function prob_func(prob, i, repeat)
-    remake(probs[i]; p = fitparams[i], tspan = (t_train[1], t_ensem[end]))
-end
-fit_enprob = EnsembleProblem(prob; prob_func)
-sol = solve(enprob; trajectories = 3);
+fit_enprob = EnsembleProblem(fit_probs)
+fit_probs = [remake(probs[i]; p = fitparams[i], tspan = (t_train[1],t_ensem[end])) for i in 1:3]
+fit_enprob = EnsembleProblem(fit_probs; prob_func)
+sol = solve(enprob);
 
 plot(sol; idxs = S)
 scatter!(t_train, data_train[1][2])
@@ -196,23 +191,23 @@ Now let's train the ensemble model. We will do that by solving a bit further tha
 calibration step. Let's build that solution data:
 
 ```@example ensemble
-sol = solve(enprob; trajectories = 3);
-plot(sol; idxs = S)
-scatter!(t_ensem, data_ensem[1][2])
+sol = solve(enprob);
+plot(sol;idxs = S)
+scatter!(t_ensem,data_ensem[1][2])
 ```
 
 We can obtain the optimal weights for ensembling by solving a linear regression of
 the solution's data against the wanted trajectory:
 
 ```@example ensemble
-sol = solve(enprob; saveat = t_ensem, trajectories = 3);
+sol = solve(fit_enprob; saveat = t_ensem);
 ensem_weights = ensemble_weights(sol, data_ensem)
 ```
 
 Now we can extrapolate forward with these ensemble weights as follows:
 
 ```@example ensemble
-sol = solve(enprob; saveat = t_ensem, trajectories = 3);
+sol = solve(fit_enprob; saveat = t_ensem);
 ensem_prediction = sum(stack([ensem_weights[i] * sol[i][S] for i in 1:3]), dims = 2)
 plot(sol; idxs = S)
 plot!(t_ensem, ensem_prediction, lw = 3)
@@ -220,7 +215,7 @@ scatter!(t_ensem, data_ensem[1][2])
 ```
 
 ```@example ensemble
-sol = solve(enprob; saveat = t_ensem, trajectories = 3);
+sol = solve(enprob; saveat = t_ensem);
 ensem_prediction = sum(stack([ensem_weights[i] * sol[i][I] for i in 1:3]), dims = 2)
 plot(sol; idxs = I)
 plot!(t_ensem, ensem_prediction, lw = 3)
@@ -232,13 +227,11 @@ scatter!(t_ensem, data_ensem[2][2])
 Once we have obtained the ensemble model, we can forecast ahead with it:
 
 ```@example ensemble
-function prob_func(prob, i, repeat)
-    remake(probs[i]; p = fitparams[i], tspan = (t_train[1], t_forecast[end]))
-end
-fit_enprob = EnsembleProblem(prob; prob_func)
-sol = solve(enprob; trajectories = 3);
+forecast_probs = [remake(probs[i]; p = fitparams[i], tspan = (t_train[1],t_forecast[end])) for i in 1:3]
+fit_enprob = EnsembleProblem(forecast_probs; prob_func)
+sol = solve(fit_enprob);
 
-sol = solve(enprob; saveat = t_forecast, trajectories = 3);
+sol = solve(fit_enprob; saveat = t_forecast);
 ensem_prediction = sum(stack([ensem_weights[i] * sol[i][S] for i in 1:3]), dims = 2)
 plot(sol; idxs = S)
 plot!(t_forecast, ensem_prediction, lw = 3)
