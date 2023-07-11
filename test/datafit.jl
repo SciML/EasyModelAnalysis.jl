@@ -32,6 +32,18 @@ fit = datafit(prob, psub_ini, tsave, data)
 pvals_fit = getfield.(fit, :second)
 pvals = getfield.(p, :second)[[1, 3]]
 @test isapprox(pvals, pvals_fit, atol = 1e-4, rtol = 1e-4)
+
+tsave1 = [1.0, 2.0, 3.0]
+sol_data1 = solve(prob, saveat = tsave1)
+tsave2 = [0.5, 1.5, 2.5, 3.5]
+sol_data2 = solve(prob, saveat = tsave2)
+data_with_t = [x => (tsave1,sol_data1[x]), z => (tsave2,sol_data2[z])]
+
+fit = datafit(prob, psub_ini, data_with_t)
+pvals_fit = getfield.(fit, :second)
+pvals = getfield.(p, :second)[[1, 3]]
+@test isapprox(pvals, pvals_fit, atol = 1e-4, rtol = 1e-4)
+
 prob2 = remake(prob, p = fit)
 prob3 = remake(prob, p = psub_ini)
 scores = model_forecast_score([prob, prob2, prob3], tsave, data)
@@ -41,6 +53,11 @@ scores = model_forecast_score([prob, prob2, prob3], tsave, data)
 
 psub_ini = [σ => [27.0, 29.0], β => [2.0, 3.0]]
 fit = global_datafit(prob, psub_ini, tsave, data)
+pvals_fit = getfield.(fit, :second)
+pvals = getfield.(p, :second)[[1, 3]]
+@test isapprox(pvals, pvals_fit, atol = 1e-4, rtol = 1e-4)
+
+fit = global_datafit(prob, psub_ini, data_with_t)
 pvals_fit = getfield.(fit, :second)
 pvals = getfield.(p, :second)[[1, 3]]
 @test isapprox(pvals, pvals_fit, atol = 1e-4, rtol = 1e-4)
@@ -73,3 +90,13 @@ data = [x => sol_data[x], z => sol_data[z]]
 p_prior = [σ => Normal(26.8, 0.1), β => Normal(2.7, 0.1)]
 p_posterior = bayesian_datafit(prob, p_prior, tsave, data)
 @test var.(getfield.(p_prior, :second)) >= var.(getfield.(p_posterior, :second))
+
+tsave1 = collect(10.0:10.0:100.0)
+sol_data1 = solve(prob, saveat = tsave1)
+tsave2 = collect(10.0:13.5:100.0)
+sol_data2 = solve(prob, saveat = tsave2)
+data_with_t = [x => (tsave1,sol_data1[x]), z => (tsave2,sol_data2[z])]
+
+# Why is this one so much slower?
+#p_posterior = bayesian_datafit(prob, p_prior, data_with_t)
+#@test var.(getfield.(p_prior, :second)) >= var.(getfield.(p_posterior, :second))
