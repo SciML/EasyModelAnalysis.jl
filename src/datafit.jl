@@ -192,10 +192,24 @@ function global_datafit(prob, pbounds, data; maxiters = 10000, loss = l2loss)
     Pair.(pkeys, res.u)
 end
 
-Turing.@model function bayesianODE(prob, t, p, data, noise_prior)
-    σ ~ noise_prior
+function bayes_unpack_data(p, data)
     pdist = getfield.(p, :second)
     pkeys = getfield.(p, :first)
+    ts = first.(last.(data))
+    lastt = maximum(last, ts)
+    timeseries = last.(last.(data))
+    datakeys = first.(data)
+    (pdist, pkeys, ts, lastt, timeseries, datakeys)
+end
+function bayes_unpack_data(p)
+    pdist = getfield.(p, :second)
+    pkeys = getfield.(p, :first)
+    (pdist, pkeys)
+end
+
+Turing.@model function bayesianODE(prob, t, pdist, pkeys, data, noise_prior)
+    σ ~ noise_prior
+
     pprior ~ product_distribution(pdist)
 
     prob = remake(prob, tspan = (prob.tspan[1], t[end]), p = Pair.(pkeys, pprior))
@@ -210,16 +224,17 @@ Turing.@model function bayesianODE(prob, t, p, data, noise_prior)
     return nothing
 end
 
-Turing.@model function bayesianODE(prob, p, data, noise_prior)
+Turing.@model function bayesianODE(prob,
+    pdist,
+    pkeys,
+    ts,
+    lastt,
+    timeseries,
+    datakeys,
+    noise_prior)
     σ ~ noise_prior
-    pdist = getfield.(p, :second)
-    pkeys = getfield.(p, :first)
-    pprior ~ product_distribution(pdist)
 
-    ts = first.(last.(data))
-    lastt = maximum(last.(ts))
-    timeseries = last.(last.(data))
-    datakeys = first.(data)
+    pprior ~ product_distribution(pdist)
 
     prob = remake(prob, tspan = (prob.tspan[1], lastt), p = Pair.(pkeys, pprior))
     sol = solve(prob)
@@ -227,7 +242,7 @@ Turing.@model function bayesianODE(prob, p, data, noise_prior)
         Turing.DynamicPPL.acclogp!!(__varinfo__, -Inf)
         return nothing
     end
-    for i in eachindex(data)
+    for i in eachindex(datakeys)
         vals = sol(ts[i]; idxs = datakeys[i])
         timeseries[i] ~ MvNormal(Array(vals), σ^2 * I)
     end
@@ -265,34 +280,43 @@ z => ([0.5, 1.5, 2.5, 3.5], [2.005502877055581, 13.626953144513832, 5.3829845156
 
 where this means x(2.0) == 11.81...
 """
-function bayesian_datafit(prob, p, t, data; noise_prior = InverseGamma(2, 3))
-    pdist = getfield.(p, :second)
-    pkeys = getfield.(p, :first)
-
-    model = bayesianODE(prob, t, p, data, noise_prior)
+function bayesian_datafit(prob,
+    p,
+    t,
+    data;
+    noise_prior = InverseGamma(2, 3),
+    mcmcensemble::AbstractMCMC.AbstractMCMCEnsemble = Turing.MCMCThreads(),
+    nchains = 4,
+    niter = 1000)
+    (pkeys, pdata) = bayes_unpack_data(p)
+    model = bayesianODE(prob, t, pkeys, pdata, data, noise_prior)
     chain = Turing.sample(model,
         Turing.NUTS(0.65),
-        Turing.MCMCSerial(),
-        1000,
-        3;
+        mcmcensemble,
+        niter,
+        nchains;
         progress = true)
-    [Pair(pkeys[i], collect(chain["pprior[" * string(i) * "]"])[:])
-     for i in eachindex(pkeys)]
+    [Pair(p[i].first, collect(chain["pprior[" * string(i) * "]"])[:])
+     for i in eachindex(p)]
 end
 
-function bayesian_datafit(prob, p, data; noise_prior = InverseGamma(2, 3))
-    pdist = getfield.(p, :second)
-    pkeys = getfield.(p, :first)
-
-    model = bayesianODE(prob, p, data, noise_prior)
+function bayesian_datafit(prob,
+    p,
+    data;
+    noise_prior = InverseGamma(2, 3),
+    mcmcensemble::AbstractMCMC.AbstractMCMCEnsemble = Turing.MCMCThreads(),
+    nchains = 4,
+    niter = 1_000)
+    pdist, pkeys, ts, lastt, timeseries, datakeys = bayes_unpack_data(p, data)
+    model = bayesianODE(prob, pdist, pkeys, ts, lastt, timeseries, datakeys, noise_prior)
     chain = Turing.sample(model,
         Turing.NUTS(0.65),
-        Turing.MCMCSerial(),
-        1000,
-        3;
+        mcmcensemble,
+        niter,
+        nchains;
         progress = true)
-    [Pair(pkeys[i], collect(chain["pprior[" * string(i) * "]"])[:])
-     for i in eachindex(pkeys)]
+    [Pair(p[i].first, collect(chain["pprior[" * string(i) * "]"])[:])
+     for i in eachindex(p)]
 end
 
 """
