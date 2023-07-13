@@ -74,31 +74,25 @@ documented
 and has all kinds of features, such as automated GPU acceleration, though we will instead
 focus just on the subset of features required for this demonstration. To build an
 EnsembleProblem, the main object is the `prob_func`, which is a function of `(prob,i,repeat)`
-which describes what the `i`th problem should be. The `prob` in this case is a
-prototype problem, which we are effectively ignoring for our use case.
-
-Thus a simple `EnsembleProblem` which ensembles the three models built above is as follows:
+which describes what the `i`th problem should be. However for simple use-cases where we just want to use a set of manuallly defined problems `EnsembleProblem` can simply create an ensemble of the three models built above is as follows:
 
 ```@example ensemble
 probs = [prob, prob2, prob3]
-function prob_func(prob, i, repeat)
-    remake(probs[i])
-end
-enprob = EnsembleProblem(prob; prob_func)
+enprob = EnsembleProblem(probs)
 ```
 
-Here, `prob_func` returns model `i` on the `i`th iteration, and thus if we solve with
-3 trajectories we will get the solution to all three models. This looks like:
+Now we can simply call `solve` to get the solution of all these problems.
+In more complicted cases you may need to set the number of `trajectories` manually. This looks like:
 
 ```@example ensemble
-sol = solve(enprob; saveat = 1, trajectories = 3);
+sol = solve(enprob; saveat = 1);
 ```
 
-We can access the 3 solutions as `sol[i]` respectively. Let's get the time series
-for `S` from each of the models:
+We can access the 3 solutions as `sol[i]` respectively.
+To get the time series for `S` from each of the models, we can simply slice the ensemble solution.
 
 ```@example ensemble
-[sol[i][S] for i in 1:3]
+sol[:, S]
 ```
 
 ## Building a Dataset
