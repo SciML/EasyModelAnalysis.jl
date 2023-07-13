@@ -55,13 +55,34 @@ enprob = EnsembleProblem([prob, prob2, prob3])
 sol = solve(enprob; saveat = 1);
 
 weights = [0.2, 0.5, 0.3]
+
+t_train = 0:14
+data_train = [
+    S => (t_train,vec(sum(stack([weights[i] * sol[i][S][1:15] for i in 1:3]), dims = 2))),
+    I => (t_train,vec(sum(stack([weights[i] * sol[i][I][1:15] for i in 1:3]), dims = 2))),
+    R => (t_train,vec(sum(stack([weights[i] * sol[i][R][1:15] for i in 1:3]), dims = 2))),
+]
 t_ensem = 0:21
 data_ensem = [
-    S => vec(sum(stack([weights[i] * sol[i][S][1:22] for i in 1:3]), dims = 2)),
-    I => vec(sum(stack([weights[i] * sol[i][I][1:22] for i in 1:3]), dims = 2)),
-    R => vec(sum(stack([weights[i] * sol[i][R][1:22] for i in 1:3]), dims = 2)),
+    S => (t_ensem,vec(sum(stack([weights[i] * sol[i][S][1:22] for i in 1:3]), dims = 2))),
+    I => (t_ensem,vec(sum(stack([weights[i] * sol[i][I][1:22] for i in 1:3]), dims = 2))),
+    R => (t_ensem,vec(sum(stack([weights[i] * sol[i][R][1:22] for i in 1:3]), dims = 2))),
+]
+t_forecast = 0:30
+data_forecast = [
+    S => (t_forecast,vec(sum(stack([weights[i] * sol[i][S][1:end] for i in 1:3]), dims = 2))),
+    I => (t_forecast,vec(sum(stack([weights[i] * sol[i][I][1:end] for i in 1:3]), dims = 2))),
+    R => (t_forecast,vec(sum(stack([weights[i] * sol[i][R][1:end] for i in 1:3]), dims = 2))),
 ]
 
-sol = solve(enprob; saveat = t_ensem, trajectories = 3);
+sol = solve(enprob; saveat = t_ensem);
 
 @test ensemble_weights(sol, data_ensem) ≈ [0.2, 0.5, 0.3]
+
+probs = [prob, prob2, prob3]
+ps = [[β => Uniform(0.01, 10.0), γ => Uniform(0.01, 10.0)] for i in 1:3]
+datas = [data_train,data_train,data_train]
+enprobs = bayesian_ensemble(probs, ps, datas)
+
+sol = solve(enprobs; saveat = t_ensem);
+ensemble_weights(sol, data_ensem)

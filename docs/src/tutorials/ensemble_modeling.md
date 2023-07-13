@@ -133,56 +133,53 @@ Now let's split that into training, ensembling, and forecast sections:
 ```@example ensemble
 t_train = 0:14
 data_train = [
-    S => vec(sum(stack([weights[i] * sol[i][S][1:15] for i in 1:3]), dims = 2)),
-    I => vec(sum(stack([weights[i] * sol[i][I][1:15] for i in 1:3]), dims = 2)),
-    R => vec(sum(stack([weights[i] * sol[i][R][1:15] for i in 1:3]), dims = 2)),
+    S => (t_train,vec(sum(stack([weights[i] * sol[i][S][1:15] for i in 1:3]), dims = 2))),
+    I => (t_train,vec(sum(stack([weights[i] * sol[i][I][1:15] for i in 1:3]), dims = 2))),
+    R => (t_train,vec(sum(stack([weights[i] * sol[i][R][1:15] for i in 1:3]), dims = 2))),
 ]
 t_ensem = 0:21
 data_ensem = [
-    S => vec(sum(stack([weights[i] * sol[i][S][1:22] for i in 1:3]), dims = 2)),
-    I => vec(sum(stack([weights[i] * sol[i][I][1:22] for i in 1:3]), dims = 2)),
-    R => vec(sum(stack([weights[i] * sol[i][R][1:22] for i in 1:3]), dims = 2)),
+    S => (t_ensem,vec(sum(stack([weights[i] * sol[i][S][1:22] for i in 1:3]), dims = 2))),
+    I => (t_ensem,vec(sum(stack([weights[i] * sol[i][I][1:22] for i in 1:3]), dims = 2))),
+    R => (t_ensem,vec(sum(stack([weights[i] * sol[i][R][1:22] for i in 1:3]), dims = 2))),
 ]
 t_forecast = 0:30
 data_forecast = [
-    S => vec(sum(stack([weights[i] * sol[i][S][1:end] for i in 1:3]), dims = 2)),
-    I => vec(sum(stack([weights[i] * sol[i][I][1:end] for i in 1:3]), dims = 2)),
-    R => vec(sum(stack([weights[i] * sol[i][R][1:end] for i in 1:3]), dims = 2)),
+    S => (t_forecast,vec(sum(stack([weights[i] * sol[i][S][1:end] for i in 1:3]), dims = 2))),
+    I => (t_forecast,vec(sum(stack([weights[i] * sol[i][I][1:end] for i in 1:3]), dims = 2))),
+    R => (t_forecast,vec(sum(stack([weights[i] * sol[i][R][1:end] for i in 1:3]), dims = 2))),
 ]
 ```
 
-## Calibration Step
+## Bayesian Calibration
 
-Now let's calibrate each of the models to data. To do this we will use the `global_datafit`
-function:
+Now let's perform a Bayesian calibration on each of the models. This gives us multiple parameterizations for each model, which then gives an ensemble which is `parameterizations x models` in size.
 
 ```@example ensemble
-fitparams = map(probs) do prob
-    global_datafit(prob, [β => [0.01, 10.0], γ => [0.01, 10.0]],
-        t_train, data_train)
-end
+probs = [prob, prob2, prob3]
+ps = [[β => Uniform(0.01, 10.0), γ => Uniform(0.01, 10.0)] for i in 1:3]
+datas = [data_train,data_train,data_train]
+enprobs = bayesian_ensemble(probs, ps, datas)
 ```
 
 Let's see how each of our models in the ensemble compare against the data when changed
 to use the fit parameters:
 
 ```@example ensemble
-fit_probs = [remake(probs[i]; p = fitparams[i], tspan = (t_train[1],t_ensem[end])) for i in 1:3]
-fit_enprob = EnsembleProblem(fit_probs)
-sol = solve(fit_enprob);
+sol = solve(enprobs);
 
 plot(sol; idxs = S)
-scatter!(t_train, data_train[1][2])
+scatter!(t_train, data_train[1][2][2])
 ```
 
 ```@example ensemble
 plot(sol; idxs = I)
-scatter!(t_train, data_train[2][2])
+scatter!(t_train, data_train[2][2][2])
 ```
 
 ```@example ensemble
 plot(sol; idxs = R)
-scatter!(t_train, data_train[3][2])
+scatter!(t_train, data_train[3][2][2])
 ```
 
 ## Training the Ensemble Model
@@ -191,35 +188,33 @@ Now let's train the ensemble model. We will do that by solving a bit further tha
 calibration step. Let's build that solution data:
 
 ```@example ensemble
-sol = solve(fit_enprob);
 plot(sol;idxs = S)
-scatter!(t_ensem,data_ensem[1][2])
+scatter!(t_ensem,data_ensem[1][2][2])
 ```
 
 We can obtain the optimal weights for ensembling by solving a linear regression of
 the solution's data against the wanted trajectory:
 
 ```@example ensemble
-sol = solve(fit_enprob; saveat = t_ensem);
+sol = solve(enprobs; saveat = t_ensem);
 ensem_weights = ensemble_weights(sol, data_ensem)
 ```
 
 Now we can extrapolate forward with these ensemble weights as follows:
 
 ```@example ensemble
-sol = solve(fit_enprob; saveat = t_ensem);
-ensem_prediction = sum(stack([ensem_weights[i] * sol[i][S] for i in 1:3]), dims = 2)
-plot(sol; idxs = S)
-plot!(t_ensem, ensem_prediction, lw = 3)
-scatter!(t_ensem, data_ensem[1][2])
+sol = solve(enprobs; saveat = t_ensem);
+ensem_prediction = sum(stack([ensem_weights[i] * sol[i][S] for i in 1:length(sol)]), dims = 2)
+plot(sol; idxs = S, color = :blue)
+plot!(t_ensem, ensem_prediction, lw = 5, color = :red)
+scatter!(t_ensem, data_ensem[1][2][2])
 ```
 
 ```@example ensemble
-sol = solve(fit_enprob; saveat = t_ensem);
-ensem_prediction = sum(stack([ensem_weights[i] * sol[i][I] for i in 1:3]), dims = 2)
-plot(sol; idxs = I)
-plot!(t_ensem, ensem_prediction, lw = 3)
-scatter!(t_ensem, data_ensem[2][2])
+ensem_prediction = sum(stack([ensem_weights[i] * sol[i][I] for i in 1:length(sol)]), dims = 2)
+plot(sol; idxs = I, color = :blue)
+plot!(t_ensem, ensem_prediction, lw = 3, color = :red)
+scatter!(t_ensem, data_ensem[2][2][2])
 ```
 
 ## Forecasting the Trained Ensemble
@@ -227,13 +222,27 @@ scatter!(t_ensem, data_ensem[2][2])
 Once we have obtained the ensemble model, we can forecast ahead with it:
 
 ```@example ensemble
-forecast_probs = [remake(probs[i]; p = fitparams[i], tspan = (t_train[1],t_forecast[end])) for i in 1:3]
+forecast_probs = [remake(enprobs.prob[i]; tspan = (t_train[1],t_forecast[end])) for i in 1:length(enprobs.prob)]
 fit_enprob = EnsembleProblem(forecast_probs)
 sol = solve(fit_enprob);
 
 sol = solve(fit_enprob; saveat = t_forecast);
-ensem_prediction = sum(stack([ensem_weights[i] * sol[i][S] for i in 1:3]), dims = 2)
-plot(sol; idxs = S)
-plot!(t_forecast, ensem_prediction, lw = 3)
-scatter!(t_forecast, data_forecast[1][2])
+ensem_prediction = sum(stack([ensem_weights[i] * sol[i][S] for i in 1:length(forecast_probs)]), dims = 2)
+plot(sol; idxs = S, color = :blue)
+plot!(t_forecast, ensem_prediction, lw = 3, color = :red)
+scatter!(t_forecast, data_forecast[1][2][2])
+```
+
+```@example ensemble
+ensem_prediction = sum(stack([ensem_weights[i] * sol[i][I] for i in 1:length(forecast_probs)]), dims = 2)
+plot(sol; idxs = I, color = :blue)
+plot!(t_forecast, ensem_prediction, lw = 3, color = :red)
+scatter!(t_forecast, data_forecast[2][2][2])
+```
+
+```@example ensemble
+ensem_prediction = sum(stack([ensem_weights[i] * sol[i][R] for i in 1:length(forecast_probs)]), dims = 2)
+plot(sol; idxs = R, color = :blue)
+plot!(t_forecast, ensem_prediction, lw = 3, color = :red)
+scatter!(t_forecast, data_forecast[3][2][2])
 ```
