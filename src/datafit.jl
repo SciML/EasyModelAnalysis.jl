@@ -305,6 +305,18 @@ function flatten(x::Tuple)
     reduce(vcat, x), Grouper(map(length, x))
 end
 
+function getsols(probs, probspkeys, ppriors, t::AbstractArray)
+    map(probs, probspkeys, ppriors) do prob, pkeys, pprior
+        solve(remake(prob, tspan = (prob.tspan[1], t[end]), p = Pair.(pkeys, pprior)),
+            saveat = t)
+    end
+end
+function getsols(probs, probspkeys, ppriors, lastt::Number)
+    map(probs, probspkeys, ppriors) do prob, pkeys, pprior
+        solve(remake(prob, tspan = (prob.tspan[1], lastt), p = Pair.(pkeys, pprior)))
+    end
+end
+
 Turing.@model function ensemblebayesianODE(probs::Union{Tuple, AbstractVector},
     t,
     pdist,
@@ -313,16 +325,12 @@ Turing.@model function ensemblebayesianODE(probs::Union{Tuple, AbstractVector},
     data,
     noise_prior)
     σ ~ noise_prior
-
     ppriors ~ product_distribution(pdist)
-    # stdeviation = sqrt(1/length(weights))
+
     Nprobs = length(probs)
     Nprobs⁻¹ = inv(Nprobs)
     weights ~ MvNormal(Distributions.Fill(Nprobs⁻¹, Nprobs - 1), Nprobs⁻¹)
-    sols = map(probs, probspkeys, grouppriorsfunc(ppriors)) do prob, pkeys, pprior
-        solve(remake(prob, tspan = (prob.tspan[1], t[end]), p = Pair.(pkeys, pprior)),
-            saveat = t)
-    end
+    sols = getsols(probs, probspkeys, grouppriorsfunc(ppriors), t)
     if !all(SciMLBase.successful_retcode, sols)
         Turing.DynamicPPL.acclogp!!(__varinfo__, -Inf)
         return nothing
@@ -342,13 +350,10 @@ Turing.@model function ensemblebayesianODE(probs::Union{Tuple, AbstractVector},
     datakeys,
     noise_prior)
     σ ~ noise_prior
-
     ppriors ~ product_distribution(pdist)
 
-    sols = map(probs, probspkeys, grouppriorsfunc(ppriors)) do prob, pkeys, pprior
-        solve(remake(prob, tspan = (prob.tspan[1], lastt), p = Pair.(pkeys, pprior)))
-    end
-    # stdeviation = sqrt(1/length(weights))
+    sols = getsols(probs, probspkeys, grouppriorsfunc(ppriors), lastt)
+
     Nprobs = length(probs)
     Nprobs⁻¹ = inv(Nprobs)
     weights ~ MvNormal(Distributions.Fill(Nprobs⁻¹, Nprobs - 1), Nprobs⁻¹)
