@@ -13,6 +13,7 @@ using SciMLBase.EnsembleAnalysis
 using Random
 
 include("basics.jl")
+include("keyindexmap.jl")
 include("datafit.jl")
 include("sensitivity.jl")
 include("threshold.jl")

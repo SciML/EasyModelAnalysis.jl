@@ -192,18 +192,18 @@ function global_datafit(prob, pbounds, data; maxiters = 10000, loss = l2loss)
     Pair.(pkeys, res.u)
 end
 
-function bayes_unpack_data(p::AbstractVector{<:Pair}, data)
-    pdist, pkeys = bayes_unpack_data(p)
+function bayes_unpack_data(prob, p::AbstractVector{<:Pair}, data)
+    pdist, pkeys = bayes_unpack_data(prob, p)
     ts = first.(last.(data))
     lastt = maximum(last, ts)
     timeseries = last.(last.(data))
     datakeys = first.(data)
     (pdist, pkeys, ts, lastt, timeseries, datakeys)
 end
-function bayes_unpack_data(p::AbstractVector{<:Pair})
+function bayes_unpack_data(prob, p::AbstractVector{<:Pair})
     pdist = getfield.(p, :second)
     pkeys = getfield.(p, :first)
-    (pdist, pkeys)
+    (pdist, IndexKeyMap(prob, pkeys))
 end
 
 Turing.@model function bayesianODE(prob, t, pdist, pkeys, data, noise_prior)
@@ -211,7 +211,7 @@ Turing.@model function bayesianODE(prob, t, pdist, pkeys, data, noise_prior)
 
     pprior ~ product_distribution(pdist)
 
-    prob = remake(prob, tspan = (prob.tspan[1], t[end]), p = Pair.(pkeys, pprior))
+    prob = _remake(prob, (prob.tspan[1], t[end]), pkeys, pprior)
     sol = solve(prob, saveat = t)
     if !SciMLBase.successful_retcode(sol)
         Turing.DynamicPPL.acclogp!!(__varinfo__, -Inf)
@@ -235,7 +235,7 @@ Turing.@model function bayesianODE(prob,
 
     pprior ~ product_distribution(pdist)
 
-    prob = remake(prob, tspan = (prob.tspan[1], lastt), p = Pair.(pkeys, pprior))
+    prob = _remake(prob, (prob.tspan[1], lastt), pkeys, pprior)
     sol = solve(prob)
     if !SciMLBase.successful_retcode(sol)
         Turing.DynamicPPL.acclogp!!(__varinfo__, -Inf)
@@ -277,16 +277,16 @@ function WeightedSol(sols, select, weights)
     s = map(Base.Fix2(getindex, select), sols)
     WeightedSol{T}(s, weights)
 end
-function bayes_unpack_data(p::Tuple{Vararg{<:AbstractVector{<:Pair}}}, data)
-    pdist, pkeys = bayes_unpack_data(p)
+function bayes_unpack_data(probs, p::Tuple{Vararg{<:AbstractVector{<:Pair}}}, data)
+    pdist, pkeys = bayes_unpack_data(probs, p)
     ts = first.(last.(data))
     lastt = maximum(last, ts)
     timeseries = last.(last.(data))
     datakeys = first.(data)
     (pdist, pkeys, ts, lastt, timeseries, datakeys)
 end
-function bayes_unpack_data(p::Tuple{Vararg{<:AbstractVector{<:Pair}}})
-    unpacked = map(bayes_unpack_data, p)
+function bayes_unpack_data(probs, p::Tuple{Vararg{<:AbstractVector{<:Pair}}})
+    unpacked = map(bayes_unpack_data, probs, p)
     map(first, unpacked), map(last, unpacked)
 end
 
@@ -307,13 +307,14 @@ end
 
 function getsols(probs, probspkeys, ppriors, t::AbstractArray)
     map(probs, probspkeys, ppriors) do prob, pkeys, pprior
-        solve(remake(prob, tspan = (prob.tspan[1], t[end]), p = Pair.(pkeys, pprior)),
-            saveat = t)
+        newprob = _remake(prob, (prob.tspan[1], t[end]), pkeys, pprior)
+        solve(newprob, saveat = t)
     end
 end
 function getsols(probs, probspkeys, ppriors, lastt::Number)
     map(probs, probspkeys, ppriors) do prob, pkeys, pprior
-        solve(remake(prob, tspan = (prob.tspan[1], lastt), p = Pair.(pkeys, pprior)))
+        newprob = _remake(prob, (prob.tspan[1], lastt), pkeys, pprior)
+        solve(newprob)
     end
 end
 
@@ -409,7 +410,7 @@ function bayesian_datafit(prob,
     mcmcensemble::AbstractMCMC.AbstractMCMCEnsemble = Turing.MCMCThreads(),
     nchains = 4,
     niter = 1000)
-    (pdist, pkeys) = bayes_unpack_data(p)
+    (pdist, pkeys) = bayes_unpack_data(prob, p)
     model = bayesianODE(prob, t, pdist, pkeys, data, noise_prior)
     chain = Turing.sample(model,
         Turing.NUTS(0.65),
@@ -428,7 +429,7 @@ function bayesian_datafit(prob,
     mcmcensemble::AbstractMCMC.AbstractMCMCEnsemble = Turing.MCMCThreads(),
     nchains = 4,
     niter = 1_000)
-    pdist, pkeys, ts, lastt, timeseries, datakeys = bayes_unpack_data(p, data)
+    pdist, pkeys, ts, lastt, timeseries, datakeys = bayes_unpack_data(prob, p, data)
     model = bayesianODE(prob, pdist, pkeys, ts, lastt, timeseries, datakeys, noise_prior)
     chain = Turing.sample(model,
         Turing.NUTS(0.65),
