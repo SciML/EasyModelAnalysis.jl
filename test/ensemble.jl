@@ -83,10 +83,12 @@ sol = solve(enprob; saveat = t_ensem);
 
 @test ensemble_weights(sol, data_ensem) ≈ [0.2, 0.5, 0.3]
 
-probs = [prob, prob2, prob3]
-ps = [[β => Uniform(0.01, 10.0), γ => Uniform(0.01, 10.0)] for i in 1:3]
-datas = [data_train,data_train,data_train]
+probs = (prob, prob2, prob3)
+ps = Tuple([β => Uniform(0.01, 10.0), γ => Uniform(0.01, 10.0)] for i in 1:3)
+datas = (data_train,data_train,data_train)
 enprobs = bayesian_ensemble(probs, ps, datas)
 
 sol = solve(enprobs; saveat = t_ensem);
 ensemble_weights(sol, data_ensem)
+
+bayesian_datafit(probs, ps, datas)
