@@ -211,14 +211,15 @@ Turing.@model function bayesianODE(prob, alg, t, pdist, pkeys, data, datamap, no
 
     pprior ~ product_distribution(pdist)
 
-    prob = _remake(prob, (prob.tspan[1], t[end]), pkeys, pprior)
+  prob = _remake(prob, (prob.tspan[1], t[end]), pkeys, pprior)
+
     sol = solve(prob, alg, saveat = t)
     if !SciMLBase.successful_retcode(sol)
         Turing.DynamicPPL.acclogp!!(__varinfo__, -Inf)
         return nothing
     end
-    for i in eachindex(data)
-        data[i] ~ MvNormal(datamap(sol), σ^2 * I)
+    for (i,x) in enumerate(datamap(sol))
+        data[i] ~ MvNormal(x, σ^2 * I)
     end
     return nothing
 end
@@ -422,7 +423,7 @@ function bayesian_datafit(prob,
         pkeys,
         last.(data),
         IndexKeyMap(prob, data),
-        noise_prior)
+      noise_prior)
     chain = Turing.sample(model,
         Turing.NUTS(0.65),
         mcmcensemble,
@@ -467,7 +468,7 @@ function bayesian_datafit(probs::Union{Tuple, AbstractVector},
     mcmcensemble::AbstractMCMC.AbstractMCMCEnsemble = Turing.MCMCThreads(),
     nchains = 4,
     niter = 1000)
-    (pdist_, pkeys) = bayes_unpack_data(p)
+    (pdist_, pkeys) = bayes_unpack_data(probs, p)
     pdist, grouppriorsfunc = flatten(pdist_)
 
     model = ensemblebayesianODE(probs,
@@ -491,7 +492,7 @@ function bayesian_datafit(probs::Union{Tuple, AbstractVector},
     mcmcensemble::AbstractMCMC.AbstractMCMCEnsemble = Turing.MCMCThreads(),
     nchains = 4,
     niter = 1_000)
-    pdist_, pkeys, ts, lastt, timeseries, datakeys = bayes_unpack_data(p, data)
+    pdist_, pkeys, ts, lastt, timeseries, datakeys = bayes_unpack_data(probs, p, data)
     pdist, grouppriorsfunc = flatten(pdist_)
     model = ensemblebayesianODE(probs,
         map(first ∘ default_algorithm, probs),
