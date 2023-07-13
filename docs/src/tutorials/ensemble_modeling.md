@@ -95,7 +95,7 @@ We can access the 3 solutions as `sol[i]` respectively. Let's get the time serie
 for `S` from each of the models:
 
 ```@example ensemble
-[sol[i][S] for i in 1:3]
+sol[:,S]
 ```
 
 ## Building a Dataset
