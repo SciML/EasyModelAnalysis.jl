@@ -237,15 +237,57 @@ scatter!(t_forecast, data_forecast[1][2][2])
 ```
 
 ```@example ensemble
-ensem_prediction = sum(stack([ensem_weights[i] * sol[i][I] for i in 1:length(forecast_probs)]), dims = 2)
+ensem_prediction = sum(stack(ensem_weights .* sol[:,I]), dims = 2)
 plot(sol; idxs = I, color = :blue)
 plot!(t_forecast, ensem_prediction, lw = 3, color = :red)
 scatter!(t_forecast, data_forecast[2][2][2])
 ```
 
 ```@example ensemble
-ensem_prediction = sum(stack([ensem_weights[i] * sol[i][R] for i in 1:length(forecast_probs)]), dims = 2)
+ensem_prediction = sum(stack(ensem_weights .* sol[:,R]), dims = 2)
 plot(sol; idxs = R, color = :blue)
 plot!(t_forecast, ensem_prediction, lw = 3, color = :red)
 scatter!(t_forecast, data_forecast[3][2][2])
 ```
+
+## Training the "Super Ensemble" Model
+
+The standard ensemble model first calibrates each model in an ensemble and then uses the calibrated models
+as the basis for a prediction via a linear combination. The super ensemble performs the Bayesian estimation
+on the full combination of models, including the weights vector, as a single Bayesian posterior calculation.
+While this has the downside that the prediction of any single model is not necessarily predictive of the
+whole, in some cases this ensemble model may be more effective.
+
+To train this model, simply use `bayesian_datafit` on the ensemble. This looks like:
+
+```@example ensemble
+probs = [prob, prob2, prob3]
+ps = [[β => Uniform(0.01, 10.0), γ => Uniform(0.01, 10.0)] for i in 1:3]
+datas = [data_ensem,data_ensem,data_ensem]
+super_enprob, ensem_weights = bayesian_datafit(probs, ps, datas)
+```
+
+And now we can forecast with this model:
+
+```@example ensemble
+sol = solve(super_enprob; saveat = t_forecast);
+ensem_prediction = sum(stack(ensem_weights .* sol[:,S]), dims = 2)
+plot(sol; idxs = S, color = :blue)
+plot!(t_forecast, ensem_prediction, lw = 3, color = :red)
+scatter!(t_forecast, data_forecast[1][2][2])
+```
+
+```@example ensemble
+ensem_prediction = sum(stack(ensem_weights .* sol[:,I]), dims = 2)
+plot(sol; idxs = I, color = :blue)
+plot!(t_forecast, ensem_prediction, lw = 3, color = :red)
+scatter!(t_forecast, data_forecast[2][2][2])
+```
+
+```@example ensemble
+ensem_prediction = sum(stack(ensem_weights .* sol[:,R]), dims = 2)
+plot(sol; idxs = R, color = :blue)
+plot!(t_forecast, ensem_prediction, lw = 3, color = :red)
+scatter!(t_forecast, data_forecast[3][2][2])
+```
+
