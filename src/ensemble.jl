@@ -19,9 +19,7 @@ dataset on which the ensembler should be trained on.
 """
 function ensemble_weights(sol::EnsembleSolution, data_ensem)
     obs = first.(data_ensem)
-    predictions = reduce(vcat, stack([sol[i][s] for i in 1:length(sol)]) for s in obs)
-    [data_ensem[i][2] isa Tuple ? data_ensem[i][2][2] : data_ensem[i][2] for i in 1:length(data_ensem)]
-    
+    predictions = reduce(vcat, reduce(hcat,[sol[i][s] for i in 1:length(sol)]) for s in obs)
     data = reduce(vcat, [data_ensem[i][2] isa Tuple ? data_ensem[i][2][2] : data_ensem[i][2] for i in 1:length(data_ensem)])
     weights = predictions \ data 
 end
