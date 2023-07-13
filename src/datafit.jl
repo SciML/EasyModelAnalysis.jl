@@ -489,7 +489,7 @@ end
 function bayesian_datafit(probs::Union{Tuple, AbstractVector},
     ps::Tuple{Vararg{<:AbstractVector{<:Pair}}},
     t,
-    data;
+    data::AbstractVector{<:Pair};
     noise_prior = InverseGamma(2, 3),
     mcmcensemble::AbstractMCMC.AbstractMCMCEnsemble = Turing.MCMCThreads(),
     nchains = 4,
@@ -512,7 +512,7 @@ end
 
 function bayesian_datafit(probs::Union{Tuple, AbstractVector},
     ps::Tuple{Vararg{<:AbstractVector{<:Pair}}},
-    data;
+    data::AbstractVector{<:Pair};
     noise_prior = InverseGamma(2, 3),
     mcmcensemble::AbstractMCMC.AbstractMCMCEnsemble = Turing.MCMCThreads(),
     nchains = 4,
