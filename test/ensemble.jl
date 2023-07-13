@@ -56,23 +56,27 @@ sol = solve(enprob; saveat = 1);
 
 weights = [0.2, 0.5, 0.3]
 
+fullS = vec(sum(stack(weights .* sol[:,S]),dims=2))
+fullI = vec(sum(stack(weights .* sol[:,I]),dims=2))
+fullR = vec(sum(stack(weights .* sol[:,R]),dims=2))
+
 t_train = 0:14
 data_train = [
-    S => (t_train,vec(sum(stack([weights[i] * sol[i][S][1:15] for i in 1:3]), dims = 2))),
-    I => (t_train,vec(sum(stack([weights[i] * sol[i][I][1:15] for i in 1:3]), dims = 2))),
-    R => (t_train,vec(sum(stack([weights[i] * sol[i][R][1:15] for i in 1:3]), dims = 2))),
+    S => (t_train,fullS[1:15]),
+    I => (t_train,fullI[1:15]),
+    R => (t_train,fullR[1:15]),
 ]
 t_ensem = 0:21
 data_ensem = [
-    S => (t_ensem,vec(sum(stack([weights[i] * sol[i][S][1:22] for i in 1:3]), dims = 2))),
-    I => (t_ensem,vec(sum(stack([weights[i] * sol[i][I][1:22] for i in 1:3]), dims = 2))),
-    R => (t_ensem,vec(sum(stack([weights[i] * sol[i][R][1:22] for i in 1:3]), dims = 2))),
+    S => (t_ensem,fullS[1:22]),
+    I => (t_ensem,fullI[1:22]),
+    R => (t_ensem,fullR[1:22]),
 ]
 t_forecast = 0:30
 data_forecast = [
-    S => (t_forecast,vec(sum(stack([weights[i] * sol[i][S][1:end] for i in 1:3]), dims = 2))),
-    I => (t_forecast,vec(sum(stack([weights[i] * sol[i][I][1:end] for i in 1:3]), dims = 2))),
-    R => (t_forecast,vec(sum(stack([weights[i] * sol[i][R][1:end] for i in 1:3]), dims = 2))),
+    S => (t_forecast,fullS),
+    I => (t_forecast,fullI),
+    R => (t_forecast,fullR),
 ]
 
 sol = solve(enprob; saveat = t_ensem);

@@ -142,7 +142,7 @@ data_train = [
     R => (t_train,fullR[1:15]),
 ]
 t_ensem = 0:21
-data_train = [
+data_ensem = [
     S => (t_ensem,fullS[1:22]),
     I => (t_ensem,fullI[1:22]),
     R => (t_ensem,fullR[1:22]),
