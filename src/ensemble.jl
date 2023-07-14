@@ -24,9 +24,7 @@ function ensemble_weights(sol::EnsembleSolution, data_ensem; rank = size(data_en
     F = svd(data)
     # Truncate SVD
     U, S, V = F.U[:, 1:rank], F.S[1:rank], F.V[:, 1:rank]
-    # Compute pseudo-inverse of A from truncated SVD
-    pinv = (V * Diagonal(1 ./ S) * U')
-    weights = data*A_pinv
+    weights = (((data*V)*Diagonal(1 ./ S)) * U')
 end
 
 function bayesian_ensemble(probs, ps, datas;
