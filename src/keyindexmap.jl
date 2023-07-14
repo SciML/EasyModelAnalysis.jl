@@ -24,7 +24,7 @@ Base.@propagate_inbounds function (ikm::IndexKeyMap)(prob::SciMLBase.AbstractDEP
     end
     return ret
 end
-function _remake(prob, tspan, ikm::IndexKeyMap, pprior)
+function _remake(prob, ikm::IndexKeyMap, pprior, tspan::Tuple{Number, Number} = prob.tspan)
     p = ikm(prob, pprior)
     remake(prob; tspan, p)
 end

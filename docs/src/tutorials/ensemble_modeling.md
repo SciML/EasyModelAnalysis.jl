@@ -80,7 +80,7 @@ prototype problem, which we are effectively ignoring for our use case.
 Thus a simple `EnsembleProblem` which ensembles the three models built above is as follows:
 
 ```@example ensemble
-probs = [prob, prob2, prob3]
+probs = [prob, prob2, prob3];
 enprob = EnsembleProblem(probs)
 ```
 
@@ -160,7 +160,7 @@ data_forecast = [
 Now let's perform a Bayesian calibration on each of the models. This gives us multiple parameterizations for each model, which then gives an ensemble which is `parameterizations x models` in size.
 
 ```@example ensemble
-probs = [prob, prob2, prob3]
+probs = [prob, prob2, prob3];
 ps = [[β => Uniform(0.01, 10.0), γ => Uniform(0.01, 10.0)] for i in 1:3]
 datas = [data_train, data_train, data_train]
 enprobs = bayesian_ensemble(probs, ps, datas)
@@ -227,7 +227,7 @@ Once we have obtained the ensemble model, we can forecast ahead with it:
 
 ```@example ensemble
 forecast_probs = [remake(enprobs.prob[i]; tspan = (t_train[1], t_forecast[end]))
-                  for i in 1:length(enprobs.prob)]
+                  for i in 1:length(enprobs.prob)];
 fit_enprob = EnsembleProblem(forecast_probs)
 
 sol = solve(fit_enprob; saveat = t_forecast);
@@ -262,10 +262,10 @@ whole, in some cases this ensemble model may be more effective.
 To train this model, simply use `bayesian_datafit` on the ensemble. This looks like:
 
 ```@example ensemble
-probs = [prob, prob2, prob3]
+probs = [prob, prob2, prob3];
 ps = [[β => Uniform(0.01, 10.0), γ => Uniform(0.01, 10.0)] for i in 1:3]
-datas = [data_ensem, data_ensem, data_ensem]
-super_enprob, ensem_weights = bayesian_datafit(probs, ps, datas)
+
+super_enprob, ensem_weights = bayesian_datafit(probs, ps, data_ensem)
 ```
 
 And now we can forecast with this model:

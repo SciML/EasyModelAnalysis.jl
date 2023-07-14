@@ -86,7 +86,7 @@ sol = solve(enprob; saveat = t_ensem);
 probs = (prob, prob2, prob3)
 ps = Tuple([β => Uniform(0.01, 10.0), γ => Uniform(0.01, 10.0)] for i in 1:3)
 datas = (data_train, data_train, data_train)
-enprobs = bayesian_ensemble(probs, ps, datas)
+enprobs = bayesian_ensemble(probs, ps, datas, nchains = 2, niter = 200)
 
 sol = solve(enprobs; saveat = t_ensem);
 ensemble_weights(sol, data_ensem)

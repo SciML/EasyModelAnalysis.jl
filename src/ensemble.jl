@@ -1,3 +1,16 @@
+function naivemap(f, ::EnsembleThreads, arg0, args...)
+    t = Vector{Task}(undef, length(arg0))
+    for (n, a) in enumerate(arg0)
+        t[n] = let an = map(Base.Fix2(Base.getindex, n), args)
+            Threads.@spawn f(a, an...)
+        end
+    end
+    return identity.(map(fetch, t))
+end
+function naivemap(f, ::EnsembleSerial, args...)
+    map(f, args...)
+end
+
 """
     ensemble_weights(sol::EnsembleSolution, data_ensem)
 
@@ -29,17 +42,12 @@ end
 
 function bayesian_ensemble(probs, ps, datas;
     noise_prior = InverseGamma(2, 3),
-    mcmcensemble::AbstractMCMC.AbstractMCMCEnsemble = Turing.MCMCSerial(),
+    ensemblealg::SciMLBase.BasicEnsembleAlgorithm = EnsembleThreads(),
     nchains = 4,
     niter = 1_000,
     keep = 100)
-    fits = map(probs, ps, datas) do prob, p, data
-        bayesian_datafit(prob, p, data; noise_prior, mcmcensemble, nchains, niter)
-    end
-
-    models = map(probs, fits) do prob, fit
-        [remake(prob, p = Pair.(first.(fit), getindex.(last.(fit), i)))
-         for i in (length(fit[1][2]) - keep):length(fit[1][2])]
+    models = naivemap(ensemblealg, probs, ps, datas) do prob, p, data
+        bayesian_datafit(prob, p, data; noise_prior, ensemblealg, nchains, niter)
     end
 
     @info "Calibrations are complete"
