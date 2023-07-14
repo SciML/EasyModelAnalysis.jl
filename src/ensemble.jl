@@ -11,15 +11,6 @@ function naivemap(f, ::EnsembleSerial, args...)
     map(f, args...)
 end
 
-getsolmean(sol, s) = sol[s]
-function getsolmean(sol::EnsembleSolution, s)
-  acc = sol[1][s]
-  N = length(sol)
-  for i = 2:N
-    acc .+= sol[i][s]
-  end
-  acc ./= N
-end
 
 """
     ensemble_weights(sol::EnsembleSolution, data_ensem)
@@ -43,7 +34,7 @@ dataset on which the ensembler should be trained on.
 function ensemble_weights(sol::EnsembleSolution, data_ensem)
     obs = first.(data_ensem)
     predictions = reduce(vcat,
-        reduce(hcat, [getsolmean(sol[i],s) for i in 1:length(sol)]) for s in obs)
+        reduce(hcat, [sol[i][s] for i in 1:length(sol)]) for s in obs)
     data = reduce(vcat,
         [data_ensem[i][2] isa Tuple ? data_ensem[i][2][2] : data_ensem[i][2]
          for i in 1:length(data_ensem)])
@@ -62,7 +53,7 @@ function bayesian_ensemble(probs, ps, datas;
 
     @info "Calibrations are complete"
 
-    all_probs = reduce(vcat, models)
+    all_probs = reduce(vcat, map(prob -> prob.prob, models))
 
     @info "$(length(all_probs)) total models"
 
