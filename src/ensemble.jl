@@ -17,7 +17,7 @@ dataset on which the ensembler should be trained on.
     This function currently assumes that `sol.t` matches the time points of all measurements
     in `data_ensem`!
 """
-function ensemble_weights(sol::EnsembleSolution, data_ensem; rank = size(data_ensem,2))
+function ensemble_weights(sol::EnsembleSolution, data_ensem; rank = Int(round(length(last(first(data_ensem).second))/2)))
     obs = first.(data_ensem)
     predictions = reduce(vcat, reduce(hcat,[sol[i][s] for i in 1:length(sol)]) for s in obs)
     data = reduce(vcat, [data_ensem[i][2] isa Tuple ? data_ensem[i][2][2] : data_ensem[i][2] for i in 1:length(data_ensem)])
