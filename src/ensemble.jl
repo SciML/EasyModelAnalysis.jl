@@ -17,11 +17,11 @@ dataset on which the ensembler should be trained on.
     This function currently assumes that `sol.t` matches the time points of all measurements
     in `data_ensem`!
 """
-function ensemble_weights(sol::EnsembleSolution, data_ensem)
+function ensemble_weights(sol::EnsembleSolution, data_ensem; lambda = 1e-8)
     obs = first.(data_ensem)
     predictions = reduce(vcat, reduce(hcat,[sol[i][s] for i in 1:length(sol)]) for s in obs)
     data = reduce(vcat, [data_ensem[i][2] isa Tuple ? data_ensem[i][2][2] : data_ensem[i][2] for i in 1:length(data_ensem)])
-    weights = predictions \ data 
+    weights = (predictions*predictions' .+ lambda*I) \ (data*predictions') 
 end
 
 function bayesian_ensemble(probs, ps, datas;
