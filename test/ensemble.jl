@@ -92,7 +92,7 @@ sol = solve(enprobs; saveat = t_ensem);
 ensemble_weights(sol, data_ensem)
 
 # only supports one datas
-params, weights = bayesian_datafit(probs, ps, data_train)
+params, weights = bayesian_datafit(probs, ps, data_train, nchains = 2, niter = 200)
 
 @test length(params) == length(weights) == length(ps)
 for i in eachindex(weights[1])

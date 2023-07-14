@@ -492,7 +492,28 @@ function extract_ensemble(chns, prob::SciMLBase.AbstractDEProblem, Np::Int, ikm)
     end
     return EnsembleProblem(probs)
 end
-function extract_ensemble(chain::Turing.Chains, probs::Tuple, ps::Tuple, ikm)
+function extract_ensemble(chns, probst::Tuple, Nps::NTuple{P,Int}, ikm) where {P}
+
+    j = findfirst(==(Symbol("pprior[1]")), chns[1].name_map.parameters)
+    nsamples::Int = (length(chns) * size(chns[1].value, 1))
+    probs = map(probst) do prob
+      Vector{typeof(prob)}(undef, nsamples)
+    end
+    weights = ntuple(p -> Vector{Vector{Float64}}(undef, nsamples), Val(P))
+    offsets = cumsum((0, Base.front(Nps)...))
+    Np = offsets[end] + Nps[end]
+    inds = ntuple(identity,Val(P))
+    i = 0
+    for chn in chns
+        params = @view chn.value[:, j:(j + Np - 1), 1]
+        
+        for ps in eachrow(params)
+            probs[i += 1] = _remake(prob, ikm, ps)
+        end
+    end
+    return map(SciMLBase.WeightedEnsembleProblem,probs,weights)
+
+
     j = Ref(0)
     probs = map(probs, ps) do prob, p
         newp = [Pair(p_.first, vec(collect(chain["ppriors[" * string(j[] += 1) * "]"])))
@@ -545,7 +566,7 @@ function bayesian_datafit(probs::Tuple,
             progress = false)
     end
     return chains
-    extract_ensemble(chains, prob, length(ps), pkeys)
+    extract_ensemble(chains, prob, map(length,ps), pkeys)
 end
 
 function bayesian_datafit(probs::Tuple,
@@ -576,7 +597,7 @@ function bayesian_datafit(probs::Tuple,
             progress = false)
     end
     return chains
-    extract_ensemble(chains, prob, length(ps), pkeys)
+    extract_ensemble(chains, prob, map(length,ps), pkeys)
 end
 
 """
