@@ -492,48 +492,38 @@ function extract_ensemble(chns, prob::SciMLBase.AbstractDEProblem, Np::Int, ikm)
     end
     return EnsembleProblem(probs)
 end
-function extract_ensemble(chns, probst::Tuple, Nps::NTuple{P,Int}, ikm) where {P}
-
-    j = findfirst(==(Symbol("pprior[1]")), chns[1].name_map.parameters)
-    nsamples::Int = (length(chns) * size(chns[1].value, 1))
-    probs = map(probst) do prob
-      Vector{typeof(prob)}(undef, nsamples)
-    end
+function extract_ensemble(chns, probst::Tuple, Nps::NTuple{P, Int}, ikms) where {P}
+    j = findfirst(==(Symbol("ppriors[1]")), chns[1].name_map.parameters)
+    w = findfirst(==(Symbol("weights[1]")), chns[1].name_map.parameters)
+    samples_per_chain::Int = size(chns[1].value, 1)
+    nsamples::Int = (length(chns) * samples_per_chain)
     weights = ntuple(p -> Vector{Vector{Float64}}(undef, nsamples), Val(P))
-    offsets = cumsum((0, Base.front(Nps)...))
+
+    offsets = cumsum((0, Nps...))
     Np = offsets[end] + Nps[end]
-    inds = ntuple(identity,Val(P))
-    i = 0
-    for chn in chns
-        params = @view chn.value[:, j:(j + Np - 1), 1]
-        
-        for ps in eachrow(params)
-            probs[i += 1] = _remake(prob, ikm, ps)
+    inds = ntuple(identity, Val(P))
+    res = map((Iterators.product(chns, 1:samples_per_chain))) do (chn, k)
+        i = 0
+        # anon func takes in chain and sample, returns the associated WeightedEnsembleProb
+        _probs = map(probst,
+            ikms,
+            Base.front(offsets),
+            Base.tail(offsets)) do prob, ikm, start, stop
+            ps = chn.value[k, (j + start):(j + stop - 1), 1]
+            _remake(prob, ikm, ps)
         end
+        lastwt = 0.0 # accumulate from 0 for less rounding error
+        weights = Vector{Float64}(undef, P)
+        for l in 0:(P - 2)
+            wt = chn.value[k, w + l, 1]
+            lastwt += wt
+            weights[l + 1] = wt
+        end
+        weights[P] = 1.0 - lastwt
+        return SciMLBase.WeightedEnsembleProblem([_probs...];
+            weights)
     end
-    return map(SciMLBase.WeightedEnsembleProblem,probs,weights)
-
-
-    j = Ref(0)
-    probs = map(probs, ps) do prob, p
-        newp = [Pair(p_.first, vec(collect(chain["ppriors[" * string(j[] += 1) * "]"])))
-                for p_ in p]
-        _remake(prob, ikm, newp)
-    end
-    wacc = vec(collect(chain["weights[1]"]))
-    weights = [copy(wacc)]
-    for i in 2:(length(ps) - 1)
-        w = vec(collect(chain["weights[" * string(i) * "]"]))
-        wacc .+= w
-        push!(weights, w)
-    end
-    @. wacc = 1 - wacc
-    push!(weights, wacc)
-    if ps isa Tuple
-        probs, ntuple(Base.Fix1(getindex, weights), Val(length(ps)))
-    else
-        probs, weights
-    end
+    SciMLBase.EnsembleProblem(vec(res))
 end
 
 function bayesian_datafit(probs::Vector, ps::Vector, args...; kwargs...)
@@ -565,8 +555,7 @@ function bayesian_datafit(probs::Tuple,
             1;
             progress = false)
     end
-    return chains
-    extract_ensemble(chains, prob, map(length,ps), pkeys)
+    extract_ensemble(chains, probs, map(length, ps), pkeys)
 end
 
 function bayesian_datafit(probs::Tuple,
@@ -596,8 +585,7 @@ function bayesian_datafit(probs::Tuple,
             1;
             progress = false)
     end
-    return chains
-    extract_ensemble(chains, prob, map(length,ps), pkeys)
+    extract_ensemble(chains, probs, map(length, ps), pkeys)
 end
 
 """
