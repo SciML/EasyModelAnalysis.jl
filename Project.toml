@@ -4,6 +4,7 @@ authors = ["SciML"]
 version = "0.1.10"
 
 [deps]
+DiffEqBase = "2b5f629d-d688-5b77-993f-72d75c75574e"
 DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 GlobalSensitivity = "af5da776-676b-467e-8baf-acd8249e4f0f"
@@ -22,6 +23,7 @@ SciMLExpectations = "afe9f18d-7609-4d0e-b7b7-af0cb72b8ea8"
 Turing = "fce5fe82-541a-59a6-adf8-730c64b5f9a0"
 
 [compat]
+DiffEqBase = "6.127.0"
 DifferentialEquations = "7"
 Distributions = "0.25"
 GlobalSensitivity = "2"
@@ -33,7 +35,7 @@ OptimizationMOI = "0.1"
 OptimizationNLopt = "0.1"
 Plots = "1"
 Reexport = "1"
-SciMLBase = "1.93.1"
+SciMLBase = "1.93.3"
 SciMLExpectations = "2"
 Turing = "0.22, 0.23, 0.24"
 julia = "1.6"

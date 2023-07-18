@@ -163,7 +163,7 @@ Now let's perform a Bayesian calibration on each of the models. This gives us mu
 probs = [prob, prob2, prob3];
 ps = [[β => Uniform(0.01, 10.0), γ => Uniform(0.01, 10.0)] for i in 1:3]
 datas = [data_train, data_train, data_train]
-enprobs = bayesian_ensemble(probs, ps, datas)
+enprobs = bayesian_ensemble(probs, ps, datas, nchains=2, niter=200)
 ```
 
 Let's see how each of our models in the ensemble compare against the data when changed
