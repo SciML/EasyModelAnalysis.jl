@@ -1,3 +1,4 @@
+
 function l2loss(pvals, (prob, pkeys, t, data)::Tuple{Vararg{Any, 4}})
     p = Pair.(pkeys, pvals)
     prob = remake(prob, tspan = (prob.tspan[1], t[end]), p = p)
@@ -192,39 +193,39 @@ function global_datafit(prob, pbounds, data; maxiters = 10000, loss = l2loss)
     Pair.(pkeys, res.u)
 end
 
-function bayes_unpack_data(p, data)
-    pdist = getfield.(p, :second)
-    pkeys = getfield.(p, :first)
+function bayes_unpack_data(prob, p::AbstractVector{<:Pair}, data)
+    pdist, pkeys = bayes_unpack_data(prob, p)
     ts = first.(last.(data))
     lastt = maximum(last, ts)
     timeseries = last.(last.(data))
     datakeys = first.(data)
     (pdist, pkeys, ts, lastt, timeseries, datakeys)
 end
-function bayes_unpack_data(p)
+function bayes_unpack_data(prob, p::AbstractVector{<:Pair})
     pdist = getfield.(p, :second)
     pkeys = getfield.(p, :first)
-    (pdist, pkeys)
+    (pdist, IndexKeyMap(prob, pkeys))
 end
 
-Turing.@model function bayesianODE(prob, t, pdist, pkeys, data, noise_prior)
+Turing.@model function bayesianODE(prob, alg, t, pdist, pkeys, data, datamap, noise_prior)
     σ ~ noise_prior
 
     pprior ~ product_distribution(pdist)
 
-    prob = remake(prob, tspan = (prob.tspan[1], t[end]), p = Pair.(pkeys, pprior))
-    sol = solve(prob, saveat = t)
+    prob = _remake(prob, pkeys, pprior, (prob.tspan[1], t[end]))
+
+    sol = solve(prob, alg, saveat = t)
     if !SciMLBase.successful_retcode(sol)
         Turing.DynamicPPL.acclogp!!(__varinfo__, -Inf)
         return nothing
     end
-    for i in eachindex(data)
-        data[i].second ~ MvNormal(sol[data[i].first], σ^2 * I)
+    for (i, x) in enumerate(datamap(sol))
+        data[i] ~ MvNormal(x, σ^2 * I)
     end
     return nothing
 end
 
-Turing.@model function bayesianODE(prob,
+Turing.@model function bayesianODE(prob, alg,
     pdist,
     pkeys,
     ts,
@@ -236,8 +237,8 @@ Turing.@model function bayesianODE(prob,
 
     pprior ~ product_distribution(pdist)
 
-    prob = remake(prob, tspan = (prob.tspan[1], lastt), p = Pair.(pkeys, pprior))
-    sol = solve(prob)
+    prob = _remake(prob, pkeys, pprior, (prob.tspan[1], lastt))
+    sol = solve(prob, alg)
     if !SciMLBase.successful_retcode(sol)
         Turing.DynamicPPL.acclogp!!(__varinfo__, -Inf)
         return nothing
@@ -247,6 +248,149 @@ Turing.@model function bayesianODE(prob,
         timeseries[i] ~ MvNormal(Array(vals), σ^2 * I)
     end
     return nothing
+end
+
+"""
+Weights can be unbounded. Length of weights must be one less than the length of sols, to apply a sum-to-1 constraint.
+Last `sol` is given the weight `1 - sum(weights)`.
+"""
+struct WeightedSol{T, S <: Tuple{Vararg{AbstractVector{T}}}, W} <: AbstractVector{T}
+    sols::S
+    weights::W
+    function WeightedSol{T}(sols::S,
+        weights::W) where {T, S <: Tuple{Vararg{AbstractVector{T}}}, W}
+        @assert length(sols) == length(weights) + 1
+        new{T, S, W}(sols, weights)
+    end
+end
+function WeightedSol(sols::S,
+    weights::W) where {T, S <: Tuple{Vararg{AbstractVector{T}}}, W}
+    WeightedSol{T}(sols, weights)
+end
+Base.length(ws::WeightedSol) = length(first(ws.sols))
+Base.size(ws::WeightedSol) = (length(first(ws.sols)),)
+function Base.getindex(ws::WeightedSol{T}, i::Int) where {T}
+    s::T = zero(T)
+    w::T = zero(T)
+    @inbounds for j in eachindex(ws.weights)
+        w += ws.weights[j]
+        s += ws.weights[j] * ws.sols[j][i]
+    end
+    return s + (one(T) - w) * ws.sols[end][i]
+end
+function WeightedSol(sols, select, i::Int, weights)
+    s = map(sols, select) do sol, sel
+        @view(sol[sel.indices[i], :])
+    end
+    WeightedSol{eltype(weights)}(s, weights)
+end
+function bayes_unpack_data(probs, p::Tuple{Vararg{<:AbstractVector{<:Pair}}}, data)
+    pdist, pkeys = bayes_unpack_data(probs, p)
+    ts = first.(last.(data))
+    lastt = maximum(last, ts)
+    timeseries = last.(last.(data))
+    datakeys = first.(data)
+    (pdist, pkeys, ts, lastt, timeseries, datakeys)
+end
+function bayes_unpack_data(probs, p::Tuple{Vararg{<:AbstractVector{<:Pair}}})
+    unpacked = map(bayes_unpack_data, probs, p)
+    map(first, unpacked), map(last, unpacked)
+end
+
+struct Grouper{N}
+    sizes::NTuple{N, Int}
+end
+function (g::Grouper)(x)
+    i = Ref(0)
+    map(g.sizes) do N
+        _i = i[]
+        i[] = _i + N
+        view(x, (_i + 1):(_i + N))
+    end
+end
+function flatten(x::Tuple)
+    reduce(vcat, x), Grouper(map(length, x))
+end
+
+function getsols(probs, algs, probspkeys, ppriors, t::AbstractArray)
+    map(probs, algs, probspkeys, ppriors) do prob, alg, pkeys, pprior
+        newprob = _remake(prob, pkeys, pprior, (prob.tspan[1], t[end]))
+        solve(newprob, alg, saveat = t)
+    end
+end
+function getsols(probs, algs, probspkeys, ppriors, lastt::Number)
+    map(probs, algs, probspkeys, ppriors) do prob, alg, pkeys, pprior
+        newprob = _remake(prob, pkeys, pprior, (prob.tspan[1], lastt))
+        solve(newprob, alg)
+    end
+end
+
+Turing.@model function ensemblebayesianODE(probs::Tuple,
+    algs,
+    t,
+    pdist,
+    grouppriorsfunc,
+    probspkeys,
+    data,
+    datamaps,
+    noise_prior)
+    σ ~ noise_prior
+    ppriors ~ product_distribution(pdist)
+
+    Nprobs = length(probs)
+    Nprobs⁻¹ = inv(Nprobs)
+    weights ~ MvNormal(Distributions.Fill(Nprobs⁻¹, Nprobs - 1), Nprobs⁻¹)
+    sols = getsols(probs, algs, probspkeys, grouppriorsfunc(ppriors), t)
+    if !all(SciMLBase.successful_retcode, sols)
+        Turing.DynamicPPL.acclogp!!(__varinfo__, -Inf)
+        return nothing
+    end
+    for i in eachindex(data)
+        data[i] ~ MvNormal(WeightedSol(sols, datamaps, i, weights), σ^2 * I)
+    end
+    return nothing
+end
+Turing.@model function ensemblebayesianODE(probs::Tuple,
+    algs,
+    pdist,
+    grouppriorsfunc,
+    probspkeys,
+    ts,
+    lastt,
+    timeseries,
+    datakeys,
+    noise_prior)
+    σ ~ noise_prior
+    ppriors ~ product_distribution(pdist)
+
+    sols = getsols(probs, algs, probspkeys, grouppriorsfunc(ppriors), lastt)
+
+    Nprobs = length(probs)
+    Nprobs⁻¹ = inv(Nprobs)
+    weights ~ MvNormal(Distributions.Fill(Nprobs⁻¹, Nprobs - 1), Nprobs⁻¹)
+    if !all(SciMLBase.successful_retcode, sols)
+        Turing.DynamicPPL.acclogp!!(__varinfo__, -Inf)
+        return nothing
+    end
+    for i in eachindex(datakeys)
+        vals = map(sols) do sol
+            sol(ts[i]; idxs = datakeys[i])
+        end
+        timeseries[i] ~ MvNormal(WeightedSol(vals, weights), σ^2 * I)
+    end
+    return nothing
+end
+
+# this is bad, probably do not use this
+function naiverep(f, N, ::EnsembleThreads)
+    t = Vector{Task}(undef, N)
+    for n in 1:N
+        t[n] = Threads.@spawn f()
+    end
+    return identity.(map(fetch, t))
+end
+function naiverep(f, N, ::EnsembleSerial)
+    map(_ -> f(), 1:N)
 end
 
 """
@@ -285,38 +429,163 @@ function bayesian_datafit(prob,
     t,
     data;
     noise_prior = InverseGamma(2, 3),
-    mcmcensemble::AbstractMCMC.AbstractMCMCEnsemble = Turing.MCMCThreads(),
+    ensemblealg::SciMLBase.BasicEnsembleAlgorithm = EnsembleThreads(),
     nchains = 4,
     niter = 1000)
-    (pkeys, pdata) = bayes_unpack_data(p)
-    model = bayesianODE(prob, t, pkeys, pdata, data, noise_prior)
-    chain = Turing.sample(model,
-        Turing.NUTS(0.65),
-        mcmcensemble,
-        niter,
-        nchains;
-        progress = true)
-    [Pair(p[i].first, collect(chain["pprior[" * string(i) * "]"])[:])
-     for i in eachindex(p)]
+    (pdist, pkeys) = bayes_unpack_data(prob, p)
+    model = bayesianODE(prob,
+        first(default_algorithm(prob)),
+        t,
+        pdist,
+        pkeys,
+        last.(data),
+        IndexKeyMap(prob, data),
+        noise_prior)
+    chains = naiverep(nchains, ensemblealg) do
+        Turing.sample(model,
+            Turing.NUTS(0.65),
+            Turing.MCMCSerial(),
+            niter,
+            1;
+            progress = false)
+    end
+    extract_ensemble(chains, prob, length(p), pkeys)
 end
 
 function bayesian_datafit(prob,
     p,
     data;
     noise_prior = InverseGamma(2, 3),
-    mcmcensemble::AbstractMCMC.AbstractMCMCEnsemble = Turing.MCMCThreads(),
+    ensemblealg::SciMLBase.BasicEnsembleAlgorithm = EnsembleThreads(),
     nchains = 4,
     niter = 1_000)
-    pdist, pkeys, ts, lastt, timeseries, datakeys = bayes_unpack_data(p, data)
-    model = bayesianODE(prob, pdist, pkeys, ts, lastt, timeseries, datakeys, noise_prior)
-    chain = Turing.sample(model,
-        Turing.NUTS(0.65),
-        mcmcensemble,
-        niter,
-        nchains;
-        progress = true)
-    [Pair(p[i].first, collect(chain["pprior[" * string(i) * "]"])[:])
-     for i in eachindex(p)]
+    pdist, pkeys, ts, lastt, timeseries, datakeys = bayes_unpack_data(prob, p, data)
+    model = bayesianODE(prob,
+        first(default_algorithm(prob)),
+        pdist,
+        pkeys,
+        ts,
+        lastt,
+        timeseries,
+        datakeys,
+        noise_prior)
+    chains = naiverep(nchains, ensemblealg) do
+        Turing.sample(model,
+            Turing.NUTS(0.65),
+            Turing.MCMCSerial(),
+            niter,
+            1;
+            progress = false)
+    end
+    extract_ensemble(chains, prob, length(p), pkeys)
+end
+function extract_ensemble(chns, prob::SciMLBase.AbstractDEProblem, Np::Int, ikm)
+    # find range of `chain` corresponding to `pprior`
+    j = findfirst(==(Symbol("pprior[1]")), chns[1].name_map.parameters)
+    probs = Vector{typeof(prob)}(undef, (length(chns) * size(chns[1].value, 1))::Int)
+    i = 0
+    for chn in chns
+        params = @view chn.value[:, j:(j + Np - 1), 1]
+        for ps in eachrow(params)
+            probs[i += 1] = _remake(prob, ikm, ps)
+        end
+    end
+    return EnsembleProblem(probs)
+end
+function extract_ensemble(chns, probst::Tuple, Nps::NTuple{P, Int}, ikms) where {P}
+    j = findfirst(==(Symbol("ppriors[1]")), chns[1].name_map.parameters)
+    w = findfirst(==(Symbol("weights[1]")), chns[1].name_map.parameters)
+    samples_per_chain::Int = size(chns[1].value, 1)
+    nsamples::Int = (length(chns) * samples_per_chain)
+    weights = ntuple(p -> Vector{Vector{Float64}}(undef, nsamples), Val(P))
+
+    offsets = cumsum((0, Nps...))
+    Np = offsets[end] + Nps[end]
+    inds = ntuple(identity, Val(P))
+    res = map((Iterators.product(chns, 1:samples_per_chain))) do (chn, k)
+        i = 0
+        # anon func takes in chain and sample, returns the associated WeightedEnsembleProb
+        _probs = map(probst,
+            ikms,
+            Base.front(offsets),
+            Base.tail(offsets)) do prob, ikm, start, stop
+            ps = chn.value[k, (j + start):(j + stop - 1), 1]
+            _remake(prob, ikm, ps)
+        end
+        lastwt = 0.0 # accumulate from 0 for less rounding error
+        weights = Vector{Float64}(undef, P)
+        for l in 0:(P - 2)
+            wt = chn.value[k, w + l, 1]
+            lastwt += wt
+            weights[l + 1] = wt
+        end
+        weights[P] = 1.0 - lastwt
+        return SciMLBase.WeightedEnsembleProblem([_probs...];
+            weights)
+    end
+    SciMLBase.EnsembleProblem(vec(res))
+end
+
+function bayesian_datafit(probs::Vector, ps::Vector, args...; kwargs...)
+    probst = tuple(probs...)
+    pst = tuple(ps...)
+    bayesian_datafit(probst, pst, args...; kwargs...)
+end
+
+function bayesian_datafit(probs::Tuple,
+    ps::Tuple{Vararg{<:AbstractVector{<:Pair}}},
+    t,
+    data::AbstractVector{<:Pair};
+    noise_prior = InverseGamma(2, 3),
+    ensemblealg::SciMLBase.BasicEnsembleAlgorithm = EnsembleThreads(),
+    nchains = 4,
+    niter = 1000)
+    (pdist_, pkeys) = bayes_unpack_data(probs, ps)
+    pdist, grouppriorsfunc = flatten(pdist_)
+
+    model = ensemblebayesianODE(probs,
+        map(first ∘ default_algorithm, probs),
+        t, pdist, grouppriorsfunc, pkeys, last.(data),
+        map(Base.Fix2(IndexKeyMap, data), probs), noise_prior)
+    chains = naiverep(nchains, ensemblealg) do
+        Turing.sample(model,
+            Turing.NUTS(0.65),
+            Turing.MCMCSerial(),
+            niter,
+            1;
+            progress = false)
+    end
+    extract_ensemble(chains, probs, map(length, ps), pkeys)
+end
+
+function bayesian_datafit(probs::Tuple,
+    ps::Tuple{Vararg{<:AbstractVector{<:Pair}}},
+    data::AbstractVector{<:Pair};
+    noise_prior = InverseGamma(2, 3),
+    ensemblealg::SciMLBase.BasicEnsembleAlgorithm = EnsembleThreads(),
+    nchains = 4,
+    niter = 1_000)
+    pdist_, pkeys, ts, lastt, timeseries, datakeys = bayes_unpack_data(probs, ps, data)
+    pdist, grouppriorsfunc = flatten(pdist_)
+    model = ensemblebayesianODE(probs,
+        map(first ∘ default_algorithm, probs),
+        pdist,
+        grouppriorsfunc,
+        pkeys,
+        ts,
+        lastt,
+        timeseries,
+        datakeys,
+        noise_prior)
+    chains = naiverep(nchains, ensemblealg) do
+        Turing.sample(model,
+            Turing.NUTS(0.65),
+            Turing.MCMCSerial(),
+            niter,
+            1;
+            progress = false)
+    end
+    extract_ensemble(chains, probs, map(length, ps), pkeys)
 end
 
 """
