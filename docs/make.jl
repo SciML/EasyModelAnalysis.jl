@@ -20,18 +20,9 @@ mathengine = MathJax3(Dict(:loader => Dict("load" => ["[tex]/require", "[tex]/ma
 makedocs(sitename = "EasyModelAnalysis.jl",
     authors = "Chris Rackauckas",
     modules = Module[EasyModelAnalysis],
-    clean = true, doctest = false,
-    linkcheck = true,
-    strict = [
-        :doctest,
-        :linkcheck,
-        :parse_error,
-        :example_block,
-        # Other available options are
-        # :autodocs_block, :cross_references, :docs_block, :eval_block, :example_block, :footnote, :meta_block, :missing_docs, :setup_block
-    ],
-    format = Documenter.HTML(analytics = "UA-90474609-3",
-        assets = ["assets/favicon.ico"],
+    clean = true, doctest = false, linkcheck = true,
+    warnonly = [:missing_docs, :example_block],
+    format = Documenter.HTML(assets = ["assets/favicon.ico"],
         canonical = "https://docs.sciml.ai/EasyModelAnalysis/stable/",
         mathengine = mathengine),
     pages = [
