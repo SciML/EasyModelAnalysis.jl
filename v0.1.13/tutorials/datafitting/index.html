@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Calibrating Models to Data · EasyModelAnalysis.jl</title><meta name="title" content="Calibrating Models to Data · EasyModelAnalysis.jl"/><meta property="og:title" content="Calibrating Models to Data · EasyModelAnalysis.jl"/><meta property="twitter:title" content="Calibrating Models to Data · EasyModelAnalysis.jl"/><meta name="description" content="Documentation for EasyModelAnalysis.jl."/><meta property="og:description" content="Documentation for EasyModelAnalysis.jl."/><meta property="twitter:description" content="Documentation for EasyModelAnalysis.jl."/><meta property="og:url" content="https://docs.sciml.ai/EasyModelAnalysis/stable/tutorials/datafitting/"/><meta property="twitter:url" content="https://docs.sciml.ai/EasyModelAnalysis/stable/tutorials/datafitting/"/><link rel="canonical" href="https://docs.sciml.ai/EasyModelAnalysis/stable/tutorials/datafitting/"/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script><link href="../../assets/favicon.ico" rel="icon" type="image/x-icon"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img src="../../assets/logo.png" alt="EasyModelAnalysis.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit"><a href="../../">EasyModelAnalysis.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">EasyModelAnalysis.jl: Quick and Easy Queries to Simulation Results</a></li><li><a class="tocitem" href="../../getting_started/">Getting Started with EasyModelAnalysis</a></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../sensitivity_analysis/">Sensitivity Analysis</a></li><li class="is-active"><a class="tocitem" href>Calibrating Models to Data</a></li><li><a class="tocitem" href="../threshold_interventions/">Designing Threshold Interventions</a></li><li><a class="tocitem" href="../probabilistic_thresholds/">Analysis of Threshold Crossing Probabilities Under Uncertainty</a></li><li><a class="tocitem" href="../ensemble_modeling/">Ensemble Modeling</a></li></ul></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../../examples/petri/">AlgebraicPetri Integration</a></li><li><a class="tocitem" href="../../examples/ASIR/">Analysis of The Asymptomatic SIR Model</a></li><li><a class="tocitem" href="../../examples/SEIRHD/">Analysis of Interventions On The SEIRHD Epidemic Model</a></li><li><a class="tocitem" href="../../examples/Carcione2020/">Sensitivity Analysis of the Carcione2020 Epidemic Model</a></li></ul></li><li><span class="tocitem">Scenarios</span><ul><li><a class="tocitem" href="../../scenarios/scenario1/">Scenario 1: Vaccination</a></li><li><a class="tocitem" href="../../scenarios/scenario2/">Scenario 2: Limiting Hospitalizations</a></li><li><a class="tocitem" href="../../scenarios/scenario3/">Scenario 3: Limiting Deaths</a></li><li><a class="tocitem" href="../../scenarios/scenario4/">Scenario 4: Testing and Return to Campus</a></li><li><a class="tocitem" href="../../scenarios/scenario5/">Scenario 5: Bucky model</a></li></ul></li><li><span class="tocitem">API</span><ul><li><a class="tocitem" href="../../api/basic_queries/">Basic Queries</a></li><li><a class="tocitem" href="../../api/data_fitting_calibration/">Data Fitting and Model Calibration</a></li><li><a class="tocitem" href="../../api/sensitivity_analysis/">Sensitivity Analysis</a></li><li><a class="tocitem" href="../../api/threshold_interventions/">Threshold Interventions</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>Calibrating Models to Data</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Calibrating Models to Data</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/SciML/EasyModelAnalysis.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/SciML/EasyModelAnalysis.jl/blob/main/docs/src/tutorials/datafitting.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Calibrating-Models-to-Data"><a class="docs-heading-anchor" href="#Calibrating-Models-to-Data">Calibrating Models to Data</a><a id="Calibrating-Models-to-Data-1"></a><a class="docs-heading-anchor-permalink" href="#Calibrating-Models-to-Data" title="Permalink"></a></h1><p>In this tutorial, we will showcase the tooling for fitting models to data. Let&#39;s take our favorite 2nd order Lorenz equation form as our model:</p><pre><code class="language-julia hljs">using EasyModelAnalysis
+
+@parameters t σ ρ β
+@variables x(t) y(t) z(t)
+D = Differential(t)
+
+eqs = [D(D(x)) ~ σ * (y - x),
+    D(y) ~ x * (ρ - z) - y,
+    D(z) ~ x * y - β * z]
+
+@named sys = ODESystem(eqs)
+sys = structural_simplify(sys)
+
+u0 = [D(x) =&gt; 2.0,
+    x =&gt; 1.0,
+    y =&gt; 0.0,
+    z =&gt; 0.0]
+
+p = [σ =&gt; 28.0,
+    ρ =&gt; 10.0,
+    β =&gt; 8 / 3]
+
+tspan = (0.0, 100.0)
+prob = ODEProblem(sys, u0, tspan, p, jac = true)
+sol = solve(prob)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">retcode: Success
+Interpolation: specialized 4th order &quot;free&quot; interpolation, specialized 2nd order &quot;free&quot; stiffness-aware interpolation
+t: 1495-element Vector{Float64}:
+   0.0
+   0.00014131524176735154
+   0.0015544676594408668
+   0.012956381792766277
+   0.038266700044138006
+   0.07852291796751046
+   0.12210864065288088
+   0.17155375443120538
+   0.2311290630460472
+   0.30252383872495503
+   ⋮
+  99.50500396864174
+  99.57665667367455
+  99.64283640514518
+  99.72166966002771
+  99.79967562312255
+  99.86801143860899
+  99.93304884850775
+  99.99013919862291
+ 100.0
+u: 1495-element Vector{Vector{Float64}}:
+ [2.0, 0.0, 0.0, 1.0]
+ [1.9960454103704428, 0.0014132521265988688, 9.986094350108765e-8, 1.0002823510089436]
+ [1.956746201469907, 0.01555657123298723, 1.2096178746316906e-5, 1.0030752466310615]
+ [1.6563910957343149, 0.13029732534611171, 0.0008464888325952064, 1.023645017393648]
+ [1.1011942420041494, 0.3874130558030291, 0.007445311135321615, 1.0582098436702096]
+ [0.5557298463522196, 0.7959541011040255, 0.031202921104640697, 1.0901348104540605]
+ [0.44950102412404563, 1.229007863529698, 0.07390400544865926, 1.1102092717261387]
+ [0.9266726317320947, 1.7062381668292075, 0.14159577334379553, 1.1416871365805596]
+ [2.2781005968110417, 2.2773793271385414, 0.25114094267068454, 1.233177108242911]
+ [4.867419855792264, 3.014693593518013, 0.44047994481421116, 1.4824570579833207]
+ ⋮
+ [80.19625687470715, 0.22319498068561278, 6.377998459496999, -10.92101238125288]
+ [93.91126047193579, -1.9435112337378833, 5.7144265707275865, -4.580907294954086]
+ [92.47053186268388, -2.2128845219633724, 4.966589670343976, 1.653117805222435]
+ [78.34378276619968, 0.2736929875090918, 3.6720087645277166, 8.448758815091098]
+ [59.61988722700268, 5.207887350906977, 5.364596386122552, 13.834326658988568]
+ [42.06608771509131, 6.848721336825014, 10.923029356998175, 17.327760613533872]
+ [17.746361864729497, 2.561462421673927, 14.710142641007621, 19.336065831253446]
+ [-13.425204706776736, -1.9987153748274389, 12.635789734327103, 19.49627693453924]
+ [-19.39944052157736, -2.411052627709995, 11.88863957641005, 19.334495160672596]</code></pre><p>Let&#39;s create a dataset with some set of parameters, and show how the <code>datafit</code> function can be used to discover the parameters that generated the data. To start, let&#39;s show the data format by generating a dataset. A dataset contains an array <code>t</code> of the time points for the data, and maps <code>[observable =&gt; timeseries]</code> where the timeseries is an array of values for the observable at the time points of <code>t</code>. We can use the <code>get_timeseries</code> function to generate a dataset like:</p><pre><code class="language-julia hljs">tsave = [1.0, 2.0, 3.0]
+data = [x =&gt; get_timeseries(prob, x, tsave), z =&gt; get_timeseries(prob, z, tsave)]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">2-element Vector{Pair{Num, Vector{Float64}}}:
+ x(t) =&gt; [11.352378507900013, 11.818374125301172, -10.730122690040698]
+ z(t) =&gt; [8.983834702143962, 4.623642052356029, 6.172956575154105]</code></pre><p>Now let&#39;s do a datafit. We need to choose initial parameters for the fitting process and call the datafit:</p><pre><code class="language-julia hljs">psub_ini = [σ =&gt; 27.0, β =&gt; 3.0]
+fit = datafit(prob, psub_ini, tsave, data)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">2-element Vector{Pair{Num, Float64}}:
+ σ =&gt; 28.000000012195933
+ β =&gt; 2.66666667211938</code></pre><p>Recall that our starting parameters, the parameters the dataset was generated from, was <code>[σ =&gt; 28.0, ρ =&gt; 10.0, β =&gt; 8 / 3]</code>. Looks like this did a good job at recovering them!</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../sensitivity_analysis/">« Sensitivity Analysis</a><a class="docs-footer-nextpage" href="../threshold_interventions/">Designing Threshold Interventions »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="auto">Automatic (OS)</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.1.0 on <span class="colophon-date" title="Friday 6 October 2023 22:23">Friday 6 October 2023</span>. Using Julia version 1.9.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

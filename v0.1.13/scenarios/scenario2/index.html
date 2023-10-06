@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Scenario 2: Limiting Hospitalizations · EasyModelAnalysis.jl</title><meta name="title" content="Scenario 2: Limiting Hospitalizations · EasyModelAnalysis.jl"/><meta property="og:title" content="Scenario 2: Limiting Hospitalizations · EasyModelAnalysis.jl"/><meta property="twitter:title" content="Scenario 2: Limiting Hospitalizations · EasyModelAnalysis.jl"/><meta name="description" content="Documentation for EasyModelAnalysis.jl."/><meta property="og:description" content="Documentation for EasyModelAnalysis.jl."/><meta property="twitter:description" content="Documentation for EasyModelAnalysis.jl."/><meta property="og:url" content="https://docs.sciml.ai/EasyModelAnalysis/stable/scenarios/scenario2/"/><meta property="twitter:url" content="https://docs.sciml.ai/EasyModelAnalysis/stable/scenarios/scenario2/"/><link rel="canonical" href="https://docs.sciml.ai/EasyModelAnalysis/stable/scenarios/scenario2/"/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script><link href="../../assets/favicon.ico" rel="icon" type="image/x-icon"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img src="../../assets/logo.png" alt="EasyModelAnalysis.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit"><a href="../../">EasyModelAnalysis.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">EasyModelAnalysis.jl: Quick and Easy Queries to Simulation Results</a></li><li><a class="tocitem" href="../../getting_started/">Getting Started with EasyModelAnalysis</a></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../../tutorials/sensitivity_analysis/">Sensitivity Analysis</a></li><li><a class="tocitem" href="../../tutorials/datafitting/">Calibrating Models to Data</a></li><li><a class="tocitem" href="../../tutorials/threshold_interventions/">Designing Threshold Interventions</a></li><li><a class="tocitem" href="../../tutorials/probabilistic_thresholds/">Analysis of Threshold Crossing Probabilities Under Uncertainty</a></li><li><a class="tocitem" href="../../tutorials/ensemble_modeling/">Ensemble Modeling</a></li></ul></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../../examples/petri/">AlgebraicPetri Integration</a></li><li><a class="tocitem" href="../../examples/ASIR/">Analysis of The Asymptomatic SIR Model</a></li><li><a class="tocitem" href="../../examples/SEIRHD/">Analysis of Interventions On The SEIRHD Epidemic Model</a></li><li><a class="tocitem" href="../../examples/Carcione2020/">Sensitivity Analysis of the Carcione2020 Epidemic Model</a></li></ul></li><li><span class="tocitem">Scenarios</span><ul><li><a class="tocitem" href="../scenario1/">Scenario 1: Vaccination</a></li><li class="is-active"><a class="tocitem" href>Scenario 2: Limiting Hospitalizations</a><ul class="internal"><li><a class="tocitem" href="#Generate-the-Model-and-Dataset"><span>Generate the Model and Dataset</span></a></li><li><a class="tocitem" href="#Model-Analysis"><span>Model Analysis</span></a></li></ul></li><li><a class="tocitem" href="../scenario3/">Scenario 3: Limiting Deaths</a></li><li><a class="tocitem" href="../scenario4/">Scenario 4: Testing and Return to Campus</a></li><li><a class="tocitem" href="../scenario5/">Scenario 5: Bucky model</a></li></ul></li><li><span class="tocitem">API</span><ul><li><a class="tocitem" href="../../api/basic_queries/">Basic Queries</a></li><li><a class="tocitem" href="../../api/data_fitting_calibration/">Data Fitting and Model Calibration</a></li><li><a class="tocitem" href="../../api/sensitivity_analysis/">Sensitivity Analysis</a></li><li><a class="tocitem" href="../../api/threshold_interventions/">Threshold Interventions</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Scenarios</a></li><li class="is-active"><a href>Scenario 2: Limiting Hospitalizations</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Scenario 2: Limiting Hospitalizations</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/SciML/EasyModelAnalysis.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/SciML/EasyModelAnalysis.jl/blob/main/docs/src/scenarios/scenario2.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Scenario-2:-Limiting-Hospitalizations"><a class="docs-heading-anchor" href="#Scenario-2:-Limiting-Hospitalizations">Scenario 2: Limiting Hospitalizations</a><a id="Scenario-2:-Limiting-Hospitalizations-1"></a><a class="docs-heading-anchor-permalink" href="#Scenario-2:-Limiting-Hospitalizations" title="Permalink"></a></h1><h2 id="Generate-the-Model-and-Dataset"><a class="docs-heading-anchor" href="#Generate-the-Model-and-Dataset">Generate the Model and Dataset</a><a id="Generate-the-Model-and-Dataset-1"></a><a class="docs-heading-anchor-permalink" href="#Generate-the-Model-and-Dataset" title="Permalink"></a></h2><pre><code class="language-julia hljs">using EasyModelAnalysis, Optimization, OptimizationMOI, NLopt, Plots, Random
+Random.seed!(12345)
+
+@variables t
+Dₜ = Differential(t)
+@variables S(t)=0.97 E(t)=0.02 I(t)=0.01 R(t)=0.0 H(t)=0.0 D(t)=0.0
+@variables T(t)=10000.0 η(t)=0.0 cumulative_I(t)=0.0
+@parameters β₁=0.06 β₂=0.015 β₃=0.005 α=0.003 γ₁=0.007 γ₂=0.001 δ=0.2 μ=0.04
+eqs = [T ~ S + E + I + R + H + D
+    η ~ (β₁ * E + β₂ * I + β₃ * H)
+    Dₜ(S) ~ -η * S
+    Dₜ(E) ~ η * S - α * E
+    Dₜ(I) ~ α * E - (γ₁ + δ) * I
+    Dₜ(cumulative_I) ~ I
+    Dₜ(R) ~ γ₁ * I + γ₂ * H
+    Dₜ(H) ~ δ * I - (μ + γ₂) * H
+    Dₜ(D) ~ μ * H];
+@named seirhd = ODESystem(eqs)
+seirhd = structural_simplify(seirhd)
+prob = ODEProblem(seirhd, [], (0.0, 60.0), saveat = 1.0)
+sol = solve(prob)
+u60 = sol[:, end]
+plot(sol)</code></pre><img src="d74fc26f.svg" alt="Example block output"/><h2 id="Model-Analysis"><a class="docs-heading-anchor" href="#Model-Analysis">Model Analysis</a><a id="Model-Analysis-1"></a><a class="docs-heading-anchor-permalink" href="#Model-Analysis" title="Permalink"></a></h2><blockquote><p>Parameterize model either using data from the previous two months (October 28th – December 28th, 2021), or with relevant parameter values from the literature.</p></blockquote><pre><code class="language-julia hljs">data = [I =&gt; sol[I], R =&gt; sol[R], H =&gt; sol[H], D =&gt; sol[D]]
+prior_mean = [0.06, 0.015, 0.005, 0.003, 0.007, 0.001, 0.2, 0.04]
+prior_sd = [0.006, 0.0015, 0.0005, 0.0003, 0.0007, 0.0001, 0.02, 0.004]
+p = [β₁, β₂, β₃, α, γ₁, γ₂, δ, μ]
+p_priors = Pair.(p,
+    Truncated.(Normal.(prior_mean, prior_sd), prior_mean - 3 * prior_sd,
+        prior_mean + 3 * prior_sd))
+tsave = collect(0.0:1.0:60.0)
+fit = bayesian_datafit(prob, p_priors, tsave, data, noise_prior = InverseGamma(10, 0.1))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">8-element Vector{Pair{Num, Vector{Float64}}}:
+ β₁ =&gt; [0.058980512410633734, 0.060709019773107685, 0.059936197872994146, 0.059005901263172914, 0.05919372853055342, 0.05909521570248349, 0.0600656399323654, 0.061005687613304535, 0.06198160899956821, 0.05748887405234092  …  0.06367307575277482, 0.06322698620938744, 0.057443643851258816, 0.058045922952013954, 0.0606594089671135, 0.05835016816713921, 0.058509552737268794, 0.05999524068735448, 0.059017618705764614, 0.05806689660981153]
+ β₂ =&gt; [0.015142496318686138, 0.016865564810250793, 0.013854987359653242, 0.01430583825709135, 0.015385787693635748, 0.013901361142549013, 0.016800204450601916, 0.016674289008912317, 0.013428243107202444, 0.01607609588907482  …  0.013301892335897555, 0.017097189159200082, 0.011037654690079834, 0.012815702061808508, 0.018141933428469717, 0.018406153643079577, 0.012482058009669124, 0.01436744124663044, 0.013739729232611174, 0.015095973542836712]
+ β₃ =&gt; [0.005303731520807747, 0.004970368572924244, 0.004376004609818733, 0.004417492318113291, 0.0047252223272287765, 0.004233510942598392, 0.005408319769722632, 0.00531510784067321, 0.0054194841916741015, 0.00499678244289874  …  0.005631571326975174, 0.004452337411085278, 0.004588077404222818, 0.005556966670840406, 0.004564071652396834, 0.004781929822737369, 0.005680925328497973, 0.0042979467868497385, 0.004557499431516839, 0.005509743395437111]
+  α =&gt; [0.0030689659611853226, 0.0029293307708221005, 0.002994481099420599, 0.0030860701664391496, 0.0030746308089188512, 0.003128055690288789, 0.0029681310068029403, 0.002900196606288852, 0.002864856168387103, 0.0031975881996634337  …  0.002728646386193508, 0.0027851937759614874, 0.003263866410586809, 0.0032573127145358173, 0.002905742011287106, 0.003160800896734668, 0.003142754444368257, 0.0029862036955391755, 0.003098571819494564, 0.003175939858786616]
+ γ₁ =&gt; [0.00647001077085299, 0.00696102075495229, 0.00715240446375618, 0.006771922064891163, 0.007273125394372118, 0.0067300086276892955, 0.006871021402260889, 0.006399855279191031, 0.007681490565133257, 0.0064310088739329965  …  0.006536628213925486, 0.00776707598199531, 0.007448510587106107, 0.007588225397568336, 0.006421258767237342, 0.007384119163878126, 0.006010732418939788, 0.006431905483780899, 0.006029766415477084, 0.007201998572066841]
+ γ₂ =&gt; [0.0010655984904385895, 0.000986566488568434, 0.0009871370269153175, 0.0009525925570688357, 0.0011605499135209777, 0.0010608785679746642, 0.0010471177564019972, 0.0010950327116036273, 0.0009239121770743016, 0.0010287301747286743  …  0.0011133056036631297, 0.000857903598171144, 0.0010099978221655586, 0.0009673184851765511, 0.0010814247934741918, 0.0009315134854186095, 0.0010278439705771578, 0.0010064639554860485, 0.0010071233226898561, 0.0010708304571543548]
+  δ =&gt; [0.20340341231722536, 0.19775025187797526, 0.20525413679893378, 0.2054372508123316, 0.19829186386815506, 0.1996907754419417, 0.20248001513307454, 0.20192547972551142, 0.20023281482046992, 0.19834496104042654  …  0.2052230196832906, 0.2032833670031723, 0.1978781658246187, 0.19681803625680655, 0.20109068752662343, 0.19675556127901336, 0.19499377604844698, 0.19863408957546694, 0.20475543103564264, 0.19349270881223396]
+  μ =&gt; [0.039770153626576536, 0.04031129302443778, 0.03938864239950999, 0.040017502339673675, 0.03993530873618308, 0.04045195014214249, 0.039952437370086524, 0.039961958776015306, 0.040115106841463785, 0.03920586986880458  …  0.03990442350630812, 0.040548271048057374, 0.04055600487213483, 0.040107408388911095, 0.03969660396539464, 0.04022614865784575, 0.03992044617493397, 0.040170497563029484, 0.040294704470686504, 0.039247157481951817]</code></pre><h3 id="Question-1"><a class="docs-heading-anchor" href="#Question-1">Question 1</a><a id="Question-1-1"></a><a class="docs-heading-anchor-permalink" href="#Question-1" title="Permalink"></a></h3><blockquote><p>Forecast Covid cases and hospitalizations over the next 3 months under no interventions.</p></blockquote><pre><code class="language-julia hljs">prob = remake(prob; u0 = u60,
+    p = Pair.(getfield.(fit, :first), mean.(getfield.(fit, :second))))
+forecast_threemonths = solve(prob, tspan = (0.0, 90.0), saveat = 1.0)
+plot(forecast_threemonths)</code></pre><img src="6feb8162.svg" alt="Example block output"/><h3 id="Question-2"><a class="docs-heading-anchor" href="#Question-2">Question 2</a><a id="Question-2-1"></a><a class="docs-heading-anchor-permalink" href="#Question-2" title="Permalink"></a></h3><blockquote><p>Based on the forecast, do we need interventions to keep total Covid hospitalizations under a threshold of 3000 on any given day? If there is uncertainty in the model parameters, express the answer probabilistically, i.e., what is the likelihood or probability that the number of Covid hospitalizations will stay under this threshold for the next 3 months without interventions?</p></blockquote><pre><code class="language-julia hljs">need_intervention = maximum(forecast_threemonths[H]) &gt; 0.05</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">true</code></pre><pre><code class="language-julia hljs">post_mean = mean.(getfield.(fit, :second))
+post_sd = sqrt.(var.(getfield.(fit, :second)))
+trunc_min = post_mean .- 3 * post_sd
+trunc_max = post_mean .+ 3 * post_sd
+post_trunc = Truncated.(Normal.(post_mean, post_sd), trunc_min, trunc_max)
+posterior = Pair.(getfield.(fit, :first), post_trunc)
+prob_violating_threshold(prob, posterior, [H &gt; 0.05])</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">0.03123388506212185</code></pre><h3 id="Question-3"><a class="docs-heading-anchor" href="#Question-3">Question 3</a><a id="Question-3-1"></a><a class="docs-heading-anchor-permalink" href="#Question-3" title="Permalink"></a></h3><blockquote><p>Assume a consistent policy of social distancing/masking will be implemented, resulting in a 50% decrease from baseline transmission. Assume that we want to minimize the time that the policy is in place, and once it has been put in place and then ended, it can&#39;t be re-implemented. Looking forward from “today’s” date of Dec. 28, 2021, what are the optimal start and end dates for this policy, to keep projections below the hospitalization threshold over the entire 3-month period? How many fewer hospitalizations and cases does this policy result in?</p></blockquote><pre><code class="language-julia hljs">function f(ts, p = nothing)
+    tstart = ts[1]
+    tstop = ts[2]
+    tstop - tstart
+end
+
+function g(res, ts, p = nothing)
+    tstart = ts[1]
+    tstop = ts[2]
+    start_intervention = (t == tstart) =&gt; [β₁ ~ β₁ / 2, β₂ ~ β₂ / 2, β₃ ~ β₃ / 2]
+    stop_intervention = (t == tstop) =&gt; [β₁ ~ β₁ * 2, β₂ ~ β₂ * 2, β₃ ~ β₃ * 2]
+    @named opttime_sys = ODESystem(eqs, t;
+        discrete_events = [
+            start_intervention,
+            stop_intervention,
+        ])
+    opttime_sys = structural_simplify(opttime_sys)
+    prob = ODEProblem(opttime_sys, [], [0.0, 90.0])
+    prob = remake(prob; u0 = u60)
+    sol = solve(prob, saveat = 0.0:1.0:90.0, tstops = [tstart, tstop])
+    hospitalizations = sol(0.0:1.0:90.0, idxs = H)
+    if SciMLBase.successful_retcode(sol.retcode)
+        res .= vcat(hospitalizations, tstop - tstart)
+    else
+        res .= Inf
+    end
+end
+
+optf = OptimizationFunction(f, Optimization.AutoFiniteDiff(), cons = g)
+optprob = Optimization.OptimizationProblem(optf, [0.0, 90.0], lb = [0.0, 0.0],
+    ub = [90.0, 90.0],
+    lcons = vcat(fill(-Inf, 91), 0.0),
+    ucons = vcat(fill(0.05, 91), Inf))
+min_intervention_timespan = solve(optprob,
+    OptimizationMOI.MOI.OptimizerWithAttributes(NLopt.Optimizer,
+        &quot;algorithm&quot; =&gt; :GN_ORIG_DIRECT,
+        &quot;maxtime&quot; =&gt; 60.0))
+min_intervention_timespan.u</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">2-element Vector{Float64}:
+ 15.000000000000002
+ 45.0</code></pre><pre><code class="language-julia hljs">res = zeros(92)
+g(res, min_intervention_timespan.u)
+maximum(res[1:91])</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">0.04807116516480647</code></pre><h3 id="Question-4"><a class="docs-heading-anchor" href="#Question-4">Question 4</a><a id="Question-4-1"></a><a class="docs-heading-anchor-permalink" href="#Question-4" title="Permalink"></a></h3><blockquote><p>Assume there is a protocol to kick in mitigation policies when hospitalizations rise above 80% of the hospitalization threshold (i.e. 80% of 3000). When hospitalizations fall back below 80% of the threshold, these policies expire.</p></blockquote><blockquote><p>When do we expect these policies to first kick in?</p></blockquote><blockquote><p>What is the minimum impact on transmission rate these mitigation policies need to have the first time they kick in, to (1) ensure that we don&#39;t reach the hospitalization threshold at any time during the 3-month period, and (2) ensure that the policies only need to be implemented once, and potentially expired later, but never reimplemented? Express this in terms of change in baseline transmission levels (e.g. 10% decrease, 50% decrease, etc.).</p></blockquote><pre><code class="language-julia hljs">function f(reduction_rate, p = nothing)
+    reduction_rate = reduction_rate[1]
+end
+function g(res, reduction_rate, p = nothing)
+    reduction_rate = reduction_rate[1]
+    root_eqs = [H ~ 0.05 * 0.8]
+    affect = [
+        β₁ ~ β₁ * (1 - reduction_rate),
+        β₂ ~ β₂ * (1 - reduction_rate),
+        β₃ ~ β₃ * (1 - reduction_rate),
+    ]
+    @named mask_system = ODESystem(eqs, t; continuous_events = root_eqs =&gt; affect)
+    mask_system = structural_simplify(mask_system)
+    prob = ODEProblem(mask_system, [], (0.0, 90.0))
+    prob = remake(prob; u0 = u60)
+    sol = solve(prob, saveat = 0.0:1.0:90.0)
+    hospitalizations = sol(0.0:1.0:90.0, idxs = H)
+    if SciMLBase.successful_retcode(sol.retcode)
+        res .= hospitalizations
+    else
+        res .= Inf
+    end
+end
+optf = OptimizationFunction(f, Optimization.AutoFiniteDiff(), cons = g)
+optprob = OptimizationProblem(optf, [0.0], lb = [0.0], ub = [1.0], lcons = fill(-Inf, 91),
+    ucons = fill(0.05, 91))
+min_intervention_strength = solve(optprob,
+    OptimizationMOI.MOI.OptimizerWithAttributes(NLopt.Optimizer,
+        &quot;algorithm&quot; =&gt; :GN_ORIG_DIRECT,
+        &quot;maxtime&quot; =&gt; 60.0))
+min_intervention_strength.u</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">1-element Vector{Float64}:
+ 0.9074074074074074</code></pre><pre><code class="language-julia hljs">res = zeros(91)
+g(res, min_intervention_strength.u)
+maximum(res[1:91])</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">0.049689990075674755</code></pre><h3 id="Question-5"><a class="docs-heading-anchor" href="#Question-5">Question 5</a><a id="Question-5-1"></a><a class="docs-heading-anchor-permalink" href="#Question-5" title="Permalink"></a></h3><blockquote><p>Now assume that instead of NPIs, the Board wants to focus all their resources on an aggressive vaccination campaign to increase the fraction of the total population that is vaccinated. What is the minimum intervention with vaccinations required in order for this intervention to have the same impact on cases and hospitalizations, as your optimal answer from question 3? Depending on the model you use, this may be represented as an increase in total vaccinated population, or increase in daily vaccination rate (% of eligible people vaccinated each day), or some other representation.</p></blockquote><p>This requires an additional model structure, not very interesting to showcase the SciML stack.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../scenario1/">« Scenario 1: Vaccination</a><a class="docs-footer-nextpage" href="../scenario3/">Scenario 3: Limiting Deaths »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="auto">Automatic (OS)</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.1.0 on <span class="colophon-date" title="Friday 6 October 2023 22:23">Friday 6 October 2023</span>. Using Julia version 1.9.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

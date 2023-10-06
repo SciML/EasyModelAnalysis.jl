@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Scenario 4: Testing and Return to Campus · EasyModelAnalysis.jl</title><meta name="title" content="Scenario 4: Testing and Return to Campus · EasyModelAnalysis.jl"/><meta property="og:title" content="Scenario 4: Testing and Return to Campus · EasyModelAnalysis.jl"/><meta property="twitter:title" content="Scenario 4: Testing and Return to Campus · EasyModelAnalysis.jl"/><meta name="description" content="Documentation for EasyModelAnalysis.jl."/><meta property="og:description" content="Documentation for EasyModelAnalysis.jl."/><meta property="twitter:description" content="Documentation for EasyModelAnalysis.jl."/><meta property="og:url" content="https://docs.sciml.ai/EasyModelAnalysis/stable/scenarios/scenario4/"/><meta property="twitter:url" content="https://docs.sciml.ai/EasyModelAnalysis/stable/scenarios/scenario4/"/><link rel="canonical" href="https://docs.sciml.ai/EasyModelAnalysis/stable/scenarios/scenario4/"/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script><link href="../../assets/favicon.ico" rel="icon" type="image/x-icon"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img src="../../assets/logo.png" alt="EasyModelAnalysis.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit"><a href="../../">EasyModelAnalysis.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">EasyModelAnalysis.jl: Quick and Easy Queries to Simulation Results</a></li><li><a class="tocitem" href="../../getting_started/">Getting Started with EasyModelAnalysis</a></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../../tutorials/sensitivity_analysis/">Sensitivity Analysis</a></li><li><a class="tocitem" href="../../tutorials/datafitting/">Calibrating Models to Data</a></li><li><a class="tocitem" href="../../tutorials/threshold_interventions/">Designing Threshold Interventions</a></li><li><a class="tocitem" href="../../tutorials/probabilistic_thresholds/">Analysis of Threshold Crossing Probabilities Under Uncertainty</a></li><li><a class="tocitem" href="../../tutorials/ensemble_modeling/">Ensemble Modeling</a></li></ul></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../../examples/petri/">AlgebraicPetri Integration</a></li><li><a class="tocitem" href="../../examples/ASIR/">Analysis of The Asymptomatic SIR Model</a></li><li><a class="tocitem" href="../../examples/SEIRHD/">Analysis of Interventions On The SEIRHD Epidemic Model</a></li><li><a class="tocitem" href="../../examples/Carcione2020/">Sensitivity Analysis of the Carcione2020 Epidemic Model</a></li></ul></li><li><span class="tocitem">Scenarios</span><ul><li><a class="tocitem" href="../scenario1/">Scenario 1: Vaccination</a></li><li><a class="tocitem" href="../scenario2/">Scenario 2: Limiting Hospitalizations</a></li><li><a class="tocitem" href="../scenario3/">Scenario 3: Limiting Deaths</a></li><li class="is-active"><a class="tocitem" href>Scenario 4: Testing and Return to Campus</a><ul class="internal"><li><a class="tocitem" href="#Assumptions-from-the-Scenario"><span>Assumptions from the Scenario</span></a></li><li><a class="tocitem" href="#Generate-the-Model-and-Dataset"><span>Generate the Model and Dataset</span></a></li><li><a class="tocitem" href="#Model-Analysis"><span>Model Analysis</span></a></li></ul></li><li><a class="tocitem" href="../scenario5/">Scenario 5: Bucky model</a></li></ul></li><li><span class="tocitem">API</span><ul><li><a class="tocitem" href="../../api/basic_queries/">Basic Queries</a></li><li><a class="tocitem" href="../../api/data_fitting_calibration/">Data Fitting and Model Calibration</a></li><li><a class="tocitem" href="../../api/sensitivity_analysis/">Sensitivity Analysis</a></li><li><a class="tocitem" href="../../api/threshold_interventions/">Threshold Interventions</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Scenarios</a></li><li class="is-active"><a href>Scenario 4: Testing and Return to Campus</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Scenario 4: Testing and Return to Campus</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/SciML/EasyModelAnalysis.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/SciML/EasyModelAnalysis.jl/blob/main/docs/src/scenarios/scenario4.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Scenario-4:-Testing-and-Return-to-Campus"><a class="docs-heading-anchor" href="#Scenario-4:-Testing-and-Return-to-Campus">Scenario 4: Testing and Return to Campus</a><a id="Scenario-4:-Testing-and-Return-to-Campus-1"></a><a class="docs-heading-anchor-permalink" href="#Scenario-4:-Testing-and-Return-to-Campus" title="Permalink"></a></h1><p>Load packages:</p><pre><code class="language-julia hljs">using EasyModelAnalysis
+using AlgebraicPetri
+using UnPack
+using Dates</code></pre><h2 id="Assumptions-from-the-Scenario"><a class="docs-heading-anchor" href="#Assumptions-from-the-Scenario">Assumptions from the Scenario</a><a id="Assumptions-from-the-Scenario-1"></a><a class="docs-heading-anchor-permalink" href="#Assumptions-from-the-Scenario" title="Permalink"></a></h2><blockquote><p>University of Michigan (Ann Arbor campus) QUESTION: TA1 reachback for total population?</p></blockquote><pre><code class="language-julia hljs">#=
+From: https://obp.umich.edu/wp-content/uploads/pubdata/almanac/Almanac_Ch1_June2022.pdf#:~:text=Based%20on%20the%20November%202021,All%20other%20staff%20total%2015%2C795.
+Undergraduate Students ................................ 32,282
+Graduate Students ......................................... 15,268
+Professional Students...................................... 2,728
+Tenured/Tenure-Track Faculty........................ 3,136
+Lecturers.......................................................... 1,044
+Clinical Faculty ............................................... 2,268
+Research Faculty ................................................ 868
+Other Academic ................................................. 403
+Research Fellows/Post-Doctoral Fellows........ 1,105
+Staff............................................................... 15,795
+Ann Arbor Campus Total1............................. 74,897
+=#
+
+N_ugrad = 32_282
+N_grad = 15_268 + 2_728
+N_staff = 3_136 + 1_044 + 2_268 + 868 + 403 + 1_105 + 15_795
+NN = N_ugrad + N_grad + N_staff</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">74897</code></pre><blockquote><p>Assume the following numbers of true infections at the onset of the term by population type: Undergraduate=750 Graduate/professional=250 Faculty/staff=100</p></blockquote><pre><code class="language-julia hljs">I_ugrad = 750
+I_grad = 250
+I_staff = 100</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">100</code></pre><blockquote><p>Time/Setting: It is late 2021 and you are planning for the Spring 2022 term at the University of Michigan (Ann Arbor campus) beginning in early January 2022. For the purpose of this scenario, consider a four-month period that begins &gt; January 1st and ends May 1st.</p></blockquote><pre><code class="language-julia hljs">tstart = Date(2022, 01, 01)
+tend = Date(2022, 05, 01)
+tdays = (tend - tstart).value</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">120</code></pre><h2 id="Generate-the-Model-and-Dataset"><a class="docs-heading-anchor" href="#Generate-the-Model-and-Dataset">Generate the Model and Dataset</a><a id="Generate-the-Model-and-Dataset-1"></a><a class="docs-heading-anchor-permalink" href="#Generate-the-Model-and-Dataset" title="Permalink"></a></h2><pre><code class="language-julia hljs">function formSEIISRD()
+    SEIRHD = LabelledPetriNet([:S, :E, :I, :IS, :R, :D],
+        :expo =&gt; ((:S, :I) =&gt; (:E, :I)),
+        :conv =&gt; (:E =&gt; :I),
+        :rec =&gt; (:I =&gt; :R),
+        :test =&gt; (:I =&gt; :IS),
+        :leave =&gt; (:IS =&gt; :R),
+        :death =&gt; (:I =&gt; :D))
+    return SEIRHD
+end
+sys1 = ODESystem(formSEIISRD())
+
+@unpack S, E, I, IS, R, D = sys1
+@unpack expo, conv, rec, test, leave, death = sys1
+
+@parameters u_expo=0.1 * NN u_conv=0.1 * NN u_rec=0.8 * NN u_death=0.1 * NN u_test=0.9 * NN u_leave=0.2 *
+                                                                                                    NN N=NN
+translate_params = [expo =&gt; u_expo / NN,
+    conv =&gt; u_conv / NN,
+    rec =&gt; u_rec / NN,
+    death =&gt; u_death / NN,
+    test =&gt; u_test / NN,
+    leave =&gt; u_leave / NN,
+]
+subed_sys = substitute(sys1, translate_params)
+sys = add_accumulations(subed_sys, [I])
+@unpack accumulation_I = sys</code></pre><p class="math-container">\[ \begin{align}
+\frac{\mathrm{d} S\left( t \right)}{\mathrm{d}t} =&amp;  - \frac{1}{74897} u_{expo} S\left( t \right) I\left( t \right) \\
+\frac{\mathrm{d} E\left( t \right)}{\mathrm{d}t} =&amp;  - \frac{1}{74897} u_{conv} E\left( t \right) + \frac{1}{74897} u_{expo} S\left( t \right) I\left( t \right) \\
+\frac{\mathrm{d} I\left( t \right)}{\mathrm{d}t} =&amp; \frac{1}{74897} u_{conv} E\left( t \right) - \frac{1}{74897} u_{death} I\left( t \right) - \frac{1}{74897} u_{rec} I\left( t \right) - \frac{1}{74897} u_{test} I\left( t \right) \\
+\frac{\mathrm{d} \mathrm{IS}\left( t \right)}{\mathrm{d}t} =&amp;  - \frac{1}{74897} u_{leave} \mathrm{IS}\left( t \right) + \frac{1}{74897} u_{test} I\left( t \right) \\
+\frac{\mathrm{d} R\left( t \right)}{\mathrm{d}t} =&amp; \frac{1}{74897} u_{leave} \mathrm{IS}\left( t \right) + \frac{1}{74897} u_{rec} I\left( t \right) \\
+\frac{\mathrm{d} D\left( t \right)}{\mathrm{d}t} =&amp; \frac{1}{74897} u_{death} I\left( t \right) \\
+\frac{\mathrm{d} \mathrm{accumulation}_{I}\left( t \right)}{\mathrm{d}t} =&amp; I\left( t \right)
+\end{align}
+ \]</p><pre><code class="language-julia hljs">I_total = I_ugrad + I_grad + I_staff
+u0init = [
+    S =&gt; NN - I_total,
+    E =&gt; 0,
+    I =&gt; I_total,
+    IS =&gt; 0,
+    R =&gt; 0,
+    D =&gt; 0,
+]
+
+prob = ODEProblem(sys, u0init, (0.0, tdays))
+sol = solve(prob)
+plot(sol)</code></pre><img src="60687be6.svg" alt="Example block output"/><h2 id="Model-Analysis"><a class="docs-heading-anchor" href="#Model-Analysis">Model Analysis</a><a id="Model-Analysis-1"></a><a class="docs-heading-anchor-permalink" href="#Model-Analysis" title="Permalink"></a></h2><h3 id="Question-1"><a class="docs-heading-anchor" href="#Question-1">Question 1</a><a id="Question-1-1"></a><a class="docs-heading-anchor-permalink" href="#Question-1" title="Permalink"></a></h3><blockquote><p>Define a return-to-campus strategy that minimizes total testing while maintaining infections below the initial isolation bed capacity of 430. The testing scheme can include an arrival testing strategy in addition to unique testing approaches within time periods of the simulation. Cohorts can have unique testing strategies defined by test type and number per week.</p></blockquote><pre><code class="language-julia hljs"># Minimize u_test subject to IS &lt;= 430
+p_opt, s2, ret = optimal_parameter_threshold(prob, IS, 430, u_test, [u_test], [0.0], [NN],
+    maxtime = 10);
+plot(s2, idxs = [IS])</code></pre><img src="64bd2c81.svg" alt="Example block output"/><pre><code class="language-julia hljs">p_opt, s2, ret = optimal_parameter_threshold(prob, D, 430, u_test, [u_test], [0.0], [NN],
+    maxtime = 10);
+plot(s2, idxs = [I, IS, D])</code></pre><img src="784270b1.svg" alt="Example block output"/><h3 id="Question-4"><a class="docs-heading-anchor" href="#Question-4">Question 4</a><a id="Question-4-1"></a><a class="docs-heading-anchor-permalink" href="#Question-4" title="Permalink"></a></h3><blockquote><p>Challenge question: assume that antigen tests are one fifth the cost of PCR tests but also much less (~half) as sensitive. Incorporate the cost of the testing program into your recommendations.</p></blockquote><pre><code class="language-julia hljs"># Minimize u_test subject to IS &lt;= 430
+p_opt, s2, ret = optimal_parameter_threshold(prob, IS, 430, 5 * u_test, [u_test], [0.0],
+    [NN], maxtime = 10);
+plot(s2, idxs = [IS])</code></pre><img src="f2ef4f39.svg" alt="Example block output"/></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../scenario3/">« Scenario 3: Limiting Deaths</a><a class="docs-footer-nextpage" href="../scenario5/">Scenario 5: Bucky model »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="auto">Automatic (OS)</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.1.0 on <span class="colophon-date" title="Friday 6 October 2023 22:23">Friday 6 October 2023</span>. Using Julia version 1.9.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

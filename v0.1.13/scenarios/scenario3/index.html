@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Scenario 3: Limiting Deaths · EasyModelAnalysis.jl</title><meta name="title" content="Scenario 3: Limiting Deaths · EasyModelAnalysis.jl"/><meta property="og:title" content="Scenario 3: Limiting Deaths · EasyModelAnalysis.jl"/><meta property="twitter:title" content="Scenario 3: Limiting Deaths · EasyModelAnalysis.jl"/><meta name="description" content="Documentation for EasyModelAnalysis.jl."/><meta property="og:description" content="Documentation for EasyModelAnalysis.jl."/><meta property="twitter:description" content="Documentation for EasyModelAnalysis.jl."/><meta property="og:url" content="https://docs.sciml.ai/EasyModelAnalysis/stable/scenarios/scenario3/"/><meta property="twitter:url" content="https://docs.sciml.ai/EasyModelAnalysis/stable/scenarios/scenario3/"/><link rel="canonical" href="https://docs.sciml.ai/EasyModelAnalysis/stable/scenarios/scenario3/"/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script><link href="../../assets/favicon.ico" rel="icon" type="image/x-icon"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img src="../../assets/logo.png" alt="EasyModelAnalysis.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit"><a href="../../">EasyModelAnalysis.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">EasyModelAnalysis.jl: Quick and Easy Queries to Simulation Results</a></li><li><a class="tocitem" href="../../getting_started/">Getting Started with EasyModelAnalysis</a></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../../tutorials/sensitivity_analysis/">Sensitivity Analysis</a></li><li><a class="tocitem" href="../../tutorials/datafitting/">Calibrating Models to Data</a></li><li><a class="tocitem" href="../../tutorials/threshold_interventions/">Designing Threshold Interventions</a></li><li><a class="tocitem" href="../../tutorials/probabilistic_thresholds/">Analysis of Threshold Crossing Probabilities Under Uncertainty</a></li><li><a class="tocitem" href="../../tutorials/ensemble_modeling/">Ensemble Modeling</a></li></ul></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../../examples/petri/">AlgebraicPetri Integration</a></li><li><a class="tocitem" href="../../examples/ASIR/">Analysis of The Asymptomatic SIR Model</a></li><li><a class="tocitem" href="../../examples/SEIRHD/">Analysis of Interventions On The SEIRHD Epidemic Model</a></li><li><a class="tocitem" href="../../examples/Carcione2020/">Sensitivity Analysis of the Carcione2020 Epidemic Model</a></li></ul></li><li><span class="tocitem">Scenarios</span><ul><li><a class="tocitem" href="../scenario1/">Scenario 1: Vaccination</a></li><li><a class="tocitem" href="../scenario2/">Scenario 2: Limiting Hospitalizations</a></li><li class="is-active"><a class="tocitem" href>Scenario 3: Limiting Deaths</a><ul class="internal"><li><a class="tocitem" href="#Generate-the-Model-and-Dataset"><span>Generate the Model and Dataset</span></a></li><li><a class="tocitem" href="#Model-Analysis"><span>Model Analysis</span></a></li></ul></li><li><a class="tocitem" href="../scenario4/">Scenario 4: Testing and Return to Campus</a></li><li><a class="tocitem" href="../scenario5/">Scenario 5: Bucky model</a></li></ul></li><li><span class="tocitem">API</span><ul><li><a class="tocitem" href="../../api/basic_queries/">Basic Queries</a></li><li><a class="tocitem" href="../../api/data_fitting_calibration/">Data Fitting and Model Calibration</a></li><li><a class="tocitem" href="../../api/sensitivity_analysis/">Sensitivity Analysis</a></li><li><a class="tocitem" href="../../api/threshold_interventions/">Threshold Interventions</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Scenarios</a></li><li class="is-active"><a href>Scenario 3: Limiting Deaths</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Scenario 3: Limiting Deaths</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/SciML/EasyModelAnalysis.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/SciML/EasyModelAnalysis.jl/blob/main/docs/src/scenarios/scenario3.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Scenario-3:-Limiting-Deaths"><a class="docs-heading-anchor" href="#Scenario-3:-Limiting-Deaths">Scenario 3: Limiting Deaths</a><a id="Scenario-3:-Limiting-Deaths-1"></a><a class="docs-heading-anchor-permalink" href="#Scenario-3:-Limiting-Deaths" title="Permalink"></a></h1><p>Load packages:</p><pre><code class="language-julia hljs">using EasyModelAnalysis
+using AlgebraicPetri
+using UnPack</code></pre><h2 id="Generate-the-Model-and-Dataset"><a class="docs-heading-anchor" href="#Generate-the-Model-and-Dataset">Generate the Model and Dataset</a><a id="Generate-the-Model-and-Dataset-1"></a><a class="docs-heading-anchor-permalink" href="#Generate-the-Model-and-Dataset" title="Permalink"></a></h2><pre><code class="language-julia hljs">function formSEIRHD()
+    SEIRHD = LabelledPetriNet([:S, :E, :I, :R, :H, :D],
+        :expo =&gt; ((:S, :I) =&gt; (:E, :I)),
+        :conv =&gt; (:E =&gt; :I),
+        :rec =&gt; (:I =&gt; :R),
+        :hosp =&gt; (:I =&gt; :H),
+        :death =&gt; (:H =&gt; :D))
+    return SEIRHD
+end
+
+seirhd = formSEIRHD()
+sys1 = ODESystem(seirhd)</code></pre><p class="math-container">\[ \begin{align}
+\frac{\mathrm{d} S\left( t \right)}{\mathrm{d}t} =&amp;  - expo S\left( t \right) I\left( t \right) \\
+\frac{\mathrm{d} E\left( t \right)}{\mathrm{d}t} =&amp;  - conv E\left( t \right) + expo S\left( t \right) I\left( t \right) \\
+\frac{\mathrm{d} I\left( t \right)}{\mathrm{d}t} =&amp; conv E\left( t \right) - hosp I\left( t \right) - rec I\left( t \right) \\
+\frac{\mathrm{d} R\left( t \right)}{\mathrm{d}t} =&amp; rec I\left( t \right) \\
+\frac{\mathrm{d} H\left( t \right)}{\mathrm{d}t} =&amp;  - death H\left( t \right) + hosp I\left( t \right) \\
+\frac{\mathrm{d} D\left( t \right)}{\mathrm{d}t} =&amp; death H\left( t \right)
+\end{align}
+ \]</p><pre><code class="language-julia hljs">function formSEIRD()
+    SEIRD = LabelledPetriNet([:S, :E, :I, :R, :D],
+        :expo =&gt; ((:S, :I) =&gt; (:E, :I)),
+        :conv =&gt; (:E =&gt; :I),
+        :rec =&gt; (:I =&gt; :R),
+        :death =&gt; (:I =&gt; :D))
+    return SEIRD
+end
+
+seird = formSEIRD()
+sys2 = ODESystem(seird)</code></pre><p class="math-container">\[ \begin{align}
+\frac{\mathrm{d} S\left( t \right)}{\mathrm{d}t} =&amp;  - expo S\left( t \right) I\left( t \right) \\
+\frac{\mathrm{d} E\left( t \right)}{\mathrm{d}t} =&amp;  - conv E\left( t \right) + expo S\left( t \right) I\left( t \right) \\
+\frac{\mathrm{d} I\left( t \right)}{\mathrm{d}t} =&amp; conv E\left( t \right) - death I\left( t \right) - rec I\left( t \right) \\
+\frac{\mathrm{d} R\left( t \right)}{\mathrm{d}t} =&amp; rec I\left( t \right) \\
+\frac{\mathrm{d} D\left( t \right)}{\mathrm{d}t} =&amp; death I\left( t \right)
+\end{align}
+ \]</p><pre><code class="language-julia hljs">function formSIRHD()
+    SIRHD = LabelledPetriNet([:S, :I, :R, :H, :D],
+        :expo =&gt; ((:S, :I) =&gt; (:I, :I)),
+        :rec =&gt; (:I =&gt; :R),
+        :hosp =&gt; (:I =&gt; :H),
+        :death =&gt; (:H =&gt; :D))
+    return SIRHD
+end
+
+sirhd = formSIRHD()
+sys3 = ODESystem(sirhd)</code></pre><p class="math-container">\[ \begin{align}
+\frac{\mathrm{d} S\left( t \right)}{\mathrm{d}t} =&amp;  - expo S\left( t \right) I\left( t \right) \\
+\frac{\mathrm{d} I\left( t \right)}{\mathrm{d}t} =&amp;  - hosp I\left( t \right) - rec I\left( t \right) + expo S\left( t \right) I\left( t \right) \\
+\frac{\mathrm{d} R\left( t \right)}{\mathrm{d}t} =&amp; rec I\left( t \right) \\
+\frac{\mathrm{d} H\left( t \right)}{\mathrm{d}t} =&amp;  - death H\left( t \right) + hosp I\left( t \right) \\
+\frac{\mathrm{d} D\left( t \right)}{\mathrm{d}t} =&amp; death H\left( t \right)
+\end{align}
+ \]</p><pre><code class="language-julia hljs">function form_seird_renew()
+    seird_renew = LabelledPetriNet([:S, :E, :I, :R, :D],
+        :expo =&gt; ((:S, :I) =&gt; (:E, :I)),
+        :conv =&gt; (:E =&gt; :I),
+        :rec =&gt; (:I =&gt; :R),
+        :death =&gt; (:I =&gt; :D),
+        :renew =&gt; (:R =&gt; :S))
+    return seird_renew
+end
+
+seird_renew = form_seird_renew()
+sys4 = ODESystem(seird_renew)</code></pre><p class="math-container">\[ \begin{align}
+\frac{\mathrm{d} S\left( t \right)}{\mathrm{d}t} =&amp; renew R\left( t \right) - expo S\left( t \right) I\left( t \right) \\
+\frac{\mathrm{d} E\left( t \right)}{\mathrm{d}t} =&amp;  - conv E\left( t \right) + expo S\left( t \right) I\left( t \right) \\
+\frac{\mathrm{d} I\left( t \right)}{\mathrm{d}t} =&amp; conv E\left( t \right) - death I\left( t \right) - rec I\left( t \right) \\
+\frac{\mathrm{d} R\left( t \right)}{\mathrm{d}t} =&amp; rec I\left( t \right) - renew R\left( t \right) \\
+\frac{\mathrm{d} D\left( t \right)}{\mathrm{d}t} =&amp; death I\left( t \right)
+\end{align}
+ \]</p><pre><code class="language-julia hljs">using ASKEM # Hack, remove when merged
+max_e_h = mca(seird, sirhd)
+AlgebraicPetri.Graph(max_e_h[1])</code></pre><pre><code class="language-julia hljs">max_3way = mca(max_e_h[1], seirhd)
+AlgebraicPetri.Graph(max_3way[1])</code></pre><pre><code class="language-julia hljs">max_seird_renew = mca(seird, seird_renew)
+AlgebraicPetri.Graph(max_seird_renew[1])</code></pre><pre><code class="language-julia hljs">t = ModelingToolkit.get_iv(sys1)
+@unpack S, E, I, R, H, D = sys1
+@unpack expo, conv, rec, hosp, death = sys1
+NN = 10.0
+@parameters u_expo=0.2 * NN u_conv=0.2 * NN u_rec=0.8 * NN u_hosp=0.2 * NN u_death=0.1 * NN N=NN
+translate_params = [expo =&gt; u_expo / N,
+    conv =&gt; u_conv / N,
+    rec =&gt; u_rec / N,
+    hosp =&gt; u_hosp / N,
+    death =&gt; u_death / N]
+subed_sys = substitute(sys1, translate_params)
+sys = add_accumulations(subed_sys, [I])
+@unpack accumulation_I = sys</code></pre><p class="math-container">\[ \begin{align}
+\frac{\mathrm{d} S\left( t \right)}{\mathrm{d}t} =&amp; \frac{ - u_{expo} S\left( t \right) I\left( t \right)}{N} \\
+\frac{\mathrm{d} E\left( t \right)}{\mathrm{d}t} =&amp; \frac{u_{expo} S\left( t \right) I\left( t \right)}{N} + \frac{ - u_{conv} E\left( t \right)}{N} \\
+\frac{\mathrm{d} I\left( t \right)}{\mathrm{d}t} =&amp; \frac{u_{conv} E\left( t \right)}{N} + \frac{ - u_{rec} I\left( t \right)}{N} + \frac{ - u_{hosp} I\left( t \right)}{N} \\
+\frac{\mathrm{d} R\left( t \right)}{\mathrm{d}t} =&amp; \frac{u_{rec} I\left( t \right)}{N} \\
+\frac{\mathrm{d} H\left( t \right)}{\mathrm{d}t} =&amp; \frac{ - u_{death} H\left( t \right)}{N} + \frac{u_{hosp} I\left( t \right)}{N} \\
+\frac{\mathrm{d} D\left( t \right)}{\mathrm{d}t} =&amp; \frac{u_{death} H\left( t \right)}{N} \\
+\frac{\mathrm{d} \mathrm{accumulation}_{I}\left( t \right)}{\mathrm{d}t} =&amp; I\left( t \right)
+\end{align}
+ \]</p><pre><code class="language-julia hljs">u0init = [
+    S =&gt; 0.9 * NN,
+    E =&gt; 0.05 * NN,
+    I =&gt; 0.01 * NN,
+    R =&gt; 0.02 * NN,
+    H =&gt; 0.01 * NN,
+    D =&gt; 0.01 * NN,
+]
+
+tend = 6 * 7
+ts = 0:tend
+prob = ODEProblem(sys, u0init, (0.0, tend))
+sol = solve(prob)
+plot(sol)</code></pre><img src="175c5b28.svg" alt="Example block output"/><h2 id="Model-Analysis"><a class="docs-heading-anchor" href="#Model-Analysis">Model Analysis</a><a id="Model-Analysis-1"></a><a class="docs-heading-anchor-permalink" href="#Model-Analysis" title="Permalink"></a></h2><h3 id="Question-1"><a class="docs-heading-anchor" href="#Question-1">Question 1</a><a id="Question-1-1"></a><a class="docs-heading-anchor-permalink" href="#Question-1" title="Permalink"></a></h3><blockquote><p>Provide a forecast of cumulative Covid-19 cases and deaths over the 6-week period from May 1 – June 15, 2020 under no interventions, including 90% prediction intervals in your forecasts. Compare the accuracy of the forecasts with true data over the six-week timespan.</p></blockquote><pre><code class="language-julia hljs">get_uncertainty_forecast(prob, [accumulation_I], ts, [u_conv =&gt; Uniform(0.0, 1.0)], 6 * 7)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">42-element Vector{Matrix{Float64}}:
+ [0.0 0.06859915653154794 … 1.0912045083115203 1.1242136179045317]
+ [0.0 0.06560553807764849 … 0.471991956655876 0.48293750527584006]
+ [0.0 0.07934106518148466 … 4.073541914499148 4.189837629456124]
+ [0.0 0.08017673658028851 … 4.2942179724841205 4.412496740406427]
+ [0.0 0.08294637729165522 … 4.966360327469066 5.0856030728257355]
+ [0.0 0.07952698691846789 … 4.123278657368528 4.240088666328663]
+ [0.0 0.07980948318221215 … 4.198160323282694 4.315671258468448]
+ [0.0 0.077856477824428 … 3.6647544453910266 3.775409382749572]
+ [0.0 0.0709166718007686 … 1.6758842606697346 1.7305698300090897]
+ [0.0 0.081138637877811 … 4.538473906396091 4.658018946604242]
+ ⋮
+ [0.0 0.07992146522247878 … 4.227607124215804 4.345369252094923]
+ [0.0 0.06665470017758945 … 0.6697484840283441 0.6874252397532291]
+ [0.0 0.07043208147570248 … 1.547279183777716 1.597256984872199]
+ [0.0 0.07975468703957515 … 4.183701738890995 4.3010842626662775]
+ [0.0 0.07090558520310755 … 1.6729093076354 1.727486696049502]
+ [0.0 0.07954040955583062 … 4.126855624523702 4.2437011292229725]
+ [0.0 0.08239428846087123 … 4.840178478550491 4.9598586745066555]
+ [0.0 0.07105242540394231 … 1.7124307747837981 1.7684422025474054]
+ [0.0 0.06485329559811687 … 0.34331980015013275 0.35018143310191957]</code></pre><pre><code class="language-julia hljs">plot_uncertainty_forecast(prob, [accumulation_I], ts, [u_conv =&gt; Uniform(0.0, 1.0)], 6 * 7)</code></pre><pre><code class="language-julia hljs">get_uncertainty_forecast_quantiles(prob, [accumulation_I], ts,
+    [u_conv =&gt; Uniform(0.0, 1.0)],
+    6 * 7)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">2-element Vector{Matrix{Float64}}:
+ [0.0; 0.06444283952144138; … ; 0.2777714689307762; 0.2826581909782595;;]
+ [0.0; 0.08095812471648772; … ; 4.4934615539329235; 4.612847746732835;;]</code></pre><pre><code class="language-julia hljs">plot_uncertainty_forecast_quantiles(prob, [accumulation_I], ts,
+    [u_conv =&gt; Uniform(0.0, 1.0)],
+    6 * 7)</code></pre><img src="296e5862.svg" alt="Example block output"/><h3 id="Question-2"><a class="docs-heading-anchor" href="#Question-2">Question 2</a><a id="Question-2-1"></a><a class="docs-heading-anchor-permalink" href="#Question-2" title="Permalink"></a></h3><blockquote><p>Based on the forecasts, do we need additional interventions to keep cumulative Covid deaths under 6000 total? Provide a probability that the cumulative number of Covid deaths will stay under 6000 for the next 6 weeks without any additional interventions.</p></blockquote><pre><code class="language-julia hljs">_prob = remake(prob, tspan = (0.0, 6 * 7.0))
+prob_violating_threshold(_prob, [u_conv =&gt; Uniform(0.0, 1.0)], [accumulation_I &gt; 0.4 * NN]) # TODO: explain 0.4*NN</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">0.22614782187965526</code></pre><h3 id="Question-3"><a class="docs-heading-anchor" href="#Question-3">Question 3</a><a id="Question-3-1"></a><a class="docs-heading-anchor-permalink" href="#Question-3" title="Permalink"></a></h3><blockquote><p>We are interested in determining how effective it would be to institute a mandatory mask mandate for the duration of the next six weeks. What is the probability of staying below 6000 cumulative deaths if we institute an indefinite mask mandate starting May 1, 2020?</p></blockquote><pre><code class="language-julia hljs">_prob = remake(_prob, p = [u_expo =&gt; 0.02])
+prob_violating_threshold(_prob, [u_conv =&gt; Uniform(0.0, 1.0)], [accumulation_I &gt; 0.4 * NN])</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">0.0</code></pre><h3 id="Question-4"><a class="docs-heading-anchor" href="#Question-4">Question 4</a><a id="Question-4-1"></a><a class="docs-heading-anchor-permalink" href="#Question-4" title="Permalink"></a></h3><blockquote><p>We are interested in determining how detection rate can affect the accuracy and uncertainty in our forecasts. In particular, suppose we can improve the baseline detection rate by 20%, and the detection rate stays constant throughout the duration of the forecast. Assuming no additional interventions (ignoring Question 3), does that increase the amount of cumulative forecasted cases and deaths after six weeks? How does an increase in the detection rate affect the uncertainty in our estimates? Can you characterize the relationship between detection rate and our forecasts and their uncertainties, and comment on whether improving detection rates would provide decision-makers with better information (i.e., more accurate forecasts and/or narrower prediction intervals)?</p></blockquote><pre><code class="language-julia hljs"># these new equations add I-&gt;D and H-&gt;R  to the model.
+# this says now, that all I are undetected and u_hosp is the detection rate.
+# this assumes there is always hospital capacity
+eqs2 = [Differential(t)(S) ~ -(u_expo / N) * I * S
+    Differential(t)(E) ~ (u_expo / N) * I * S - (u_conv / N) * E
+    Differential(t)(I) ~ (u_conv / N) * E - (u_hosp / N) * I - (u_rec / N) * I -
+                         (u_death / N) * I
+    Differential(t)(R) ~ (u_rec / N) * I + (u_rec / N) * H
+    Differential(t)(H) ~ (u_hosp / N) * I - (u_death / N) * H - (u_rec / N) * H
+    Differential(t)(D) ~ (u_death / N) * H + (u_death / N) * I]
+@named seirhd_detect = ODESystem(eqs2)
+sys2 = add_accumulations(seirhd_detect, [I])
+u0init2 = [
+    S =&gt; 0.9 * NN,
+    E =&gt; 0.05 * NN,
+    I =&gt; 0.01 * NN,
+    R =&gt; 0.02 * NN,
+    H =&gt; 0.01 * NN,
+    D =&gt; 0.01 * NN,
+]
+sys2_ = structural_simplify(sys2)
+@unpack accumulation_I = sys2_
+
+probd = ODEProblem(sys2_, u0init2, (0.0, tend))
+sold = solve(probd; saveat = ts)
+plot(sold)</code></pre><img src="40e45434.svg" alt="Example block output"/><pre><code class="language-julia hljs">sols = []
+u_detecs = 0:0.1:1
+for x in u_detecs
+    probd = remake(probd, p = [u_hosp =&gt; x])
+    sold = solve(probd; saveat = sold.t)
+    push!(sols, sold)
+end
+
+# demonstrate that the total infected count is strictly decreasing with increasing detection rate
+is = map(x -&gt; x[accumulation_I][end], sols)
+plot(is)
+@test issorted(is; rev = true)
+
+# deaths decrease with increasing detection rate
+ds = map(x -&gt; x[D][end], sols)
+plot(ds)
+@test issorted(ds; rev = true)</code></pre><pre><code class="language-julia hljs">get_uncertainty_forecast(_prob, accumulation_I, 0:100,
+    [u_hosp =&gt; Uniform(0.0, 1.0), u_conv =&gt; Uniform(0.0, 1.0)],
+    6 * 7)
+
+plot_uncertainty_forecast(probd, accumulation_I, 0:100,
+    [
+        u_hosp =&gt; Uniform(0.0, 1.0),
+        u_conv =&gt; Uniform(0.0, 1.0),
+    ],
+    6 * 7)</code></pre><blockquote><p>Compute the accuracy of the forecast assuming no mask mandate (ignoring Question 3) in the same way as you did in Question 1 and determine if improving the detection rate improves forecast accuracy.</p></blockquote><h3 id="Question-5"><a class="docs-heading-anchor" href="#Question-5">Question 5</a><a id="Question-5-1"></a><a class="docs-heading-anchor-permalink" href="#Question-5" title="Permalink"></a></h3><blockquote><p>Convert the MechBayes SEIRHD model to an SIRHD model by removing the E compartment. Compute the same six-week forecast that you had done in Question 1a and compare the accuracy of the six-week forecasts with the forecasts done in Question 1a.</p></blockquote><pre><code class="language-julia hljs">prob2 = prob
+get_uncertainty_forecast(prob2, [accumulation_I], 0:100, [u_conv =&gt; Uniform(0.0, 1.0)],
+    6 * 7)</code></pre><pre><code class="language-julia hljs">plot_uncertainty_forecast(prob2, [accumulation_I], 0:100, [u_conv =&gt; Uniform(0.0, 1.0)],
+    6 * 7)</code></pre><pre><code class="language-julia hljs">get_uncertainty_forecast_quantiles(prob2, [accumulation_I], 0:100,
+    [u_conv =&gt; Uniform(0.0, 1.0)],
+    6 * 7)</code></pre><pre><code class="language-julia hljs">plot_uncertainty_forecast_quantiles(prob2, [accumulation_I], 0:100,
+    [u_conv =&gt; Uniform(0.0, 1.0)],
+    6 * 7)</code></pre><blockquote><p>Further modify the MechBayes SEIRHD model and do a model space exploration and model selection from the following models, based on comparing forecasts of cases and deaths to actual data: SEIRD, SEIRHD, and SIRHD models. Use data from April 1, 2020 – April 30, 2020 from the scenario location (Massachusetts) for fitting these models.  Then make out-of-sample forecasts from the same 6-week period from May 1 – June 15, 2020, and compare with actual data. Comment on the quality of the fit for each of these models.</p></blockquote><pre><code class="language-julia hljs">prob3 = prob
+get_uncertainty_forecast(prob2, [accumulation_I], 0:100, [u_conv =&gt; Uniform(0.0, 1.0)],
+    6 * 7)</code></pre><pre><code class="language-julia hljs">plot_uncertainty_forecast(prob2, [accumulation_I], 0:100, [u_conv =&gt; Uniform(0.0, 1.0)],
+    6 * 7)</code></pre><pre><code class="language-julia hljs">get_uncertainty_forecast_quantiles(prob2, [accumulation_I], 0:100,
+    [u_conv =&gt; Uniform(0.0, 1.0)],
+    6 * 7)</code></pre><pre><code class="language-julia hljs">plot_uncertainty_forecast_quantiles(prob2, [accumulation_I], 0:100,
+    [u_conv =&gt; Uniform(0.0, 1.0)],
+    6 * 7)</code></pre><blockquote><p>Do a 3-way structural model comparison between the SEIRD, SEIRHD, and SIRHD models.</p></blockquote><pre><code class="language-julia hljs">#</code></pre><h3 id="https://github.com/SciML/EasyModelAnalysis.jl/issues/22"><a class="docs-heading-anchor" href="#https://github.com/SciML/EasyModelAnalysis.jl/issues/22">https://github.com/SciML/EasyModelAnalysis.jl/issues/22</a><a id="https://github.com/SciML/EasyModelAnalysis.jl/issues/22-1"></a><a class="docs-heading-anchor-permalink" href="#https://github.com/SciML/EasyModelAnalysis.jl/issues/22" title="Permalink"></a></h3><h3 id="Question-7"><a class="docs-heading-anchor" href="#Question-7">Question 7</a><a id="Question-7-1"></a><a class="docs-heading-anchor-permalink" href="#Question-7" title="Permalink"></a></h3><blockquote><p>What is the latest date we can impose a mandatory mask mandate over the next six weeks to ensure, with 90% probability, that cumulative deaths do not exceed 6000? Can you characterize the following relationship: for every day that we delay implementing a mask mandate, we expect cumulative deaths (over the six-week timeframe) to go up by X?</p></blockquote></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../scenario2/">« Scenario 2: Limiting Hospitalizations</a><a class="docs-footer-nextpage" href="../scenario4/">Scenario 4: Testing and Return to Campus »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="auto">Automatic (OS)</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.1.0 on <span class="colophon-date" title="Friday 6 October 2023 22:23">Friday 6 October 2023</span>. Using Julia version 1.9.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
