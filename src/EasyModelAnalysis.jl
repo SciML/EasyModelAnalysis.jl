@@ -10,6 +10,7 @@ using GlobalSensitivity, Turing
 using SciMLExpectations
 @reexport using Plots
 using SciMLBase.EnsembleAnalysis
+using Random
 
 include("basics.jl")
 include("datafit.jl")
