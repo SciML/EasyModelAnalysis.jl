@@ -6,7 +6,7 @@ function l2loss(pvals, (prob, pkeys, t, data)::Tuple{Vararg{Any, 4}})
     for pairs in data
         tot_loss += sum((sol[pairs.first] .- pairs.second) .^ 2)
     end
-    return tot_loss
+    return tot_loss, sol
 end
 
 function l2loss(pvals, (prob, pkeys, data)::Tuple{Vararg{Any, 3}})
@@ -22,7 +22,7 @@ function l2loss(pvals, (prob, pkeys, data)::Tuple{Vararg{Any, 3}})
     for i in 1:length(ts)
         tot_loss += sum((sol(ts[i]; idxs = datakeys[i]) .- timeseries[i]) .^ 2)
     end
-    return tot_loss
+    return tot_loss, sol
 end
 
 function relative_l2loss(pvals, (prob, pkeys, t, data)::Tuple{Vararg{Any, 4}})
@@ -33,7 +33,7 @@ function relative_l2loss(pvals, (prob, pkeys, t, data)::Tuple{Vararg{Any, 4}})
     for pairs in data
         tot_loss += sum(((sol[pairs.first] .- pairs.second) ./ sol[pairs.first]) .^ 2)
     end
-    return tot_loss
+    return tot_loss, sol 
 end
 
 function relative_l2loss(pvals, (prob, pkeys, data)::Tuple{Vararg{Any, 3}})
@@ -50,7 +50,7 @@ function relative_l2loss(pvals, (prob, pkeys, data)::Tuple{Vararg{Any, 3}})
         vals = sol(ts[i]; idxs = datakeys[i])
         tot_loss += sum(((vals .- timeseries[i]) ./ vals) .^ 2)
     end
-    return tot_loss
+    return tot_loss, sol
 end
 
 """
@@ -101,24 +101,24 @@ z => ([0.5, 1.5, 2.5, 3.5], [2.005502877055581, 13.626953144513832, 5.3829845156
 
 where this means x(2.0) == 11.81...
 """
-function datafit(prob, p::Vector{Pair{Num, Float64}}, t, data; loss = l2loss)
+function datafit(prob, p::Vector{Pair{Num, Float64}}, t, data; loss = l2loss, solve_kws = (;))
     pvals = getfield.(p, :second)
     pkeys = getfield.(p, :first)
     oprob = OptimizationProblem(loss, pvals,
         lb = fill(-Inf, length(p)),
         ub = fill(Inf, length(p)), (prob, pkeys, t, data))
-    res = solve(oprob, NLopt.LN_SBPLX())
+    res = solve(oprob, NLopt.LN_SBPLX(); solve_kws...)
     Pair.(pkeys, res.u)
 end
 
-function datafit(prob, p::Vector{Pair{Num, Float64}}, data; loss = l2loss)
+function datafit(prob, p::Vector{Pair{Num, Float64}}, data; loss = l2loss, solve_kws = (;))
     pvals = getfield.(p, :second)
     pkeys = getfield.(p, :first)
     oprob = OptimizationProblem(loss, pvals,
         lb = fill(-Inf, length(p)),
         ub = fill(Inf, length(p)), (prob, pkeys, data))
     l2loss(last.(p), (prob, pkeys, data))
-    res = solve(oprob, NLopt.LN_SBPLX())
+    res = solve(oprob, NLopt.LN_SBPLX(); solve_kws...)
     Pair.(pkeys, res.u)
 end
 
@@ -172,23 +172,23 @@ z => ([0.5, 1.5, 2.5, 3.5], [2.005502877055581, 13.626953144513832, 5.3829845156
 
 where this means x(2.0) == 11.81...
 """
-function global_datafit(prob, pbounds, t, data; maxiters = 10000, loss = l2loss)
+function global_datafit(prob, pbounds, t, data; maxiters = 10000, loss = l2loss, solve_kws = (;))
     plb = getindex.(getfield.(pbounds, :second), 1)
     pub = getindex.(getfield.(pbounds, :second), 2)
     pkeys = getfield.(pbounds, :first)
     oprob = OptimizationProblem(loss, (pub .+ plb) ./ 2,
         lb = plb, ub = pub, (prob, pkeys, t, data))
-    res = solve(oprob, BBO_adaptive_de_rand_1_bin_radiuslimited(); maxiters)
+    res = solve(oprob, BBO_adaptive_de_rand_1_bin_radiuslimited(); maxiters, solve_kws...)
     Pair.(pkeys, res.u)
 end
 
-function global_datafit(prob, pbounds, data; maxiters = 10000, loss = l2loss)
+function global_datafit(prob, pbounds, data; maxiters = 10000, loss = l2loss, solve_kws = (;))
     plb = getindex.(getfield.(pbounds, :second), 1)
     pub = getindex.(getfield.(pbounds, :second), 2)
     pkeys = getfield.(pbounds, :first)
     oprob = OptimizationProblem(loss, (pub .+ plb) ./ 2,
         lb = plb, ub = pub, (prob, pkeys, data))
-    res = solve(oprob, BBO_adaptive_de_rand_1_bin_radiuslimited(); maxiters)
+    res = solve(oprob, BBO_adaptive_de_rand_1_bin_radiuslimited(); maxiters, solve_kws...)
     Pair.(pkeys, res.u)
 end
 

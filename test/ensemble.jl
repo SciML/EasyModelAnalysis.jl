@@ -56,9 +56,9 @@ sol = solve(enprob; saveat = 1);
 
 weights = [0.2, 0.5, 0.3]
 
-fullS = vec(sum(stack(weights .* sol[:,S]),dims=2))
-fullI = vec(sum(stack(weights .* sol[:,I]),dims=2))
-fullR = vec(sum(stack(weights .* sol[:,R]),dims=2))
+fullS = vec(sum(stack(weights .* sol[S,:]),dims=2))
+fullI = vec(sum(stack(weights .* sol[I,:]),dims=2))
+fullR = vec(sum(stack(weights .* sol[R,:]),dims=2))
 
 t_train = 0:14
 data_train = [
