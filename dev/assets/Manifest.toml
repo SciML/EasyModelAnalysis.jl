@@ -764,7 +764,7 @@ version = "0.5.3"
 deps = ["DifferentialEquations", "Distributions", "GlobalSensitivity", "LinearAlgebra", "ModelingToolkit", "NLopt", "Optimization", "OptimizationBBO", "OptimizationMOI", "OptimizationNLopt", "Plots", "Reexport", "SciMLBase", "SciMLExpectations", "Turing"]
 path = "/home/runner/work/EasyModelAnalysis.jl/EasyModelAnalysis.jl"
 uuid = "ef4b24a4-a090-4686-a932-e7e56a5a83bd"
-version = "0.1.12"
+version = "0.1.13"
 
 [[deps.EllipticalSliceSampling]]
 deps = ["AbstractMCMC", "ArrayInterface", "Distributions", "Random", "Statistics"]
