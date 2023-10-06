@@ -3,14 +3,14 @@
 Pkg.add(&quot;EasyModelAnalysis&quot;)</code></pre><h2 id="Contributing"><a class="docs-heading-anchor" href="#Contributing">Contributing</a><a id="Contributing-1"></a><a class="docs-heading-anchor-permalink" href="#Contributing" title="Permalink"></a></h2><ul><li><p>Please refer to the <a href="https://github.com/SciML/ColPrac/blob/master/README.md">SciML ColPrac: Contributor&#39;s Guide on Collaborative Practices for Community Packages</a> for guidance on PRs, issues, and other matters relating to contributing to SciML.</p></li><li><p>See the <a href="https://github.com/SciML/SciMLStyle">SciML Style Guide</a> for common coding practices and other style decisions.</p></li><li><p>There are a few community forums:</p><ul><li>The #diffeq-bridged and #sciml-bridged channels in the <a href="https://julialang.org/slack/">Julia Slack</a></li><li>The #diffeq-bridged and #sciml-bridged channels in the <a href="https://julialang.zulipchat.com/#narrow/stream/279055-sciml-bridged">Julia Zulip</a></li><li>On the <a href="https://discourse.julialang.org">Julia Discourse forums</a></li><li>See also <a href="https://sciml.ai/community/">SciML Community page</a></li></ul></li></ul><h2 id="Reproducibility"><a class="docs-heading-anchor" href="#Reproducibility">Reproducibility</a><a id="Reproducibility-1"></a><a class="docs-heading-anchor-permalink" href="#Reproducibility" title="Permalink"></a></h2><details><summary>The documentation of this SciML package was built using these direct dependencies,</summary><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Status `~/work/EasyModelAnalysis.jl/EasyModelAnalysis.jl/docs/Project.toml`
 ⌅ [4f99eebe] AlgebraicPetri v0.8.11
 ⌅ [134e5e36] Catlab v0.14.17
-  [0c46a032] DifferentialEquations v7.10.0
-  [e30172f5] Documenter v1.0.1
+⌃ [0c46a032] DifferentialEquations v7.10.0
+  [e30172f5] Documenter v1.1.0
   [ef4b24a4] EasyModelAnalysis v0.1.12 `~/work/EasyModelAnalysis.jl/EasyModelAnalysis.jl`
   [b6b21f68] Ipopt v1.4.2
 ⌃ [961ee093] ModelingToolkit v8.70.0
 ⌅ [76087f3c] NLopt v0.6.5
-  [7f7a1694] Optimization v3.19.0
-  [fd9f6733] OptimizationMOI v0.1.15
+  [7f7a1694] Optimization v3.19.1
+  [fd9f6733] OptimizationMOI v0.1.16
   [91a5bcdd] Plots v1.39.0
   [86080e66] SBMLToolkit v0.1.25
   [3a884ed6] UnPack v1.0.2
@@ -29,12 +29,12 @@ Platform Info:
   Threads: 1 on 2 virtual cores</code></pre></details><details><summary>A more complete overview of all dependencies and their versions is also provided.</summary><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Status `~/work/EasyModelAnalysis.jl/EasyModelAnalysis.jl/docs/Manifest.toml`
   [47edcb42] ADTypes v0.2.4
   [a4c015fc] ANSIColoredPrinters v0.0.1
-  [c3fe647b] AbstractAlgebra v0.32.1
+  [c3fe647b] AbstractAlgebra v0.32.5
   [621f4979] AbstractFFTs v1.5.0
   [80f14c24] AbstractMCMC v4.4.2
 ⌅ [7a57a42e] AbstractPPL v0.5.4
   [1520ce14] AbstractTrees v0.4.4
-  [7d9f7c33] Accessors v0.1.32
+  [7d9f7c33] Accessors v0.1.33
   [79e6a3ab] Adapt v3.6.2
 ⌅ [0bf59076] AdvancedHMC v0.4.6
   [5b7e9947] AdvancedMH v0.7.5
@@ -46,11 +46,11 @@ Platform Info:
   [ec485272] ArnoldiMethod v0.2.0
   [4fba245c] ArrayInterface v7.4.11
   [30b0a656] ArrayInterfaceCore v0.1.29
-  [4c555306] ArrayLayouts v1.4.1
+  [4c555306] ArrayLayouts v1.4.2
   [a9b6321e] Atomix v0.1.0
   [13072b0f] AxisAlgorithms v1.0.1
   [39de3d68] AxisArrays v0.4.7
-  [aae01518] BandedMatrices v0.17.38
+⌅ [aae01518] BandedMatrices v0.17.38
   [198e06fe] BangBang v0.3.39
   [9718e550] Baselet v0.1.1
   [6e4b80f9] BenchmarkTools v1.3.2
@@ -59,16 +59,16 @@ Platform Info:
   [d1d4a3ce] BitFlags v0.1.7
   [62783981] BitTwiddlingConvenienceFunctions v0.1.5
   [a134a8b2] BlackBoxOptim v0.6.2
-  [764a87c0] BoundaryValueDiffEq v4.0.1
-  [fa961155] CEnum v0.4.2
+⌅ [764a87c0] BoundaryValueDiffEq v4.0.1
+⌅ [fa961155] CEnum v0.4.2
   [2a0fbf3d] CPUSummary v0.2.4
   [a9c8d775] CPUTime v1.0.0
   [96374032] CRlibm v1.0.1
   [00ebfdb7] CSTParser v3.3.6
   [49dc2e85] Calculus v0.5.1
-  [479239e8] Catalyst v13.4.1
+  [479239e8] Catalyst v13.5.0
 ⌅ [134e5e36] Catlab v0.14.17
-  [082447d4] ChainRules v1.54.0
+  [082447d4] ChainRules v1.55.0
   [d360d2e6] ChainRulesCore v1.16.0
   [9e997f8a] ChangesOfVariables v0.1.8
   [fb6a15b2] CloseOpenIntervals v0.1.12
@@ -83,7 +83,7 @@ Platform Info:
   [38540f10] CommonSolve v0.2.4
   [bbf7d656] CommonSubexpressions v0.3.0
   [0fb5dd42] CompTime v0.1.2
-  [34da2185] Compat v4.9.0
+  [34da2185] Compat v4.10.0
   [a81c6b42] Compose v0.9.5
   [b152e2b5] CompositeTypes v0.1.3
   [a33af91c] CompositionsBase v0.1.2
@@ -101,7 +101,7 @@ Platform Info:
   [864edb3b] DataStructures v0.18.15
   [e2d170a0] DataValueInterfaces v1.0.0
   [244e2a9f] DefineSingletons v0.1.2
-  [bcd4f6db] DelayDiffEq v5.43.0
+  [bcd4f6db] DelayDiffEq v5.43.1
   [8bb1440f] DelimitedFiles v1.9.1
   [b429d917] DensityInterface v0.4.0
 ⌃ [2b5f629d] DiffEqBase v6.130.0
@@ -109,12 +109,12 @@ Platform Info:
   [77a26b50] DiffEqNoiseProcess v5.19.0
   [163ba53b] DiffResults v1.1.0
   [b552c78f] DiffRules v1.15.1
-  [0c46a032] DifferentialEquations v7.10.0
-  [b4f34e82] Distances v0.10.9
-  [31c24e10] Distributions v0.25.100
-  [ced4e74d] DistributionsAD v0.6.52
+⌃ [0c46a032] DifferentialEquations v7.10.0
+  [b4f34e82] Distances v0.10.10
+  [31c24e10] Distributions v0.25.102
+  [ced4e74d] DistributionsAD v0.6.53
   [ffbed154] DocStringExtensions v0.9.3
-  [e30172f5] Documenter v1.0.1
+  [e30172f5] Documenter v1.1.0
   [5b8099bc] DomainSets v0.6.7
   [fa6b7ba4] DualNumbers v0.6.8
 ⌅ [366bfd00] DynamicPPL v0.21.6
@@ -122,6 +122,7 @@ Platform Info:
   [ef4b24a4] EasyModelAnalysis v0.1.12 `~/work/EasyModelAnalysis.jl/EasyModelAnalysis.jl`
   [cad2338a] EllipticalSliceSampling v1.1.0
   [4e289a0a] EnumX v1.0.4
+⌃ [f151be2c] EnzymeCore v0.5.3
   [90fa49ef] ErrorfreeArithmetic v0.5.2
   [460bff9d] ExceptionUnwrapping v0.1.9
   [d4d017d3] ExponentialUtilities v1.25.0
@@ -150,7 +151,7 @@ Platform Info:
   [c145ed77] GenericSchur v0.5.3
   [c27321d9] Glob v1.3.1
   [af5da776] GlobalSensitivity v2.2.1
-  [86223c79] Graphs v1.8.0
+  [86223c79] Graphs v1.9.0
   [42e2da0e] Grisu v1.0.2
   [0b43b601] Groebner v0.4.4
   [d5909c97] GroupsCore v0.4.0
@@ -179,14 +180,14 @@ Platform Info:
   [1019f520] JLFzf v0.1.5
   [692b3bcd] JLLWrappers v1.5.0
   [682c06a0] JSON v0.21.4
-  [98e50ef6] JuliaFormatter v1.0.36
+  [98e50ef6] JuliaFormatter v1.0.39
   [b14d175d] JuliaVariables v0.2.4
   [ccbc3e58] JumpProcesses v9.8.0
   [ef3ab10e] KLU v0.4.1
   [63c18a36] KernelAbstractions v0.9.8
   [5ab0869b] KernelDensity v0.6.7
   [ba0b0d4f] Krylov v0.9.4
-  [929cbde3] LLVM v6.2.1
+  [929cbde3] LLVM v6.3.0
   [8ac3fa9e] LRUCache v1.5.0
   [b964fa9f] LaTeXStrings v1.3.0
   [2ee39098] LabelledArrays v1.14.0
@@ -201,14 +202,14 @@ Platform Info:
   [6f1fad26] Libtask v0.8.6
   [9c8b4983] LightXML v0.9.0
   [d3d80556] LineSearches v7.2.0
-⌃ [7ed4a6bd] LinearSolve v2.7.0
+  [7ed4a6bd] LinearSolve v2.9.2
   [6fdf6af0] LogDensityProblems v2.1.1
 ⌃ [996a588d] LogDensityProblemsAD v1.5.0
   [2ab3a3ac] LogExpFunctions v0.3.26
-  [e6f89c97] LoggingExtras v1.0.2
+  [e6f89c97] LoggingExtras v1.0.3
   [bdcacae8] LoopVectorization v0.12.165
   [c7f686f2] MCMCChains v6.0.3
-  [be115224] MCMCDiagnosticTools v0.3.5
+  [be115224] MCMCDiagnosticTools v0.3.7
   [e80e1ace] MLJModelInterface v1.9.2
   [d8e11817] MLStyle v0.4.17
   [1914dd2f] MacroTools v0.5.11
@@ -231,23 +232,23 @@ Platform Info:
   [d41bc354] NLSolversBase v7.8.3
 ⌅ [76087f3c] NLopt v0.6.5
   [2774e3e8] NLsolve v4.5.1
-  [872c559c] NNlib v0.9.6
+  [872c559c] NNlib v0.9.7
   [77ba4419] NaNMath v1.0.2
   [71a1bf82] NameResolution v0.1.5
 ⌅ [86f7a689] NamedArrays v0.9.8
   [c020b1a1] NaturalSort v1.0.0
-  [8913a72c] NonlinearSolve v1.10.1
+⌅ [8913a72c] NonlinearSolve v1.10.1
   [6fe1bfb0] OffsetArrays v1.12.10
   [4d8831e6] OpenSSL v1.4.1
   [429524aa] Optim v1.7.7
-⌅ [3bd65402] Optimisers v0.2.15
-  [7f7a1694] Optimization v3.19.0
+⌃ [3bd65402] Optimisers v0.2.15
+  [7f7a1694] Optimization v3.19.1
   [3e6eede4] OptimizationBBO v0.1.5
-  [fd9f6733] OptimizationMOI v0.1.15
+  [fd9f6733] OptimizationMOI v0.1.16
   [4e6fcdb7] OptimizationNLopt v0.1.8
   [bac558e1] OrderedCollections v1.6.2
-  [1dea7af3] OrdinaryDiffEq v6.56.0
-  [90014a1f] PDMats v0.11.18
+  [1dea7af3] OrdinaryDiffEq v6.58.0
+  [90014a1f] PDMats v0.11.25
   [65ce6f38] PackageExtensionCompat v1.0.2
   [d96e819e] Parameters v0.12.3
   [69de0a69] Parsers v2.7.2
@@ -256,7 +257,7 @@ Platform Info:
   [995b91a9] PlotUtils v1.3.5
   [91a5bcdd] Plots v1.39.0
   [e409e4f3] PoissonRandom v0.4.4
-  [f517fe37] Polyester v0.7.6
+  [f517fe37] Polyester v0.7.7
   [1d0040c9] PolyesterWeave v0.2.1
   [f27b6e38] Polynomials v4.0.4
   [85a6dd25] PositiveFactorizations v0.2.4
@@ -287,7 +288,7 @@ Platform Info:
   [ae029012] Requires v1.3.0
   [ae5879a3] ResettableStacks v1.1.1
   [79098fc4] Rmath v0.7.1
-  [f2b01f46] Roots v2.0.19
+  [f2b01f46] Roots v2.0.20
   [5eaf0fd0] RoundingEmulator v0.2.1
   [7e49a35a] RuntimeGeneratedFunctions v0.5.12
   [e5567a89] SBML v1.5.0
@@ -296,7 +297,7 @@ Platform Info:
   [94e857df] SIMDTypes v0.1.0
   [476501e8] SLEEFPirates v0.6.39
 ⌅ [0bca4576] SciMLBase v1.98.1
-  [afe9f18d] SciMLExpectations v2.0.1
+  [afe9f18d] SciMLExpectations v2.1.0
   [e9a6253c] SciMLNLSolve v0.1.9
   [c0aeaf25] SciMLOperators v0.3.6
   [30f210dd] ScientificTypesBase v3.0.0
@@ -311,7 +312,7 @@ Platform Info:
   [66db9d55] SnoopPrecompile v1.0.3
   [ed01d8cd] Sobol v1.5.0
   [a2af1166] SortingAlgorithms v1.1.1
-  [47a9eef4] SparseDiffTools v2.6.0
+  [47a9eef4] SparseDiffTools v2.7.0
   [dc90abb0] SparseInverseSubset v0.1.1
   [e56a9233] Sparspak v0.3.9
   [d4ead438] SpatialIndexing v0.1.5
@@ -319,14 +320,14 @@ Platform Info:
   [171d559e] SplittablesBase v0.1.15
   [aedffcd0] Static v0.8.8
   [0d7ed370] StaticArrayInterface v1.4.1
-  [90137ffa] StaticArrays v1.6.4
+  [90137ffa] StaticArrays v1.6.5
   [1e83bf80] StaticArraysCore v1.4.2
   [64bff920] StatisticalTraits v3.2.0
   [82ae8749] StatsAPI v1.7.0
 ⌅ [2913bbd2] StatsBase v0.33.21
   [4c63d2b9] StatsFuns v1.3.0
   [9672c7b4] SteadyStateDiffEq v1.16.1
-  [789caeaf] StochasticDiffEq v6.62.0
+⌃ [789caeaf] StochasticDiffEq v6.62.0
   [7792a7ef] StrideArraysCore v0.4.17
   [892a3eda] StringManipulation v0.3.4
   [09ab397b] StructArrays v0.6.16
@@ -334,7 +335,7 @@ Platform Info:
   [c3572dad] Sundials v4.20.0
   [2efcf032] SymbolicIndexingInterface v0.2.2
   [d1185830] SymbolicUtils v1.4.0
-  [0c5d862f] Symbolics v5.6.0
+  [0c5d862f] Symbolics v5.8.0
   [3783bdb8] TableTraits v1.0.1
   [bd369af6] Tables v1.11.0
 ⌅ [6aa5eb33] TaylorSeries v0.14.0
@@ -345,7 +346,7 @@ Platform Info:
   [a759f4b9] TimerOutputs v0.5.23
   [c751599d] ToeplitzMatrices v0.8.2
   [0796e94c] Tokenize v0.5.25
-  [9f7883ad] Tracker v0.2.26
+  [9f7883ad] Tracker v0.2.27
   [3bb67fe8] TranscodingStreams v0.9.13
   [28d57a85] Transducers v0.4.78
   [592b5752] Trapz v2.0.3
@@ -366,7 +367,7 @@ Platform Info:
   [3d5dd08c] VectorizationBase v0.21.64
   [19fa3120] VertexSafeGraphs v0.2.0
   [efce3f68] WoodburyMatrices v0.5.5
-  [e88e6eb3] Zygote v0.6.64
+  [e88e6eb3] Zygote v0.6.65
   [700de1a5] ZygoteRules v0.2.3
   [ae81ac8f] ASL_jll v0.1.3+0
   [6e34b625] Bzip2_jll v1.0.8+0
@@ -392,7 +393,7 @@ Platform Info:
   [aacddb02] JpegTurbo_jll v2.1.91+0
   [c1c5ebd0] LAME_jll v3.100.1+0
   [88015f11] LERC_jll v3.0.0+1
-  [dad2f222] LLVMExtra_jll v0.0.25+0
+  [dad2f222] LLVMExtra_jll v0.0.26+0
   [1d63c593] LLVMOpenMP_jll v15.0.4+0
   [dd4b983a] LZO_jll v2.10.1+0
 ⌅ [e9f186c6] Libffi_jll v3.2.2+1
@@ -420,7 +421,7 @@ Platform Info:
   [a44049a8] Vulkan_Loader_jll v1.3.243+0
   [a2964d1f] Wayland_jll v1.21.0+1
   [2381bf8a] Wayland_protocols_jll v1.25.0+0
-  [02c8fc9c] XML2_jll v2.10.4+0
+  [02c8fc9c] XML2_jll v2.11.5+0
   [aed1982a] XSLT_jll v1.1.34+0
   [ffd25f8a] XZ_jll v5.4.4+0
   [f67eecfb] Xorg_libICE_jll v1.0.10+1
@@ -510,4 +511,4 @@ Platform Info:
   [8e850b90] libblastrampoline_jll v5.8.0+0
   [8e850ede] nghttp2_jll v1.48.0+0
   [3f19e933] p7zip_jll v17.4.0+0
-Info Packages marked with ⌃ and ⌅ have new versions available, but those with ⌅ are restricted by compatibility constraints from upgrading. To see why use `status --outdated -m`</code></pre></details><p>You can also download the <a href="https://github.com/SciML/EasyModelAnalysis.jl/tree/gh-pages/v0.1.12/assets/Manifest.toml">manifest</a> file and the <a href="https://github.com/SciML/EasyModelAnalysis.jl/tree/gh-pages/v0.1.12/assets/Project.toml">project</a> file.</p></article><nav class="docs-footer"><a class="docs-footer-nextpage" href="getting_started/">Getting Started with EasyModelAnalysis »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="auto">Automatic (OS)</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.0.1 on <span class="colophon-date" title="Sunday 24 September 2023 22:50">Sunday 24 September 2023</span>. Using Julia version 1.9.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+Info Packages marked with ⌃ and ⌅ have new versions available, but those with ⌅ are restricted by compatibility constraints from upgrading. To see why use `status --outdated -m`</code></pre></details><p>You can also download the <a href="https://github.com/SciML/EasyModelAnalysis.jl/tree/gh-pages/v0.1.12/assets/Manifest.toml">manifest</a> file and the <a href="https://github.com/SciML/EasyModelAnalysis.jl/tree/gh-pages/v0.1.12/assets/Project.toml">project</a> file.</p></article><nav class="docs-footer"><a class="docs-footer-nextpage" href="getting_started/">Getting Started with EasyModelAnalysis »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="auto">Automatic (OS)</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.1.0 on <span class="colophon-date" title="Friday 6 October 2023 21:34">Friday 6 October 2023</span>. Using Julia version 1.9.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
