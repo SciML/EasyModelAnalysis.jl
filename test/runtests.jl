@@ -9,6 +9,8 @@ const GROUP = get(ENV, "GROUP", "All")
         VERSION >= v"1.9" && @time @safetestset "Ensemble Tests" include("ensemble.jl")
         @time @safetestset "Threshold Tests" include("threshold.jl")
         @time @safetestset "Example Tests" include("examples.jl")
+    end
+    
     if GROUP == "All" || GROUP == "Datafit"
         @time @safetestset "Datafit Tests" include("datafit.jl")
     end
