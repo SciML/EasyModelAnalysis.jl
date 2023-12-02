@@ -196,8 +196,8 @@ plot(sold)
 
 ```julia
 sols = []
-u_detecs = 0:0.1:1
-for x in u_detecs
+u_detects = 0:0.1:1
+for x in u_detects
     probd = remake(probd, p = [u_hosp => x])
     sold = solve(probd; saveat = sold.t)
     push!(sols, sold)
