@@ -14,7 +14,7 @@ mathengine = MathJax3(Dict(:loader => Dict("load" => ["[tex]/require", "[tex]/ma
             "ams",
             "autoload",
             "mathtools",
-            "require",
+            "require"
         ])))
 
 makedocs(sitename = "EasyModelAnalysis.jl",
@@ -33,27 +33,27 @@ makedocs(sitename = "EasyModelAnalysis.jl",
             "tutorials/datafitting.md",
             "tutorials/threshold_interventions.md",
             "tutorials/probabilistic_thresholds.md",
-            "tutorials/ensemble_modeling.md",
+            "tutorials/ensemble_modeling.md"
         ],
         "Examples" => [
             "examples/petri.md",
             "examples/ASIR.md",
             "examples/SEIRHD.md",
-            "examples/Carcione2020.md",
+            "examples/Carcione2020.md"
         ],
         "Scenarios" => [
             "scenarios/scenario1.md",
             "scenarios/scenario2.md",
             "scenarios/scenario3.md",
             "scenarios/scenario4.md",
-            "scenarios/scenario5.md",
+            "scenarios/scenario5.md"
         ],
         "API" => [
             "api/basic_queries.md",
             "api/data_fitting_calibration.md",
             "api/sensitivity_analysis.md",
-            "api/threshold_interventions.md",
-        ],
+            "api/threshold_interventions.md"
+        ]
     ])
 
 deploydocs(repo = "github.com/SciML/EasyModelAnalysis.jl")

@@ -33,7 +33,7 @@ function relative_l2loss(pvals, (prob, pkeys, t, data)::Tuple{Vararg{Any, 4}})
     for pairs in data
         tot_loss += sum(((sol[pairs.first] .- pairs.second) ./ sol[pairs.first]) .^ 2)
     end
-    return tot_loss, sol 
+    return tot_loss, sol
 end
 
 function relative_l2loss(pvals, (prob, pkeys, data)::Tuple{Vararg{Any, 3}})
@@ -79,13 +79,11 @@ Similarly, not all states must be measured.
 ## Data Definition
 
 The data definition is given as a vctor of pairs. If `t` is specified globally for the datafit,
-then those time series correspond to the time points specified. For example, 
+then those time series correspond to the time points specified. For example,
 
 ```julia
-[
-x => [11.352378507900013, 11.818374125301172, -10.72999081810307]
-z => [2.005502877055581, 13.626953144513832, 5.382984515620634, 12.232084518374545]
-]
+[x => [11.352378507900013, 11.818374125301172, -10.72999081810307]
+ z => [2.005502877055581, 13.626953144513832, 5.382984515620634, 12.232084518374545]]
 ```
 
 then if `datafit(prob, p, t, data)`, `t` must be length 3 and these values correspond to `x(t[i])`.
@@ -93,15 +91,15 @@ then if `datafit(prob, p, t, data)`, `t` must be length 3 and these values corre
 If `datafit(prob, p, data)`, then the data must be a tuple of (t, timeseries), for example:
 
 ```julia
-[
-x => ([1.0, 2.0, 3.0], [11.352378507900013, 11.818374125301172, -10.72999081810307])
-z => ([0.5, 1.5, 2.5, 3.5], [2.005502877055581, 13.626953144513832, 5.382984515620634, 12.232084518374545])
-]
+[x => ([1.0, 2.0, 3.0], [11.352378507900013, 11.818374125301172, -10.72999081810307])
+ z => ([0.5, 1.5, 2.5, 3.5],
+     [2.005502877055581, 13.626953144513832, 5.382984515620634, 12.232084518374545])]
 ```
 
 where this means x(2.0) == 11.81...
 """
-function datafit(prob, p::Vector{Pair{Num, Float64}}, t, data; loss = l2loss, solve_kws = (;))
+function datafit(
+        prob, p::Vector{Pair{Num, Float64}}, t, data; loss = l2loss, solve_kws = (;))
     pvals = getfield.(p, :second)
     pkeys = getfield.(p, :first)
     oprob = OptimizationProblem(loss, pvals,
@@ -150,13 +148,11 @@ Similarly, not all states must be measured.
 ## Data Definition
 
 The data definition is given as a vctor of pairs. If `t` is specified globally for the datafit,
-then those time series correspond to the time points specified. For example, 
+then those time series correspond to the time points specified. For example,
 
 ```julia
-[
-x => [11.352378507900013, 11.818374125301172, -10.72999081810307]
-z => [2.005502877055581, 13.626953144513832, 5.382984515620634, 12.232084518374545]
-]
+[x => [11.352378507900013, 11.818374125301172, -10.72999081810307]
+ z => [2.005502877055581, 13.626953144513832, 5.382984515620634, 12.232084518374545]]
 ```
 
 then if `datafit(prob, p, t, data)`, `t` must be length 3 and these values correspond to `x(t[i])`.
@@ -164,15 +160,15 @@ then if `datafit(prob, p, t, data)`, `t` must be length 3 and these values corre
 If `datafit(prob, p, data)`, then the data must be a tuple of (t, timeseries), for example:
 
 ```julia
-[
-x => ([1.0, 2.0, 3.0], [11.352378507900013, 11.818374125301172, -10.72999081810307])
-z => ([0.5, 1.5, 2.5, 3.5], [2.005502877055581, 13.626953144513832, 5.382984515620634, 12.232084518374545])
-]
+[x => ([1.0, 2.0, 3.0], [11.352378507900013, 11.818374125301172, -10.72999081810307])
+ z => ([0.5, 1.5, 2.5, 3.5],
+     [2.005502877055581, 13.626953144513832, 5.382984515620634, 12.232084518374545])]
 ```
 
 where this means x(2.0) == 11.81...
 """
-function global_datafit(prob, pbounds, t, data; maxiters = 10000, loss = l2loss, solve_kws = (;))
+function global_datafit(
+        prob, pbounds, t, data; maxiters = 10000, loss = l2loss, solve_kws = (;))
     plb = getindex.(getfield.(pbounds, :second), 1)
     pub = getindex.(getfield.(pbounds, :second), 2)
     pkeys = getfield.(pbounds, :first)
@@ -182,7 +178,8 @@ function global_datafit(prob, pbounds, t, data; maxiters = 10000, loss = l2loss,
     Pair.(pkeys, res.u)
 end
 
-function global_datafit(prob, pbounds, data; maxiters = 10000, loss = l2loss, solve_kws = (;))
+function global_datafit(
+        prob, pbounds, data; maxiters = 10000, loss = l2loss, solve_kws = (;))
     plb = getindex.(getfield.(pbounds, :second), 1)
     pub = getindex.(getfield.(pbounds, :second), 2)
     pkeys = getfield.(pbounds, :first)
@@ -225,13 +222,13 @@ Turing.@model function bayesianODE(prob, t, pdist, pkeys, data, noise_prior)
 end
 
 Turing.@model function bayesianODE(prob,
-    pdist,
-    pkeys,
-    ts,
-    lastt,
-    timeseries,
-    datakeys,
-    noise_prior)
+        pdist,
+        pkeys,
+        ts,
+        lastt,
+        timeseries,
+        datakeys,
+        noise_prior)
     σ ~ noise_prior
 
     pprior ~ product_distribution(pdist)
@@ -258,13 +255,11 @@ Calculate posterior distribution for parameters `p` given `data` measured at tim
 ## Data Definition
 
 The data definition is given as a vctor of pairs. If `t` is specified globally for the datafit,
-then those time series correspond to the time points specified. For example, 
+then those time series correspond to the time points specified. For example,
 
 ```julia
-[
-x => [11.352378507900013, 11.818374125301172, -10.72999081810307]
-z => [2.005502877055581, 13.626953144513832, 5.382984515620634, 12.232084518374545]
-]
+[x => [11.352378507900013, 11.818374125301172, -10.72999081810307]
+ z => [2.005502877055581, 13.626953144513832, 5.382984515620634, 12.232084518374545]]
 ```
 
 then if `datafit(prob, p, t, data)`, `t` must be length 3 and these values correspond to `x(t[i])`.
@@ -272,22 +267,21 @@ then if `datafit(prob, p, t, data)`, `t` must be length 3 and these values corre
 If `datafit(prob, p, data)`, then the data must be a tuple of (t, timeseries), for example:
 
 ```julia
-[
-x => ([1.0, 2.0, 3.0], [11.352378507900013, 11.818374125301172, -10.72999081810307])
-z => ([0.5, 1.5, 2.5, 3.5], [2.005502877055581, 13.626953144513832, 5.382984515620634, 12.232084518374545])
-]
+[x => ([1.0, 2.0, 3.0], [11.352378507900013, 11.818374125301172, -10.72999081810307])
+ z => ([0.5, 1.5, 2.5, 3.5],
+     [2.005502877055581, 13.626953144513832, 5.382984515620634, 12.232084518374545])]
 ```
 
 where this means x(2.0) == 11.81...
 """
 function bayesian_datafit(prob,
-    p,
-    t,
-    data;
-    noise_prior = InverseGamma(2, 3),
-    mcmcensemble::AbstractMCMC.AbstractMCMCEnsemble = Turing.MCMCThreads(),
-    nchains = 4,
-    niter = 1000)
+        p,
+        t,
+        data;
+        noise_prior = InverseGamma(2, 3),
+        mcmcensemble::AbstractMCMC.AbstractMCMCEnsemble = Turing.MCMCThreads(),
+        nchains = 4,
+        niter = 1000)
     (pkeys, pdata) = bayes_unpack_data(p)
     model = bayesianODE(prob, t, pkeys, pdata, data, noise_prior)
     chain = Turing.sample(model,
@@ -301,12 +295,12 @@ function bayesian_datafit(prob,
 end
 
 function bayesian_datafit(prob,
-    p,
-    data;
-    noise_prior = InverseGamma(2, 3),
-    mcmcensemble::AbstractMCMC.AbstractMCMCEnsemble = Turing.MCMCThreads(),
-    nchains = 4,
-    niter = 1_000)
+        p,
+        data;
+        noise_prior = InverseGamma(2, 3),
+        mcmcensemble::AbstractMCMC.AbstractMCMCEnsemble = Turing.MCMCThreads(),
+        nchains = 4,
+        niter = 1_000)
     pdist, pkeys, ts, lastt, timeseries, datakeys = bayes_unpack_data(p, data)
     model = bayesianODE(prob, pdist, pkeys, ts, lastt, timeseries, datakeys, noise_prior)
     chain = Turing.sample(model,
@@ -333,7 +327,7 @@ Arguments:
 Output: the L2 distance from the dataset for each problem.
 """
 function model_forecast_score(probs::AbstractVector, ts::AbstractVector,
-    dataset::AbstractVector{<:Pair})
+        dataset::AbstractVector{<:Pair})
     obs = map(first, dataset)
     data = map(last, dataset)
     map(probs) do prob

@@ -24,7 +24,7 @@ function optimal_threshold_intervention(prob, p2, obs, threshold, duration; kw..
     optimal_threshold_intervention(prob, p1, p2, obs, threshold, duration; kw...)
 end
 function optimal_threshold_intervention(prob, p1, p2, obs, threshold, duration;
-    maxtime = 60, kw...)
+        maxtime = 60, kw...)
     t0 = prob.tspan[1]
     prob1 = remake(prob, p = p1)
     prob2 = remake(prob, p = p2)
@@ -102,11 +102,11 @@ end
   - `ret`: Return code from the optimization.
 """
 function optimal_parameter_intervention_for_threshold(prob, obs, threshold,
-    symbolic_cost, ps, lb, ub,
-    intervention_tspan = prob.tspan,
-    duration = abs(-(prob.tspan...));
-    maxtime = 60, ineq_cons = nothing,
-    kw...)
+        symbolic_cost, ps, lb, ub,
+        intervention_tspan = prob.tspan,
+        duration = abs(-(prob.tspan...));
+        maxtime = 60, ineq_cons = nothing,
+        kw...)
     t0 = prob.tspan[1]
     ti_start, ti_end = intervention_tspan
     symbolic_cost = Symbolics.unwrap(symbolic_cost)
@@ -197,11 +197,11 @@ end
   - `ret`: Return code from the optimization.
 """
 function optimal_parameter_intervention_for_reach(prob, obs, reach,
-    symbolic_cost, ps, lb, ub,
-    intervention_tspan = prob.tspan,
-    duration = abs(-(prob.tspan...));
-    maxtime = 60, ineq_cons = nothing,
-    kw...)
+        symbolic_cost, ps, lb, ub,
+        intervention_tspan = prob.tspan,
+        duration = abs(-(prob.tspan...));
+        maxtime = 60, ineq_cons = nothing,
+        kw...)
     t0 = prob.tspan[1]
     ti_start, ti_end = intervention_tspan
     if symbolic_cost isa Tuple

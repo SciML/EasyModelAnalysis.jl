@@ -12,14 +12,14 @@ Dₜ = Differential(t)
 @variables T(t)=10000.0 η(t)=0.0 cumulative_I(t)=0.0
 @parameters β₁=0.06 β₂=0.015 β₃=0.005 α=0.003 γ₁=0.007 γ₂=0.001 δ=0.2 μ=0.04
 eqs = [T ~ S + E + I + R + H + D
-    η ~ (β₁ * E + β₂ * I + β₃ * H)
-    Dₜ(S) ~ -η * S
-    Dₜ(E) ~ η * S - α * E
-    Dₜ(I) ~ α * E - (γ₁ + δ) * I
-    Dₜ(cumulative_I) ~ I
-    Dₜ(R) ~ γ₁ * I + γ₂ * H
-    Dₜ(H) ~ δ * I - (μ + γ₂) * H
-    Dₜ(D) ~ μ * H];
+       η ~ (β₁ * E + β₂ * I + β₃ * H)
+       Dₜ(S) ~ -η * S
+       Dₜ(E) ~ η * S - α * E
+       Dₜ(I) ~ α * E - (γ₁ + δ) * I
+       Dₜ(cumulative_I) ~ I
+       Dₜ(R) ~ γ₁ * I + γ₂ * H
+       Dₜ(H) ~ δ * I - (μ + γ₂) * H
+       Dₜ(D) ~ μ * H];
 @named seirhd = ODESystem(eqs)
 seirhd = structural_simplify(seirhd)
 prob = ODEProblem(seirhd, [], (0.0, 60.0), saveat = 1.0)
@@ -92,7 +92,7 @@ function g(res, ts, p = nothing)
     @named opttime_sys = ODESystem(eqs, t;
         discrete_events = [
             start_intervention,
-            stop_intervention,
+            stop_intervention
         ])
     opttime_sys = structural_simplify(opttime_sys)
     prob = ODEProblem(opttime_sys, [], [0.0, 90.0])
@@ -142,7 +142,7 @@ function g(res, reduction_rate, p = nothing)
     affect = [
         β₁ ~ β₁ * (1 - reduction_rate),
         β₂ ~ β₂ * (1 - reduction_rate),
-        β₃ ~ β₃ * (1 - reduction_rate),
+        β₃ ~ β₃ * (1 - reduction_rate)
     ]
     @named mask_system = ODESystem(eqs, t; continuous_events = root_eqs => affect)
     mask_system = structural_simplify(mask_system)

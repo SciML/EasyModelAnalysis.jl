@@ -52,7 +52,8 @@ function get_sensitivity(prob, t, x, pbounds; samples = 1000)
     end
     for i in eachindex(boundkeys)
         for j in (i + 1):length(boundkeys)
-            res_dict[Symbol(boundkeys[i], "_", boundkeys[j], "_second_order")] = sensres.S2[i,
+            res_dict[Symbol(boundkeys[i], "_", boundkeys[j], "_second_order")] = sensres.S2[
+                i,
                 j]
         end
     end
@@ -99,8 +100,9 @@ function create_sensitivity_plot(prob, t, x, pbounds; samples = 1000)
         title = "Total Order Indices", legend = false)
     p2 = bar(paramnames, sensres.S1,
         title = "First Order Indices", legend = false)
-    p3 = bar([paramnames[i] * "_" * paramnames[j] for i in eachindex(paramnames)
-              for j in (i + 1):length(paramnames)],
+    p3 = bar(
+        [paramnames[i] * "_" * paramnames[j] for i in eachindex(paramnames)
+         for j in (i + 1):length(paramnames)],
         [sensres.S2[i, j] for i in eachindex(paramnames)
          for j in (i + 1):length(paramnames)],
         title = "Second Order Indices", legend = false)
