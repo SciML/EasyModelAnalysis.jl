@@ -44,7 +44,7 @@ eqs = [∂(S) ~ -β * c * I_total / N * S - v * Sv,
     ∂(Rv) ~ γ * I + r2 * H,
     ∂(Hv) ~ h2 * I - r2 * H - d2 * H,
     ∂(Dv) ~ ρ2 * I + d2 * H,
-    I_total ~ I + Iv,
+    I_total ~ I + Iv
 ];
 
 @named sys3 = ODESystem(eqs)
@@ -56,27 +56,27 @@ sol = solve(enprob; saveat = 1);
 
 weights = [0.2, 0.5, 0.3]
 
-fullS = vec(sum(stack(weights .* sol[S,:]),dims=2))
-fullI = vec(sum(stack(weights .* sol[I,:]),dims=2))
-fullR = vec(sum(stack(weights .* sol[R,:]),dims=2))
+fullS = vec(sum(stack(weights .* sol[S, :]), dims = 2))
+fullI = vec(sum(stack(weights .* sol[I, :]), dims = 2))
+fullR = vec(sum(stack(weights .* sol[R, :]), dims = 2))
 
 t_train = 0:14
 data_train = [
-    S => (t_train,fullS[1:15]),
-    I => (t_train,fullI[1:15]),
-    R => (t_train,fullR[1:15]),
+    S => (t_train, fullS[1:15]),
+    I => (t_train, fullI[1:15]),
+    R => (t_train, fullR[1:15])
 ]
 t_ensem = 0:21
 data_ensem = [
-    S => (t_ensem,fullS[1:22]),
-    I => (t_ensem,fullI[1:22]),
-    R => (t_ensem,fullR[1:22]),
+    S => (t_ensem, fullS[1:22]),
+    I => (t_ensem, fullI[1:22]),
+    R => (t_ensem, fullR[1:22])
 ]
 t_forecast = 0:30
 data_forecast = [
-    S => (t_forecast,fullS),
-    I => (t_forecast,fullI),
-    R => (t_forecast,fullR),
+    S => (t_forecast, fullS),
+    I => (t_forecast, fullI),
+    R => (t_forecast, fullR)
 ]
 
 sol = solve(enprob; saveat = t_ensem);
@@ -85,7 +85,7 @@ sol = solve(enprob; saveat = t_ensem);
 
 probs = [prob, prob2, prob3]
 ps = [[β => Uniform(0.01, 10.0), γ => Uniform(0.01, 10.0)] for i in 1:3]
-datas = [data_train,data_train,data_train]
+datas = [data_train, data_train, data_train]
 enprobs = bayesian_ensemble(probs, ps, datas)
 
 sol = solve(enprobs; saveat = t_ensem);

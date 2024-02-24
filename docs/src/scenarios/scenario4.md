@@ -80,7 +80,7 @@ translate_params = [expo => u_expo / NN,
     rec => u_rec / NN,
     death => u_death / NN,
     test => u_test / NN,
-    leave => u_leave / NN,
+    leave => u_leave / NN
 ]
 subed_sys = substitute(sys1, translate_params)
 sys = add_accumulations(subed_sys, [I])
@@ -95,7 +95,7 @@ u0init = [
     I => I_total,
     IS => 0,
     R => 0,
-    D => 0,
+    D => 0
 ]
 
 prob = ODEProblem(sys, u0init, (0.0, tdays))

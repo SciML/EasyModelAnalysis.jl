@@ -59,7 +59,8 @@ opt_ps, s2, ret = optimal_parameter_threshold(prob, x, 3,
 opt_ps, s2, ret = optimal_parameter_threshold(prob, x, 3,
     -p, [p],
     [-1.0], [1.0]);
-opt_ps, (s1, s2, s3), ret = optimal_parameter_intervention_for_reach(remake(prob,
+opt_ps, (s1, s2, s3), ret = optimal_parameter_intervention_for_reach(
+    remake(prob,
         tspan = (0,
             1.0)),
     x, 300,
@@ -68,7 +69,8 @@ opt_ps, (s1, s2, s3), ret = optimal_parameter_intervention_for_reach(remake(prob
     maxtime = 10);
 @test 10 < opt_ps[p] < 11
 
-opt_ps, (s1, s2, s3), ret = optimal_parameter_intervention_for_reach(remake(prob,
+opt_ps, (s1, s2, s3), ret = optimal_parameter_intervention_for_reach(
+    remake(prob,
         tspan = (0,
             1.0)),
     x, 300,
@@ -82,7 +84,7 @@ opt_ps, (s1, s2, s3), ret = optimal_parameter_intervention_for_reach(remake(prob
 @parameters p1 p2
 D = Differential(t)
 eqs = [D(x) ~ p1 * abs(x) + p2 * y
-    D(y) ~ p1 * abs(x) + p2 * y]
+       D(y) ~ p1 * abs(x) + p2 * y]
 @named sys = ODESystem(eqs)
 prob = ODEProblem(sys, [x => 0.01, y => 1], (0.0, 50), [p1 => 0.5, p2 => 0.2])
 opt_ps, s2, ret = optimal_parameter_threshold(prob, x, 2, p1 - p2, [p1, p2],
@@ -118,13 +120,13 @@ prob = ODEProblem(sys, u0, tspan, p, jac = true)
 tresholds = [x > 10.0, y < -5.0]
 p_prior = [
     σ => truncated(Normal(28.0, 1.0), 20.0, 40.0),
-    β => truncated(Normal(2.7, 0.1), 2.0, 4.0),
+    β => truncated(Normal(2.7, 0.1), 2.0, 4.0)
 ]
 @test prob_violating_threshold(prob, p_prior, tresholds) > 0.99
 
 tresholds = [x > Inf, y < -Inf]
 p_prior = [
     σ => truncated(Normal(28.0, 1.0), 20.0, 40.0),
-    β => truncated(Normal(2.7, 0.1), 2.0, 4.0),
+    β => truncated(Normal(2.7, 0.1), 2.0, 4.0)
 ]
 @test prob_violating_threshold(prob, p_prior, tresholds) < 0.01

@@ -107,7 +107,7 @@ u0init = [
     I => 0.01 * NN,
     R => 0.02 * NN,
     H => 0.01 * NN,
-    D => 0.01 * NN,
+    D => 0.01 * NN
 ]
 
 tend = 6 * 7
@@ -170,12 +170,12 @@ prob_violating_threshold(_prob, [u_conv => Uniform(0.0, 1.0)], [accumulation_I >
 # this says now, that all I are undetected and u_hosp is the detection rate.
 # this assumes there is always hospital capacity
 eqs2 = [Differential(t)(S) ~ -(u_expo / N) * I * S
-    Differential(t)(E) ~ (u_expo / N) * I * S - (u_conv / N) * E
-    Differential(t)(I) ~ (u_conv / N) * E - (u_hosp / N) * I - (u_rec / N) * I -
-                         (u_death / N) * I
-    Differential(t)(R) ~ (u_rec / N) * I + (u_rec / N) * H
-    Differential(t)(H) ~ (u_hosp / N) * I - (u_death / N) * H - (u_rec / N) * H
-    Differential(t)(D) ~ (u_death / N) * H + (u_death / N) * I]
+        Differential(t)(E) ~ (u_expo / N) * I * S - (u_conv / N) * E
+        Differential(t)(I) ~ (u_conv / N) * E - (u_hosp / N) * I - (u_rec / N) * I -
+                             (u_death / N) * I
+        Differential(t)(R) ~ (u_rec / N) * I + (u_rec / N) * H
+        Differential(t)(H) ~ (u_hosp / N) * I - (u_death / N) * H - (u_rec / N) * H
+        Differential(t)(D) ~ (u_death / N) * H + (u_death / N) * I]
 @named seirhd_detect = ODESystem(eqs2)
 sys2 = add_accumulations(seirhd_detect, [I])
 u0init2 = [
@@ -184,7 +184,7 @@ u0init2 = [
     I => 0.01 * NN,
     R => 0.02 * NN,
     H => 0.01 * NN,
-    D => 0.01 * NN,
+    D => 0.01 * NN
 ]
 sys2_ = structural_simplify(sys2)
 @unpack accumulation_I = sys2_
@@ -222,7 +222,7 @@ get_uncertainty_forecast(_prob, accumulation_I, 0:100,
 plot_uncertainty_forecast(probd, accumulation_I, 0:100,
     [
         u_hosp => Uniform(0.0, 1.0),
-        u_conv => Uniform(0.0, 1.0),
+        u_conv => Uniform(0.0, 1.0)
     ],
     6 * 7)
 ```
