@@ -8,8 +8,7 @@ eqs = [D(D(x)) ~ σ * (y - x),
     D(y) ~ x * (ρ - z) - y,
     D(z) ~ x * y - β * z]
 
-@named sys = ODESystem(eqs,t)
-sys = structural_simplify(sys)
+@mtkbuild sys = ODESystem(eqs,t)
 
 u0 = [D(x) => 2.0,
     x => 1.0,
