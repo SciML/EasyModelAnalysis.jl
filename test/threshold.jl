@@ -74,7 +74,7 @@ opt_ps, (s1, s2, s3), ret = optimal_parameter_intervention_for_reach(
         tspan = (0,
             1.0)),
     x, 300,
-    (p, sol -> sol(1.0)),
+    (p, sol -> only(sol(1.0))),
     [p],
     [8.0], [18.0],
     maxtime = 10);
