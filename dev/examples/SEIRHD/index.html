@@ -18,28 +18,28 @@ eqs = [T ~ S + E + I + R + H + D
 seirhd = structural_simplify(seirhd)
 prob = ODEProblem(seirhd, [], (0, 110.0))
 sol = solve(prob)
-plot(sol)</code></pre><img src="ef5445ab.svg" alt="Example block output"/><p>Let&#39;s solve a few problems:</p><blockquote><p>Provide a forecast of cumulative Covid-19 cases and deaths over the 6-week period from May 1 – June 15, 2020 under no interventions, including 90% prediction intervals in your forecasts. Compare the accuracy of the forecasts with true data over the six-week timespan.</p></blockquote><pre><code class="language-julia hljs">get_uncertainty_forecast(prob, [cumulative_I], 0:100, [β₁ =&gt; Uniform(0.0, 1.0)], 6 * 7)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">42-element Vector{Matrix{Float64}}:
- [0.0 0.009559740856839194 … 1.3151068451974257 1.3367494633516526]
- [0.0 0.009569168267302018 … 2.048090620693172 2.068829906721285]
- [0.0 0.009568588675050551 … 2.0413091046329046 2.062068644753263]
- [0.0 0.009566096325352384 … 2.000960119461524 2.021840023858341]
- [0.0 0.009578383581263094 … 2.1040955739520335 2.12466753914712]
- [0.0 0.00956552283992598 … 1.9878305157597913 2.00874952841175]
- [0.0 0.009559293642797364 … 1.0324221007736027 1.0516475700991434]
- [0.0 0.009561838388858346 … 1.8049145593592166 1.8263706509325102]
- [0.0 0.009561850497373592 … 1.8061252849261311 1.8275779405085928]
- [0.0 0.009561063864745027 … 1.7058692126258281 1.727589595481177]
+plot(sol)</code></pre><img src="de107e4f.svg" alt="Example block output"/><p>Let&#39;s solve a few problems:</p><blockquote><p>Provide a forecast of cumulative Covid-19 cases and deaths over the 6-week period from May 1 – June 15, 2020 under no interventions, including 90% prediction intervals in your forecasts. Compare the accuracy of the forecasts with true data over the six-week timespan.</p></blockquote><pre><code class="language-julia hljs">get_uncertainty_forecast(prob, [cumulative_I], 0:100, [β₁ =&gt; Uniform(0.0, 1.0)], 6 * 7)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">42-element Vector{Matrix{Float64}}:
+ [0.0 0.009561650556141641 … 1.7850304025365167 1.806542381481639]
+ [0.0 0.009562161356191774 … 1.8346441116053425 1.85601506643699]
+ [0.0 0.00957071911536945 … 2.063185798329754 2.0838800170790077]
+ [0.0 0.009578729937247248 … 2.1052338293556505 2.1258023905718413]
+ [0.0 0.009562612640450332 … 1.868826238485931 1.8900977028157497]
+ [0.0 0.009562613369643841 … 1.868875768439198 1.8901470877095112]
+ [0.0 0.00957678360043339 … 2.0982967315016836 2.1188860311403013]
+ [0.0 0.009576477793956107 … 2.0970753346672946 2.117668286621633]
+ [0.0 0.009560591757343988 … 1.6137053315391148 1.6356170666143244]
+ [0.0 0.009570713786742168 … 2.0631402496431726 2.083834604506023]
  ⋮
- [0.0 0.009571855375299495 … 2.07209583827981 2.0927634395785244]
- [0.0 0.009558234569226942 … 0.30746313816475956 0.31004449578211685]
- [0.0 0.009563678524672343 … 1.9270869158787993 1.948186547679754]
- [0.0 0.009578905410161319 … 2.1057962585555905 2.1263631379126946]
- [0.0 0.009558243279754103 … 0.3105577763274161 0.3132110044354082]
- [0.0 0.009575050738947155 … 2.0908013065548428 2.1114130117218073]
- [0.0 0.009567397955631201 … 2.0247320085848597 2.045540990896565]
- [0.0 0.00957091106551218 … 2.06480148444802 2.0854908754296138]
- [0.0 0.009571647425197423 … 2.070575859698191 2.0912480047699193]</code></pre><pre><code class="language-julia hljs">plot_uncertainty_forecast(prob, [cumulative_I], 0:100, [β₁ =&gt; Uniform(0.0, 1.0)], 6 * 7)</code></pre><pre><code class="language-julia hljs">get_uncertainty_forecast_quantiles(prob, [cumulative_I], 0:100, [β₁ =&gt; Uniform(0.0, 1.0)],
+ [0.0 0.00956807329775445 … 2.0346190821064214 2.0553985793124085]
+ [0.0 0.009574584478032638 … 2.0885190501301314 2.109137573202259]
+ [0.0 0.009572960545610373 … 2.079465994331637 2.100111574144705]
+ [0.0 0.009565831738045398 … 1.9951458794369215 2.0160431058746666]
+ [0.0 0.009570203099899652 … 2.058590136749757 2.079298076837962]
+ [0.0 0.009575317747231653 … 2.0920532636726725 2.112661225705908]
+ [0.0 0.009569247358926874 … 2.0489615441575815 2.069698230382221]
+ [0.0 0.009564629038790731 … 1.9627294997330313 1.9837232728512775]
+ [0.0 0.009571837507075593 … 2.0719670256758995 2.092635011992819]</code></pre><pre><code class="language-julia hljs">plot_uncertainty_forecast(prob, [cumulative_I], 0:100, [β₁ =&gt; Uniform(0.0, 1.0)], 6 * 7)</code></pre><pre><code class="language-julia hljs">get_uncertainty_forecast_quantiles(prob, [cumulative_I], 0:100, [β₁ =&gt; Uniform(0.0, 1.0)],
     6 * 7)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">2-element Vector{Matrix{Float64}}:
- [0.0; 0.009558698659573423; … ; 0.5575925281821486; 0.5667484125128904;;]
- [0.0; 0.009577817083874155; … ; 2.1021473619315896; 2.122725149214013;;]</code></pre><pre><code class="language-julia hljs">plot_uncertainty_forecast_quantiles(prob, [cumulative_I], 0:100, [β₁ =&gt; Uniform(0.0, 1.0)],
-    6 * 7)</code></pre><img src="32487d05.svg" alt="Example block output"/><blockquote><p>Based on the forecasts, do we need additional interventions to keep cumulative Covid deaths under 6000 total? Provide a probability that the cumulative number of Covid deaths will stay under 6000 for the next 6 weeks without any additional interventions.</p></blockquote></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../ASIR/">« Analysis of The Asymptomatic SIR Model</a><a class="docs-footer-nextpage" href="../Carcione2020/">Sensitivity Analysis of the Carcione2020 Epidemic Model »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.3.0 on <span class="colophon-date" title="Monday 8 April 2024 01:19">Monday 8 April 2024</span>. Using Julia version 1.9.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+ [0.0; 0.009559611468855997; … ; 1.2389230392537; 1.2601008170535304;;]
+ [0.0; 0.009577925591252229; … ; 2.102522373942654; 2.1230990398113856;;]</code></pre><pre><code class="language-julia hljs">plot_uncertainty_forecast_quantiles(prob, [cumulative_I], 0:100, [β₁ =&gt; Uniform(0.0, 1.0)],
+    6 * 7)</code></pre><img src="e2633ca3.svg" alt="Example block output"/><blockquote><p>Based on the forecasts, do we need additional interventions to keep cumulative Covid deaths under 6000 total? Provide a probability that the cumulative number of Covid deaths will stay under 6000 for the next 6 weeks without any additional interventions.</p></blockquote></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../ASIR/">« Analysis of The Asymptomatic SIR Model</a><a class="docs-footer-nextpage" href="../Carcione2020/">Sensitivity Analysis of the Carcione2020 Epidemic Model »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.4.0 on <span class="colophon-date" title="Monday 15 April 2024 01:55">Monday 15 April 2024</span>. Using Julia version 1.9.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
