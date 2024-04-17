@@ -67,7 +67,7 @@ eqs_obs = [D(D(x)) ~ σ * (y - x),
     D(z) ~ x * y - β * z,
     x_2 ~ 2 * x]
 
-@mtkbuild sys_obs = ODESystem(eqs_obs)
+@mtkbuild sys_obs = ODESystem(eqs_obs,t)
 
 u0_obs = [D(x) => 2.0,
     x => 1.0,
