@@ -112,7 +112,11 @@ function optimal_parameter_intervention_for_threshold(prob, obs, threshold,
     symbolic_cost = Symbolics.unwrap(symbolic_cost)
     #ps = collect(ModelingToolkit.vars(symbolic_cost))
     _cost = Symbolics.build_function(symbolic_cost, ps, expression = Val{false})
-    _cost(prob.p) # just throw when something is wrong during the setup.
+    if _cost isa Tuple
+        _cost = _cost[1] # use out of place 
+    end
+
+    _cost(prob.p[1]) # just throw when something is wrong during the setup.
 
     cost = let _cost = _cost
         (x, grad) -> _cost(x)
@@ -212,7 +216,11 @@ function optimal_parameter_intervention_for_reach(prob, obs, reach,
     symbolic_cost = Symbolics.unwrap(symbolic_cost)
     #ps = collect(ModelingToolkit.vars(symbolic_cost))
     _cost = Symbolics.build_function(symbolic_cost, ps, expression = Val{false})
-    _cost(prob.p) # just throw when something is wrong during the setup.
+
+    if _cost isa Tuple # use out of place by default for now?
+        _cost = _cost[2]
+    end
+    _cost(prob.p[1]) # just throw when something is wrong during the setup.
 
     cost = let _cost = _cost, cost_sol = cost_sol
         (x, grad) -> begin
@@ -229,7 +237,7 @@ function optimal_parameter_intervention_for_reach(prob, obs, reach,
                 sol_intervention = solve(prob_intervention; kw...)
                 sol_cost = cost_sol(sol_intervention)
             end
-            p_cost + sol_cost
+            only(p_cost .+ sol_cost)
         end
     end
 
