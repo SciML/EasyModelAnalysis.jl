@@ -8,7 +8,7 @@ eqs = [D(D(x)) ~ σ * (y - x),
     D(y) ~ x * (ρ - z) - y,
     D(z) ~ x * y - β * z]
 
-@mtkbuild sys = ODESystem(eqs,t)
+@mtkbuild sys = ODESystem(eqs, t)
 
 u0 = [D(x) => 2.0,
     x => 1.0,
@@ -67,7 +67,7 @@ eqs_obs = [D(D(x)) ~ σ * (y - x),
     D(z) ~ x * y - β * z,
     x_2 ~ 2 * x]
 
-@mtkbuild sys_obs = ODESystem(eqs_obs,t)
+@mtkbuild sys_obs = ODESystem(eqs_obs, t)
 
 u0_obs = [D(x) => 2.0,
     x => 1.0,

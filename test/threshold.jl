@@ -8,7 +8,7 @@ eqs = [D(D(x)) ~ σ * (y - x),
     D(y) ~ x * (ρ - z) - y,
     D(z) ~ x * y - β * z]
 
-@mtkbuild sys = ODESystem(eqs,t)
+@mtkbuild sys = ODESystem(eqs, t)
 
 u0 = [D(x) => 2.0,
     x => 1.0,
@@ -27,7 +27,7 @@ sol = solve(prob)
 @variables t x(t)
 D = Differential(t)
 eqs = [D(x) ~ x]
-@mtkbuild sys = ODESystem(eqs,t)
+@mtkbuild sys = ODESystem(eqs, t)
 prob = ODEProblem(sys, [x => 0.01], (0.0, Inf))
 sol = stop_at_threshold(prob, x^2, 0.1)
 @test sol.u[end][1]^2≈0.1 atol=1e-5
@@ -37,7 +37,7 @@ sol = stop_at_threshold(prob, x^2, 0.1)
 @parameters p
 D = Differential(t)
 eqs = [D(x) ~ p * x]
-@mtkbuild sys = ODESystem(eqs,t)
+@mtkbuild sys = ODESystem(eqs, t)
 prob = ODEProblem(sys, [x => 0.01], (0.0, 50), [p => 1.0])
 opt_tspan, (s1, s2, s3), ret = optimal_threshold_intervention(prob, [p => -1.0], x, 3, 50);
 @test -(-(opt_tspan...)) < 25
@@ -84,7 +84,7 @@ opt_ps, (s1, s2, s3), ret = optimal_parameter_intervention_for_reach(
 D = Differential(t)
 eqs = [D(x) ~ p1 * abs(x) + p2 * y
        D(y) ~ p1 * abs(x) + p2 * y]
-@mtkbuild sys = ODESystem(eqs,t)
+@mtkbuild sys = ODESystem(eqs, t)
 prob = ODEProblem(sys, [x => 0.01, y => 1], (0.0, 50), [p1 => 0.5, p2 => 0.2])
 opt_ps, s2, ret = optimal_parameter_threshold(prob, x, 2, p1 - p2, [p1, p2],
     [-2.0, -2.0], [2.0, 2],
@@ -101,7 +101,7 @@ eqs = [D(D(x)) ~ σ * (y - x),
     D(y) ~ x * (ρ - z) - y,
     D(z) ~ x * y - β * z]
 
-@mtkbuild sys = ODESystem(eqs,t)
+@mtkbuild sys = ODESystem(eqs, t)
 sys = structural_simplify(sys)
 
 u0 = [D(x) => 2.0,
