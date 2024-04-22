@@ -60,8 +60,8 @@ function prob_violating_threshold(prob, p, thresholds)
         end
         return 0.0
     end
-    exprob = ExpectationProblem(sm, g, h, gd; nout = 1)
-    exsol = solve(exprob, Koopman(), batch = 0, quadalg = HCubatureJL())
+    exprob = ExpectationProblem(sm, g, h, gd)
+    exsol = solve(exprob, Koopman(), quadalg = HCubatureJL())
     exsol.u
 end
 
