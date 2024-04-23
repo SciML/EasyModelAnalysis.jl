@@ -8,7 +8,7 @@ eqs = [∂(S) ~ -β * c * I / N * S,
     ∂(I) ~ β * c * I / N * S - γ * I,
     ∂(R) ~ γ * I];
 
-@named sys = ODESystem(eqs);
+@mtkbuild sys = ODESystem(eqs, t);
 tspan = (0, 30)
 prob = ODEProblem(sys, [], tspan);
 
@@ -22,7 +22,7 @@ eqs = [∂(S) ~ -β * c * I / N * S,
     ∂(H) ~ h * I - r * H - d * H,
     ∂(D) ~ ρ * I + d * H];
 
-@named sys2 = ODESystem(eqs);
+@mtkbuild sys2 = ODESystem(eqs, t);
 
 prob2 = ODEProblem(sys2, [], tspan);
 
@@ -47,8 +47,7 @@ eqs = [∂(S) ~ -β * c * I_total / N * S - v * Sv,
     I_total ~ I + Iv
 ];
 
-@named sys3 = ODESystem(eqs)
-sys3 = structural_simplify(sys3)
+@mtkbuild sys3 = ODESystem(eqs, t)
 prob3 = ODEProblem(sys3, [], tspan);
 enprob = EnsembleProblem([prob, prob2, prob3])
 

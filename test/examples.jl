@@ -10,7 +10,7 @@ eqs = [Dₜ(S) ~ μₙ * S - μₘ * S - θ * α * S * Iₛ - (1 - θ) * α * S 
        Dₜ(Rₐ) ~ βₐ * Iₐ - ρ * Rₐ
        Dₜ(Rₛ) ~ (1 - ωₛ) * βₛ * Iₛ - ρ * Rₛ
        Dₜ(D) ~ ωₛ * βₛ * Iₛ]
-@named asir = ODESystem(eqs)
+@mtkbuild asir = ODESystem(eqs, t)
 prob = ODEProblem(asir, [], (0, 110.0))
 sol = solve(prob)
 # plot(sol)
@@ -33,8 +33,7 @@ eqs = [T ~ S + E + I + R + H + D
        Dₜ(R) ~ γ₁ * I + γ₂ * H
        Dₜ(H) ~ δ * I - (μ + γ₂) * H
        Dₜ(D) ~ μ * H];
-@named seirhd = ODESystem(eqs)
-seirhd = structural_simplify(seirhd)
+@mtkbuild seirhd = ODESystem(eqs, t)
 prob = ODEProblem(seirhd, [], (0, 110.0))
 sol = solve(prob)
 # plot(sol)

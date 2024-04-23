@@ -8,8 +8,7 @@ eqs = [D(D(x)) ~ σ * (y - x),
     D(y) ~ x * (ρ - z) - y,
     D(z) ~ x * y - β * z]
 
-@named sys = ODESystem(eqs)
-sys = structural_simplify(sys)
+@mtkbuild sys = ODESystem(eqs, t)
 
 u0 = [D(x) => 2.0,
     x => 1.0,
@@ -68,8 +67,7 @@ eqs_obs = [D(D(x)) ~ σ * (y - x),
     D(z) ~ x * y - β * z,
     x_2 ~ 2 * x]
 
-@named sys_obs = ODESystem(eqs_obs)
-sys_obs = structural_simplify(sys_obs)
+@mtkbuild sys_obs = ODESystem(eqs_obs, t)
 
 u0_obs = [D(x) => 2.0,
     x => 1.0,
@@ -88,7 +86,7 @@ tsave = collect(10.0:10.0:100.0)
 sol_data = solve(prob, saveat = tsave)
 data = [x => sol_data[x], z => sol_data[z]]
 p_prior = [σ => Normal(26.8, 0.1), β => Normal(2.7, 0.1)]
-p_posterior = @time bayesian_datafit(prob, p_prior, tsave, data)
+p_posterior = @time bayesian_datafit(prob, p_prior, tsave, data, niter = 3000)
 @test var.(getfield.(p_prior, :second)) >= var.(getfield.(p_posterior, :second))
 
 tsave1 = collect(10.0:10.0:100.0)
@@ -97,5 +95,5 @@ tsave2 = collect(10.0:13.5:100.0)
 sol_data2 = solve(prob, saveat = tsave2)
 data_with_t = [x => (tsave1, sol_data1[x]), z => (tsave2, sol_data2[z])]
 
-p_posterior = @time bayesian_datafit(prob, p_prior, data_with_t)
+p_posterior = @time bayesian_datafit(prob, p_prior, data_with_t, niter = 3000)
 @test var.(getfield.(p_prior, :second)) >= var.(getfield.(p_posterior, :second))
