@@ -1,8 +1,8 @@
 using EasyModelAnalysis, Test
+using ModelingToolkit: t_nounits as t, D_nounits as D
 
-@parameters t σ ρ β
+@parameters σ ρ β
 @variables x(t) y(t) z(t)
-D = Differential(t)
 
 eqs = [D(D(x)) ~ σ * (y - x),
     D(y) ~ x * (ρ - z) - y,
@@ -24,8 +24,7 @@ prob = ODEProblem(sys, u0, tspan, p, jac = true)
 sol = solve(prob)
 
 # Threshold
-@variables t x(t)
-D = Differential(t)
+@variables x(t)
 eqs = [D(x) ~ x]
 @mtkbuild sys = ODESystem(eqs, t)
 prob = ODEProblem(sys, [x => 0.01], (0.0, Inf))
