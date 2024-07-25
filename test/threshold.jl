@@ -32,9 +32,8 @@ sol = stop_at_threshold(prob, x^2, 0.1)
 @test sol.u[end][1]^2≈0.1 atol=1e-5
 
 # Intervention
-@variables t x(t)
+@variables x(t)
 @parameters p
-D = Differential(t)
 eqs = [D(x) ~ p * x]
 @mtkbuild sys = ODESystem(eqs, t)
 prob = ODEProblem(sys, [x => 0.01], (0.0, 50), [p => 1.0])
@@ -78,9 +77,8 @@ opt_ps, (s1, s2, s3), ret = optimal_parameter_intervention_for_reach(
     maxtime = 10);
 @test 10 < opt_ps[p]
 
-@variables t x(t) y(t)
+@variables x(t) y(t)
 @parameters p1 p2
-D = Differential(t)
 eqs = [D(x) ~ p1 * abs(x) + p2 * y
        D(y) ~ p1 * abs(x) + p2 * y]
 @mtkbuild sys = ODESystem(eqs, t)
@@ -92,9 +90,8 @@ opt_ps, s2, ret = optimal_parameter_threshold(prob, x, 2, p1 - p2, [p1, p2],
 @test s2.u[end][1] < 2
 @test abs(opt_ps[p2]) - abs(opt_ps[p1]) + 0.1 < 0
 
-@parameters t σ ρ β
+@parameters σ ρ β
 @variables x(t) y(t) z(t)
-D = Differential(t)
 
 eqs = [D(D(x)) ~ σ * (y - x),
     D(y) ~ x * (ρ - z) - y,
