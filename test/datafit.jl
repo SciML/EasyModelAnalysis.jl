@@ -4,16 +4,16 @@ using ModelingToolkit: t_nounits as t, D_nounits as D
 @parameters α β γ δ
 @variables x(t) y(t)
 
-eqs = [D(x) ~ α*x - β*x*y,
-    D(y) ~ -γ*y + δ*x*y]
+eqs = [D(x) ~ α * x - β * x * y,
+    D(y) ~ -γ * y + δ * x * y]
 
 @mtkbuild sys = ODESystem(eqs, t)
 
 u0 = [x => 1.0,
     y => 1.0]
 
-p = [α => 2/3,
-    β => 4/3,
+p = [α => 2 / 3,
+    β => 4 / 3,
     γ => 1,
     δ => 1]
 
@@ -51,7 +51,6 @@ scores = model_forecast_score([prob, prob2, prob3], tsave, data)
 @test scores[2] < 2e-3
 @test scores[3] > 2
 
-
 psub_ini = [
     α => [0.5, 0.9],
     β => [0.9, 1.5],
@@ -73,7 +72,7 @@ pvals = getfield.(p, :second)
 
 eqs_obs = [D(x) ~ α * x - β * x * y,
     D(y) ~ -γ * y + δ * x * y,
-    x_2 ~ 2*x]
+    x_2 ~ 2 * x]
 
 @mtkbuild sys_obs = ODESystem(eqs_obs, t)
 
@@ -93,8 +92,8 @@ tsave = collect(1.0:1.0:10.0)
 sol_data = solve(prob, saveat = tsave)
 data = [x => sol_data[x], y => sol_data[y]]
 
-
-p_prior = [α => Normal(2/3, 0.1), β => Normal(4/3,0.1), γ => Normal(1, 0.1), δ => Normal(1, 0.1)]
+p_prior = [α => Normal(2 / 3, 0.1), β => Normal(4 / 3, 0.1),
+    γ => Normal(1, 0.1), δ => Normal(1, 0.1)]
 p_posterior = @time bayesian_datafit(prob, p_prior, tsave, data, niter = 3000)
 @test var.(getfield.(p_prior, :second)) >= var.(getfield.(p_posterior, :second))
 

@@ -1,5 +1,5 @@
 using EasyModelAnalysis, LinearAlgebra, Test
-using ModelingToolkit: t_nounits as t, D_nounits as ∂ 
+using ModelingToolkit: t_nounits as t, D_nounits as ∂
 
 @parameters β=0.05 c=10.0 γ=0.25
 @variables S(t)=990.0 I(t)=10.0 R(t)=0.0
