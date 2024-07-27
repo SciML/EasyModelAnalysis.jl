@@ -1,8 +1,8 @@
 using EasyModelAnalysis, Test
+using ModelingToolkit: t_nounits as t, D_nounits as D
 
-@parameters t σ ρ β
+@parameters σ ρ β
 @variables x(t) y(t) z(t)
-D = Differential(t)
 
 eqs = [D(D(x)) ~ σ * (y - x),
     D(y) ~ x * (ρ - z) - y,
