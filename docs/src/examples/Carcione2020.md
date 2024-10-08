@@ -24,7 +24,7 @@ sys = structural_simplify(odesys)
 @unpack Infected, Exposed, Deceased, Recovered, Total_population, Susceptible = sys
 @unpack alpha, epsilon, gamma, mu, beta, City = sys
 tspan = (0.0, 1.0)
-prob = ODEProblem(odesys, [], tspan, [])
+prob = ODEProblem(sys, [], tspan, [])
 sol = solve(prob, Rodas5())
 plot(sol, idxs = Deceased)
 ```
