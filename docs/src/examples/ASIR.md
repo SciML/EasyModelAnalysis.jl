@@ -15,8 +15,9 @@ eqs = [Dₜ(S) ~ μₙ * S - μₘ * S - θ * α * S * Iₛ - (1 - θ) * α * S 
        Dₜ(Rₐ) ~ βₐ * Iₐ - ρ * Rₐ
        Dₜ(Rₛ) ~ (1 - ωₛ) * βₛ * Iₛ - ρ * Rₛ
        Dₜ(D) ~ ωₛ * βₛ * Iₛ]
-@named asir = ODESystem(eqs)
-prob = ODEProblem(asir, [], (0, 110.0))
+@named asir = ODESystem(eqs, t)
+sys = structural_simplify(asir)
+prob = ODEProblem(sys, [], (0, 110.0))
 sol = solve(prob)
 plot(sol)
 ```
