@@ -18,7 +18,7 @@ eqs = [T ~ S + E + I + R + H + D
        Dₜ(R) ~ γ₁ * I + γ₂ * H
        Dₜ(H) ~ δ * I - (μ + γ₂) * H
        Dₜ(D) ~ μ * H];
-@named seirhd = ODESystem(eqs,t)
+@named seirhd = ODESystem(eqs, t)
 seirhd = structural_simplify(seirhd)
 prob = ODEProblem(seirhd, [], (0, 110.0))
 sol = solve(prob)
