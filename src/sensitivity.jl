@@ -9,11 +9,11 @@ function _get_sensitivity(prob, t, x, pbounds; samples)
         out = zeros(size(p, 2))
         if x isa Function
             for i in 1:size(p, 2)
-                out[i] = x(sol[i])
+                out[i] = x(sol.u[i])
             end
         else
             for i in 1:size(p, 2)
-                out[i] = sol[i](t; idxs = x)
+                out[i] = sol.u[i](t; idxs = x)
             end
         end
         out
