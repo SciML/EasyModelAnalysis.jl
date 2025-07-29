@@ -111,16 +111,16 @@ p = [σ => 28.0,
 tspan = (0.0, 100.0)
 prob = ODEProblem(sys, u0, tspan, p, jac = true)
 
-tresholds = [x > 10.0, y < -5.0]
+thresholds = [x > 10.0, y < -5.0]
 p_prior = [
     σ => truncated(Normal(28.0, 1.0), 20.0, 40.0),
     β => truncated(Normal(2.7, 0.1), 2.0, 4.0)
 ]
-@test prob_violating_threshold(prob, p_prior, tresholds) > 0.99
+@test prob_violating_threshold(prob, p_prior, thresholds) > 0.99
 
-tresholds = [x > Inf, y < -Inf]
+thresholds = [x > Inf, y < -Inf]
 p_prior = [
     σ => truncated(Normal(28.0, 1.0), 20.0, 40.0),
     β => truncated(Normal(2.7, 0.1), 2.0, 4.0)
 ]
-@test prob_violating_threshold(prob, p_prior, tresholds) < 0.01
+@test prob_violating_threshold(prob, p_prior, thresholds) < 0.01
