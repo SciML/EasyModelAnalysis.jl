@@ -53,8 +53,8 @@ function get_sensitivity(prob, t, x, pbounds; samples = 1000)
     for i in eachindex(boundkeys)
         for j in (i + 1):length(boundkeys)
             res_dict[Symbol(boundkeys[i], "_", boundkeys[j], "_second_order")] = sensres.S2[
-                i,
-                j]
+            i,
+            j]
         end
     end
     return res_dict

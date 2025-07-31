@@ -93,7 +93,8 @@ end
 function optimal_parameter_threshold(prob, obs, threshold, cost, ps, lb, ub;
         ineq_cons = nothing, maxtime = 60,
         kw...)
-    opt, (s1, s2, s3), ret = optimal_parameter_intervention_for_threshold(prob, obs,
+    opt, (s1, s2, s3),
+    ret = optimal_parameter_intervention_for_threshold(prob, obs,
         threshold, cost,
         ps, lb, ub;
         ineq_cons,

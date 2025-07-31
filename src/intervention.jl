@@ -217,7 +217,8 @@ function optimal_parameter_intervention_for_reach(prob, obs, reach,
     _cost(prob.p[1]) # just throw when something is wrong during the setup.
 
     cost = let _cost = _cost, cost_sol = cost_sol
-        (x, grad) -> begin
+        (x,
+            grad) -> begin
             p_cost = _cost(x)
             if cost_sol === nothing
                 sol_cost = 0.0
