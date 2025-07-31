@@ -40,12 +40,14 @@ prob = ODEProblem(sys, [x => 0.01], (0.0, 50), [p => 1.0])
 opt_tspan, (s1, s2, s3), ret = optimal_threshold_intervention(prob, [p => -1.0], x, 3, 50);
 @test -(-(opt_tspan...)) < 25
 
-opt_ps, (s1, s2, s3), ret = optimal_parameter_intervention_for_threshold(prob, x, 3,
+opt_ps, (s1, s2, s3),
+ret = optimal_parameter_intervention_for_threshold(prob, x, 3,
     abs(p)^2, [p],
     [-5.0], [0.0],
     (2.0, 45.0), 50);
 @test abs(opt_ps[p]) < 0.04
-opt_ps, (s1, s2, s3), ret = optimal_parameter_intervention_for_threshold(prob, x, 3,
+opt_ps, (s1, s2, s3),
+ret = optimal_parameter_intervention_for_threshold(prob, x, 3,
     -p, [p],
     [-1.0], [1.0]);
 @test abs(opt_ps[p]) > 0.110
@@ -56,7 +58,8 @@ opt_ps, s2, ret = optimal_parameter_threshold(prob, x, 3,
 opt_ps, s2, ret = optimal_parameter_threshold(prob, x, 3,
     -p, [p],
     [-1.0], [1.0]);
-opt_ps, (s1, s2, s3), ret = optimal_parameter_intervention_for_reach(
+opt_ps, (s1, s2, s3),
+ret = optimal_parameter_intervention_for_reach(
     remake(prob,
         tspan = (0,
             1.0)),
@@ -66,7 +69,8 @@ opt_ps, (s1, s2, s3), ret = optimal_parameter_intervention_for_reach(
     maxtime = 10);
 @test 10 < opt_ps[p] < 11
 
-opt_ps, (s1, s2, s3), ret = optimal_parameter_intervention_for_reach(
+opt_ps, (s1, s2, s3),
+ret = optimal_parameter_intervention_for_reach(
     remake(prob,
         tspan = (0,
             1.0)),
@@ -83,7 +87,8 @@ eqs = [D(x) ~ p1 * abs(x) + p2 * y
        D(y) ~ p1 * abs(x) + p2 * y]
 @mtkbuild sys = ODESystem(eqs, t)
 prob = ODEProblem(sys, [x => 0.01, y => 1], (0.0, 50), [p1 => 0.5, p2 => 0.2])
-opt_ps, s2, ret = optimal_parameter_threshold(prob, x, 2, p1 - p2, [p1, p2],
+opt_ps, s2,
+ret = optimal_parameter_threshold(prob, x, 2, p1 - p2, [p1, p2],
     [-2.0, -2.0], [2.0, 2],
     ineq_cons
     = [abs(p2) - abs(p1) + 0.1]);

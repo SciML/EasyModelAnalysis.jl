@@ -89,7 +89,7 @@ t = ModelingToolkit.get_iv(sys1)
 @unpack S, E, I, R, H, D = sys1
 @unpack expo, conv, rec, hosp, death = sys1
 NN = 10.0
-@parameters u_expo=0.2 * NN u_conv=0.2 * NN u_rec=0.8 * NN u_hosp=0.2 * NN u_death=0.1 * NN N=NN
+@parameters u_expo=0.2*NN u_conv=0.2*NN u_rec=0.8*NN u_hosp=0.2*NN u_death=0.1*NN N=NN
 translate_params = [expo => u_expo / N,
     conv => u_conv / N,
     rec => u_rec / N,
@@ -171,8 +171,9 @@ prob_violating_threshold(_prob, [u_conv => Uniform(0.0, 1.0)], [accumulation_I >
 # this assumes there is always hospital capacity
 eqs2 = [Differential(t)(S) ~ -(u_expo / N) * I * S
         Differential(t)(E) ~ (u_expo / N) * I * S - (u_conv / N) * E
-        Differential(t)(I) ~ (u_conv / N) * E - (u_hosp / N) * I - (u_rec / N) * I -
-                             (u_death / N) * I
+        Differential(t)(I) ~
+        (u_conv / N) * E - (u_hosp / N) * I - (u_rec / N) * I -
+        (u_death / N) * I
         Differential(t)(R) ~ (u_rec / N) * I + (u_rec / N) * H
         Differential(t)(H) ~ (u_hosp / N) * I - (u_death / N) * H - (u_rec / N) * H
         Differential(t)(D) ~ (u_death / N) * H + (u_death / N) * I]

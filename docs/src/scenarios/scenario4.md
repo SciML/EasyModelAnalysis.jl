@@ -73,8 +73,8 @@ sys1 = ODESystem(formSEIISRD())
 @unpack S, E, I, IS, R, D = sys1
 @unpack expo, conv, rec, test, leave, death = sys1
 
-@parameters u_expo=0.1 * NN u_conv=0.1 * NN u_rec=0.8 * NN u_death=0.1 * NN u_test=0.9 * NN u_leave=0.2 *
-                                                                                                    NN N=NN
+@parameters u_expo=0.1*NN u_conv=0.1*NN u_rec=0.8*NN u_death=0.1*NN u_test=0.9*NN u_leave=0.2*
+NN N=NN
 translate_params = [expo => u_expo / NN,
     conv => u_conv / NN,
     rec => u_rec / NN,
@@ -115,13 +115,15 @@ plot(sol)
 
 ```@example scenario4
 # Minimize u_test subject to IS <= 430
-p_opt, s2, ret = optimal_parameter_threshold(prob, IS, 430, u_test, [u_test], [0.0], [NN],
+p_opt, s2,
+ret = optimal_parameter_threshold(prob, IS, 430, u_test, [u_test], [0.0], [NN],
     maxtime = 10);
 plot(s2, idxs = [IS])
 ```
 
 ```@example scenario4
-p_opt, s2, ret = optimal_parameter_threshold(prob, D, 430, u_test, [u_test], [0.0], [NN],
+p_opt, s2,
+ret = optimal_parameter_threshold(prob, D, 430, u_test, [u_test], [0.0], [NN],
     maxtime = 10);
 plot(s2, idxs = [I, IS, D])
 ```
@@ -134,7 +136,8 @@ plot(s2, idxs = [I, IS, D])
 
 ```@example scenario4
 # Minimize u_test subject to IS <= 430
-p_opt, s2, ret = optimal_parameter_threshold(prob, IS, 430, 5 * u_test, [u_test], [0.0],
+p_opt, s2,
+ret = optimal_parameter_threshold(prob, IS, 430, 5 * u_test, [u_test], [0.0],
     [NN], maxtime = 10);
 plot(s2, idxs = [IS])
 ```
