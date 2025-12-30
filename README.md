@@ -55,3 +55,5 @@ plot_extrema(prob, x)
 
 ![](https://user-images.githubusercontent.com/1814174/214805423-2f79eb2b-a243-4c69-9aec-90cd16d67218.png)
 ![](https://user-images.githubusercontent.com/1814174/214805420-f1192965-e49e-458a-9c45-5fe86fdd3c80.png)
+
+
