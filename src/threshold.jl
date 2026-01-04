@@ -18,7 +18,7 @@ function stop_at_threshold(prob, obs, threshold; alg = nothing, kw...)
     else
         sol = solve(prob, alg; callback = cb, kw...)
     end
-    sol
+    return sol
 end
 
 """
@@ -29,7 +29,7 @@ Returns the value `t` for the time point where the solution of the model `prob` 
 """
 function get_threshold(prob, obs, threshold; alg = nothing, kw...)
     sol = stop_at_threshold(prob, obs, threshold; alg = nothing, kw...)
-    sol.t[end]
+    return sol.t[end]
 end
 
 """
@@ -62,7 +62,7 @@ function prob_violating_threshold(prob, p, thresholds)
     end
     exprob = ExpectationProblem(sm, g, h, gd)
     exsol = solve(exprob, Koopman(), quadalg = HCubatureJL())
-    exsol.u
+    return exsol.u
 end
 
 """
@@ -90,14 +90,18 @@ end
   - `sol`: Solution with the optimal intervention parameters.
   - `ret`: Return code from the optimization.
 """
-function optimal_parameter_threshold(prob, obs, threshold, cost, ps, lb, ub;
+function optimal_parameter_threshold(
+        prob, obs, threshold, cost, ps, lb, ub;
         ineq_cons = nothing, maxtime = 60,
-        kw...)
+        kw...
+    )
     opt, (s1, s2, s3),
-    ret = optimal_parameter_intervention_for_threshold(prob, obs,
+        ret = optimal_parameter_intervention_for_threshold(
+        prob, obs,
         threshold, cost,
         ps, lb, ub;
         ineq_cons,
-        maxtime, kw...)
-    opt, s2, ret
+        maxtime, kw...
+    )
+    return opt, s2, ret
 end

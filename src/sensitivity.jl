@@ -4,8 +4,10 @@ function _get_sensitivity(prob, t, x, pbounds; samples)
     f = function (p)
         prob_func(prob, i, repeat) = remake(prob; p = Pair.(boundkeys, p[:, i]))
         ensemble_prob = EnsembleProblem(prob, prob_func = prob_func)
-        sol = solve(ensemble_prob, nothing, EnsembleThreads(); saveat = t,
-            trajectories = size(p, 2))
+        sol = solve(
+            ensemble_prob, nothing, EnsembleThreads(); saveat = t,
+            trajectories = size(p, 2)
+        )
         out = zeros(size(p, 2))
         if x isa Function
             for i in 1:size(p, 2)
@@ -16,10 +18,12 @@ function _get_sensitivity(prob, t, x, pbounds; samples)
                 out[i] = sol[i](t; idxs = x)
             end
         end
-        out
+        return out
     end
-    return GlobalSensitivity.gsa(f, Sobol(; order = [0, 1, 2]), boundvals; samples,
-        batch = true)
+    return GlobalSensitivity.gsa(
+        f, Sobol(; order = [0, 1, 2]), boundvals; samples,
+        batch = true
+    )
 end
 
 """
@@ -53,8 +57,9 @@ function get_sensitivity(prob, t, x, pbounds; samples = 1000)
     for i in eachindex(boundkeys)
         for j in (i + 1):length(boundkeys)
             res_dict[Symbol(boundkeys[i], "_", boundkeys[j], "_second_order")] = sensres.S2[
-            i,
-            j]
+                i,
+                j,
+            ]
         end
     end
     return res_dict
@@ -82,7 +87,7 @@ parameters in `pbounds`.
   - A dictionary with the first, second and total order indices for all parameters (and pairs incase of second order).
 """
 function get_sensitivity_of_maximum(prob, t, x, pbounds; samples = 1000)
-    get_sensitivity(prob, t, sol -> get_max_t(sol, x)[2], pbounds, samples = samples)
+    return get_sensitivity(prob, t, sol -> get_max_t(sol, x)[2], pbounds, samples = samples)
 end
 
 """
@@ -96,18 +101,27 @@ See also [`get_sensitivity`](@ref)
 function create_sensitivity_plot(prob, t, x, pbounds; samples = 1000)
     sensres = _get_sensitivity(prob, t, x, pbounds; samples)
     paramnames = String.(Symbol.(getfield.(pbounds, :first)))
-    p1 = bar(paramnames, sensres.ST,
-        title = "Total Order Indices", legend = false)
-    p2 = bar(paramnames, sensres.S1,
-        title = "First Order Indices", legend = false)
+    p1 = bar(
+        paramnames, sensres.ST,
+        title = "Total Order Indices", legend = false
+    )
+    p2 = bar(
+        paramnames, sensres.S1,
+        title = "First Order Indices", legend = false
+    )
     p3 = bar(
-        [paramnames[i] * "_" * paramnames[j] for i in eachindex(paramnames)
-         for j in (i + 1):length(paramnames)],
-        [sensres.S2[i, j] for i in eachindex(paramnames)
-         for j in (i + 1):length(paramnames)],
-        title = "Second Order Indices", legend = false)
+        [
+            paramnames[i] * "_" * paramnames[j] for i in eachindex(paramnames)
+                for j in (i + 1):length(paramnames)
+        ],
+        [
+            sensres.S2[i, j] for i in eachindex(paramnames)
+                for j in (i + 1):length(paramnames)
+        ],
+        title = "Second Order Indices", legend = false
+    )
     l = @layout [a b; c]
-    plot(p2, p3, p1; layout = l, ylims = (0, 1))
+    return plot(p2, p3, p1; layout = l, ylims = (0, 1))
 end
 
 """
@@ -122,19 +136,27 @@ function create_sensitivity_plot(sensres::Dict{Symbol}, pbounds, total_only = fa
     paramnames = String.(Symbol.(getfield.(pbounds, :first)))
     st = getindex.((sensres,), Symbol.(paramnames .* "_total_order"))
     idxs = sortperm(st, by = abs, rev = true)
-    p1 = bar(paramnames[idxs], st[idxs];
-        title = "Total Order Indices", legend = false, xrot = 90, kw...)
+    p1 = bar(
+        paramnames[idxs], st[idxs];
+        title = "Total Order Indices", legend = false, xrot = 90, kw...
+    )
     total_only && return p1
     s1 = getindex.((sensres,), Symbol.(paramnames .* "_first_order"))
     idxs = sortperm(s1, by = abs, rev = true)
-    p2 = bar(paramnames[idxs], s1[idxs];
-        title = "First Order Indices", legend = false, xrot = 90, kw...)
-    names = [paramnames[i] * "_" * paramnames[j] for i in eachindex(paramnames)
-             for j in (i + 1):length(paramnames)]
+    p2 = bar(
+        paramnames[idxs], s1[idxs];
+        title = "First Order Indices", legend = false, xrot = 90, kw...
+    )
+    names = [
+        paramnames[i] * "_" * paramnames[j] for i in eachindex(paramnames)
+            for j in (i + 1):length(paramnames)
+    ]
     s2 = getindex.((sensres,), Symbol.(names, "_second_order"))
     idxs = sortperm(s2, by = abs, rev = true)
-    p3 = bar(names[idxs], s2[idxs];
-        title = "Second Order Indices", legend = false, xrot = 90, kw...)
+    p3 = bar(
+        names[idxs], s2[idxs];
+        title = "Second Order Indices", legend = false, xrot = 90, kw...
+    )
     l = @layout [a b; c]
-    plot(p2, p3, p1; layout = l, ylims = (0, 1))
+    return plot(p2, p3, p1; layout = l, ylims = (0, 1))
 end

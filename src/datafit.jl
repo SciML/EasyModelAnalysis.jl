@@ -99,25 +99,30 @@ If `datafit(prob, p, data)`, then the data must be a tuple of (t, timeseries), f
 where this means x(2.0) == 11.81...
 """
 function datafit(
-        prob, p::Vector{Pair{Num, Float64}}, t, data; loss = l2loss, solve_kws = (;))
+        prob, p::Vector{Pair{Num, Float64}}, t, data; loss = l2loss, solve_kws = (;)
+    )
     pvals = getfield.(p, :second)
     pkeys = getfield.(p, :first)
-    oprob = OptimizationProblem(loss, pvals,
+    oprob = OptimizationProblem(
+        loss, pvals,
         lb = fill(-Inf, length(p)),
-        ub = fill(Inf, length(p)), (prob, pkeys, t, data))
+        ub = fill(Inf, length(p)), (prob, pkeys, t, data)
+    )
     res = solve(oprob, NLopt.LN_SBPLX(); solve_kws...)
-    Pair.(pkeys, res.u)
+    return Pair.(pkeys, res.u)
 end
 
 function datafit(prob, p::Vector{Pair{Num, Float64}}, data; loss = l2loss, solve_kws = (;))
     pvals = getfield.(p, :second)
     pkeys = getfield.(p, :first)
-    oprob = OptimizationProblem(loss, pvals,
+    oprob = OptimizationProblem(
+        loss, pvals,
         lb = fill(-Inf, length(p)),
-        ub = fill(Inf, length(p)), (prob, pkeys, data))
+        ub = fill(Inf, length(p)), (prob, pkeys, data)
+    )
     l2loss(last.(p), (prob, pkeys, data))
     res = solve(oprob, NLopt.LN_SBPLX(); solve_kws...)
-    Pair.(pkeys, res.u)
+    return Pair.(pkeys, res.u)
 end
 
 """
@@ -168,25 +173,31 @@ If `datafit(prob, p, data)`, then the data must be a tuple of (t, timeseries), f
 where this means x(2.0) == 11.81...
 """
 function global_datafit(
-        prob, pbounds, t, data; maxiters = 10000, loss = l2loss, solve_kws = (;))
+        prob, pbounds, t, data; maxiters = 10000, loss = l2loss, solve_kws = (;)
+    )
     plb = getindex.(getfield.(pbounds, :second), 1)
     pub = getindex.(getfield.(pbounds, :second), 2)
     pkeys = getfield.(pbounds, :first)
-    oprob = OptimizationProblem(loss, (pub .+ plb) ./ 2,
-        lb = plb, ub = pub, (prob, pkeys, t, data))
+    oprob = OptimizationProblem(
+        loss, (pub .+ plb) ./ 2,
+        lb = plb, ub = pub, (prob, pkeys, t, data)
+    )
     res = solve(oprob, BBO_adaptive_de_rand_1_bin_radiuslimited(); maxiters, solve_kws...)
-    Pair.(pkeys, res.u)
+    return Pair.(pkeys, res.u)
 end
 
 function global_datafit(
-        prob, pbounds, data; maxiters = 10000, loss = l2loss, solve_kws = (;))
+        prob, pbounds, data; maxiters = 10000, loss = l2loss, solve_kws = (;)
+    )
     plb = getindex.(getfield.(pbounds, :second), 1)
     pub = getindex.(getfield.(pbounds, :second), 2)
     pkeys = getfield.(pbounds, :first)
-    oprob = OptimizationProblem(loss, (pub .+ plb) ./ 2,
-        lb = plb, ub = pub, (prob, pkeys, data))
+    oprob = OptimizationProblem(
+        loss, (pub .+ plb) ./ 2,
+        lb = plb, ub = pub, (prob, pkeys, data)
+    )
     res = solve(oprob, BBO_adaptive_de_rand_1_bin_radiuslimited(); maxiters, solve_kws...)
-    Pair.(pkeys, res.u)
+    return Pair.(pkeys, res.u)
 end
 
 function bayes_unpack_data(p, data)
@@ -196,12 +207,12 @@ function bayes_unpack_data(p, data)
     lastt = maximum(last, ts)
     timeseries = last.(last.(data))
     datakeys = first.(data)
-    (pdist, pkeys, ts, lastt, timeseries, datakeys)
+    return (pdist, pkeys, ts, lastt, timeseries, datakeys)
 end
 function bayes_unpack_data(p)
     pdist = getfield.(p, :second)
     pkeys = getfield.(p, :first)
-    (pdist, pkeys)
+    return (pdist, pkeys)
 end
 
 Turing.@model function bayesianODE(prob, t, pdist, pkeys, data, noise_prior)
@@ -221,14 +232,16 @@ Turing.@model function bayesianODE(prob, t, pdist, pkeys, data, noise_prior)
     return nothing
 end
 
-Turing.@model function bayesianODE(prob,
+Turing.@model function bayesianODE(
+        prob,
         pdist,
         pkeys,
         ts,
         lastt,
         timeseries,
         datakeys,
-        noise_prior)
+        noise_prior
+    )
     σ ~ noise_prior
 
     pprior ~ product_distribution(pdist)
@@ -274,43 +287,55 @@ If `datafit(prob, p, data)`, then the data must be a tuple of (t, timeseries), f
 
 where this means x(2.0) == 11.81...
 """
-function bayesian_datafit(prob,
+function bayesian_datafit(
+        prob,
         p,
         t,
         data;
         noise_prior = InverseGamma(2, 3),
         mcmcensemble::AbstractMCMC.AbstractMCMCEnsemble = Turing.MCMCThreads(),
         nchains = 4,
-        niter = 1000)
+        niter = 1000
+    )
     (pkeys, pdata) = bayes_unpack_data(p)
     model = bayesianODE(prob, t, pkeys, pdata, data, noise_prior)
-    chain = Turing.sample(model,
+    chain = Turing.sample(
+        model,
         Turing.NUTS(0.65),
         mcmcensemble,
         niter,
         nchains;
-        progress = true)
-    [Pair(p[i].first, collect(chain["pprior[" * string(i) * "]"])[:])
-     for i in eachindex(p)]
+        progress = true
+    )
+    return [
+        Pair(p[i].first, collect(chain["pprior[" * string(i) * "]"])[:])
+            for i in eachindex(p)
+    ]
 end
 
-function bayesian_datafit(prob,
+function bayesian_datafit(
+        prob,
         p,
         data;
         noise_prior = InverseGamma(2, 3),
         mcmcensemble::AbstractMCMC.AbstractMCMCEnsemble = Turing.MCMCThreads(),
         nchains = 4,
-        niter = 1_000)
+        niter = 1_000
+    )
     pdist, pkeys, ts, lastt, timeseries, datakeys = bayes_unpack_data(p, data)
     model = bayesianODE(prob, pdist, pkeys, ts, lastt, timeseries, datakeys, noise_prior)
-    chain = Turing.sample(model,
+    chain = Turing.sample(
+        model,
         Turing.NUTS(0.65),
         mcmcensemble,
         niter,
         nchains;
-        progress = true)
-    [Pair(p[i].first, collect(chain["pprior[" * string(i) * "]"])[:])
-     for i in eachindex(p)]
+        progress = true
+    )
+    return [
+        Pair(p[i].first, collect(chain["pprior[" * string(i) * "]"])[:])
+            for i in eachindex(p)
+    ]
 end
 
 """
@@ -326,11 +351,13 @@ Arguments:
 
 Output: the L2 distance from the dataset for each problem.
 """
-function model_forecast_score(probs::AbstractVector, ts::AbstractVector,
-        dataset::AbstractVector{<:Pair})
+function model_forecast_score(
+        probs::AbstractVector, ts::AbstractVector,
+        dataset::AbstractVector{<:Pair}
+    )
     obs = map(first, dataset)
     data = map(last, dataset)
-    map(probs) do prob
+    return map(probs) do prob
         sol = solve(prob, saveat = ts)
         sum(enumerate(obs)) do (i, o)
             norm(sol[o] - data[i])
