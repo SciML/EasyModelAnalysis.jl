@@ -7,7 +7,7 @@ function get_timeseries(prob, sym, t)
     @assert t[1] >= prob.tspan[1]
     prob = remake(prob, tspan = (prob.tspan[1], min(prob.tspan[2], t[end])))
     sol = solve(prob, saveat = t)
-    sol[sym]
+    return sol[sym]
 end
 
 """
@@ -24,11 +24,13 @@ function get_min_t(prob, sym)
         sol = solve(prob)
     end
     f(t, _) = sol(t[1]; idxs = sym)
-    oprob = OptimizationProblem(f, [(prob.tspan[2] - prob.tspan[1]) / 2],
+    oprob = OptimizationProblem(
+        f, [(prob.tspan[2] - prob.tspan[1]) / 2],
         lb = [prob.tspan[1]],
-        ub = [prob.tspan[end]])
+        ub = [prob.tspan[end]]
+    )
     res = solve(oprob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters = 10000)
-    res.u[1], f(res.u[1], nothing)
+    return res.u[1], f(res.u[1], nothing)
 end
 
 """
@@ -45,11 +47,13 @@ function get_max_t(prob, sym)
         sol = solve(prob)
     end
     f(t, _) = -sol(t[1]; idxs = sym)
-    oprob = OptimizationProblem(f, [(prob.tspan[2] - prob.tspan[1]) / 2],
+    oprob = OptimizationProblem(
+        f, [(prob.tspan[2] - prob.tspan[1]) / 2],
         lb = [prob.tspan[1]],
-        ub = [prob.tspan[end]])
+        ub = [prob.tspan[end]]
+    )
     res = solve(oprob, BBO_adaptive_de_rand_1_bin_radiuslimited(), maxiters = 10000)
-    res.u[1], -f(res.u[1], nothing)
+    return res.u[1], -f(res.u[1], nothing)
 end
 
 """
@@ -63,7 +67,7 @@ function plot_extrema(prob, sym)
     sol = solve(prob)
     plot(sol, idxs = sym)
     scatter!([xmin], [xminval])
-    scatter!([xmax], [xmaxval])
+    return scatter!([xmax], [xmaxval])
 end
 
 """
@@ -79,7 +83,7 @@ function phaseplot_extrema(prob, sym, plotsyms)
     xmax, xmaxval = get_max_t(prob, sym)
     plot(sol, idxs = plotsyms)
     scatter!([[sol(xmin; idxs = x)] for x in plotsyms]...)
-    scatter!([[sol(xmax; idxs = x)] for x in plotsyms]...)
+    return scatter!([[sol(xmax; idxs = x)] for x in plotsyms]...)
 end
 
 """
@@ -94,12 +98,14 @@ function get_uncertainty_forecast(prob, sym, t, uncertainp, samples)
     @assert t[1] >= prob.tspan[1]
     function prob_func(prob, i, reset)
         ps = getindex.(uncertainp, 1) .=> rand.(getindex.(uncertainp, 2))
-        prob = remake(prob, tspan = (prob.tspan[1], min(prob.tspan[2], t[end])),
-            p = ps)
+        return prob = remake(
+            prob, tspan = (prob.tspan[1], min(prob.tspan[2], t[end])),
+            p = ps
+        )
     end
     eprob = EnsembleProblem(prob, prob_func = prob_func)
     esol = solve(eprob, nothing, EnsembleSerial(), saveat = t, trajectories = samples)
-    Array.(reduce.(hcat, [esol[i][sym] for i in 1:samples]))
+    return Array.(reduce.(hcat, [esol[i][sym] for i in 1:samples]))
 end
 
 """
@@ -112,46 +118,58 @@ distribution. Samples is the number of trajectories to run.
 
 Returns a tuple of arrays for the quantiles `quants` which defaults to the 95% confidence intervals.
 """
-function get_uncertainty_forecast_quantiles(prob, sym, t, uncertainp, samples,
-        quants = (0.05, 0.95))
+function get_uncertainty_forecast_quantiles(
+        prob, sym, t, uncertainp, samples,
+        quants = (0.05, 0.95)
+    )
     @assert t[1] >= prob.tspan[1]
     function prob_func(prob, i, reset)
         ps = getindex.(uncertainp, 1) .=> rand.(getindex.(uncertainp, 2))
-        prob = remake(prob, tspan = (prob.tspan[1], min(prob.tspan[2], t[end])),
-            p = ps)
+        return prob = remake(
+            prob, tspan = (prob.tspan[1], min(prob.tspan[2], t[end])),
+            p = ps
+        )
     end
     eprob = EnsembleProblem(prob, prob_func = prob_func)
 
     indexof(sym, syms) = indexin(Symbol.(sym), Symbol.(syms))
     idx = indexof(sym, states(prob.f.sys))
 
-    esol = solve(eprob, nothing, EnsembleSerial(), saveat = t, trajectories = samples,
-        save_idxs = idx)
-    [Array(reduce(hcat, SciMLBase.EnsembleAnalysis.timeseries_steps_quantile(esol, q).u)')
-     for q in quants]
+    esol = solve(
+        eprob, nothing, EnsembleSerial(), saveat = t, trajectories = samples,
+        save_idxs = idx
+    )
+    return [
+        Array(reduce(hcat, SciMLBase.EnsembleAnalysis.timeseries_steps_quantile(esol, q).u)')
+            for q in quants
+    ]
 end
 
 """
     plot_uncertainty_forecast(prob, sym, t, uncertainp, samples)
 """
-function plot_uncertainty_forecast(prob, sym, t, uncertainp, samples;
+function plot_uncertainty_forecast(
+        prob, sym, t, uncertainp, samples;
         label = reshape(string.(Symbol.(sym)), 1, length(sym)),
-        kwargs...)
+        kwargs...
+    )
     esol = get_uncertainty_forecast(prob, sym, t, uncertainp, samples)
     p = plot(Array(esol[1]'), idxs = sym; label = label, kwargs...)
     for i in 2:samples
         plot!(p, Array(esol[i]'), idxs = sym; label = false, kwargs...)
     end
-    display(p)
+    return display(p)
 end
 
 """
     plot_uncertainty_forecast_quantiles(prob, sym, t, uncertainp, samples, quants = (0.05, 0.95))
 """
-function plot_uncertainty_forecast_quantiles(prob, sym, t, uncertainp, samples,
+function plot_uncertainty_forecast_quantiles(
+        prob, sym, t, uncertainp, samples,
         quants = (0.05, 0.95); label = false,
-        kwargs...)
+        kwargs...
+    )
     qs = get_uncertainty_forecast_quantiles(prob, sym, t, uncertainp, samples, quants)
     plot(t, qs[1]; label = label, kwargs...)
-    plot!(t, qs[2]; label = false, kwargs...)
+    return plot!(t, qs[2]; label = false, kwargs...)
 end
