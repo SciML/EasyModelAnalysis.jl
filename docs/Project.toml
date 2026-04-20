@@ -17,7 +17,7 @@ UnPack = "3a884ed6-31ef-47d7-9d2a-63182c4928ed"
 
 [compat]
 AlgebraicPetri = "0.8.2"
-Catlab = "0.14"
+Catlab = "0.14, 0.16"
 DifferentialEquations = "7"
 Documenter = "1"
 EasyModelAnalysis = "0.1, 1"
