@@ -16,7 +16,7 @@ SBMLToolkit = "86080e66-c8ac-44c2-a1a0-9adaadfe4a4e"
 UnPack = "3a884ed6-31ef-47d7-9d2a-63182c4928ed"
 
 [compat]
-AlgebraicPetri = "0.8.2"
+AlgebraicPetri = "0.8.2, 0.9"
 Catlab = "0.14"
 DifferentialEquations = "7"
 Documenter = "1"
