@@ -1,0 +1,11 @@
+[deps]
+Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
+EasyModelAnalysis = "ef4b24a4-a090-4686-a932-e7e56a5a83bd"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[sources]
+EasyModelAnalysis = {path = "../.."}
+
+[compat]
+Aqua = "0.8"
+julia = "1.10"
