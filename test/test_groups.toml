@@ -5,4 +5,4 @@ versions = ["1"]
 versions = ["1"]
 
 [QA]
-versions = ["1"]
+versions = ["lts", "1"]
