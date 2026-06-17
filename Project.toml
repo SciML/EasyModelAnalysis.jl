@@ -1,9 +1,10 @@
 name = "EasyModelAnalysis"
 uuid = "ef4b24a4-a090-4686-a932-e7e56a5a83bd"
 authors = ["SciML"]
-version = "1.1.1"
+version = "1.1.2"
 
 [deps]
+AbstractMCMC = "80f14c24-f653-4e6a-9b94-39d6b0f70001"
 DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 GlobalSensitivity = "af5da776-676b-467e-8baf-acd8249e4f0f"
@@ -20,6 +21,7 @@ SciMLExpectations = "afe9f18d-7609-4d0e-b7b7-af0cb72b8ea8"
 Turing = "fce5fe82-541a-59a6-adf8-730c64b5f9a0"
 
 [compat]
+AbstractMCMC = "4, 5"
 Aqua = "0.8"
 DifferentialEquations = "7, 8.0"
 Distributions = "0.25"
