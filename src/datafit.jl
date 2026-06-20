@@ -223,7 +223,7 @@ Turing.@model function bayesianODE(prob, t, pdist, pkeys, data, noise_prior)
     prob = remake(prob, tspan = (prob.tspan[1], t[end]), p = Pair.(pkeys, pprior))
     sol = solve(prob, saveat = t)
     if !SciMLBase.successful_retcode(sol)
-        Turing.DynamicPPL.acclogp!!(__varinfo__, -Inf)
+        Turing.@addlogprob! (; loglikelihood = -Inf)
         return nothing
     end
     for i in eachindex(data)
@@ -249,7 +249,7 @@ Turing.@model function bayesianODE(
     prob = remake(prob, tspan = (prob.tspan[1], lastt), p = Pair.(pkeys, pprior))
     sol = solve(prob)
     if !SciMLBase.successful_retcode(sol)
-        Turing.DynamicPPL.acclogp!!(__varinfo__, -Inf)
+        Turing.@addlogprob! (; loglikelihood = -Inf)
         return nothing
     end
     for i in eachindex(datakeys)

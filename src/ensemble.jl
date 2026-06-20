@@ -31,6 +31,23 @@ function ensemble_weights(sol::EnsembleSolution, data_ensem)
     return weights = predictions \ data
 end
 
+"""
+    EnsembleProbForwarder(all_probs)
+
+Callable used as the `prob_func` of the `EnsembleProblem` returned by
+[`bayesian_ensemble`](@ref). It selects the per-trajectory problem from the stored
+`all_probs` vector. It supports both the `prob_func(prob, ctx)` interface of newer
+SciMLBase (selecting via `ctx.sim_id`) and the legacy `prob_func(prob, i, repeat)`
+interface (selecting via the integer index). Storing `all_probs` lets callers recover
+the number of trajectories via `enprob.prob_func.all_probs`.
+"""
+struct EnsembleProbForwarder{P}
+    all_probs::P
+end
+
+(f::EnsembleProbForwarder)(prob, i::Integer, repeat) = f.all_probs[i]
+(f::EnsembleProbForwarder)(prob, ctx) = f.all_probs[ctx.sim_id]
+
 function bayesian_ensemble(
         probs, ps, datas;
         noise_prior = InverseGamma(2, 3),
@@ -57,6 +74,6 @@ function bayesian_ensemble(
     @info "$(length(all_probs)) total models"
 
     return enprob = EnsembleProblem(
-        all_probs[1]; prob_func = (prob, ctx) -> all_probs[ctx.sim_id]
+        all_probs[1]; prob_func = EnsembleProbForwarder(all_probs)
     )
 end

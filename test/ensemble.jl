@@ -53,7 +53,9 @@ eqs = [
 @mtkbuild sys3 = ODESystem(eqs, t)
 prob3 = ODEProblem(sys3, [], tspan);
 probs = [prob, prob2, prob3]
-enprob = EnsembleProblem(probs[1]; prob_func = (prob, ctx) -> probs[ctx.sim_id])
+prob_func(prob, i::Integer, repeat) = probs[i]
+prob_func(prob, ctx) = probs[ctx.sim_id]
+enprob = EnsembleProblem(probs[1]; prob_func = prob_func)
 
 sol = solve(enprob, Tsit5(); saveat = 1, trajectories = length(probs));
 
