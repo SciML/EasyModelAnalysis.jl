@@ -6,7 +6,7 @@ function l2loss(pvals, (prob, pkeys, t, data)::Tuple{Vararg{Any, 4}})
     for pairs in data
         tot_loss += sum((sol[pairs.first] .- pairs.second) .^ 2)
     end
-    return tot_loss, sol
+    return tot_loss
 end
 
 function l2loss(pvals, (prob, pkeys, data)::Tuple{Vararg{Any, 3}})
@@ -22,7 +22,7 @@ function l2loss(pvals, (prob, pkeys, data)::Tuple{Vararg{Any, 3}})
     for i in 1:length(ts)
         tot_loss += sum((sol(ts[i]; idxs = datakeys[i]) .- timeseries[i]) .^ 2)
     end
-    return tot_loss, sol
+    return tot_loss
 end
 
 function relative_l2loss(pvals, (prob, pkeys, t, data)::Tuple{Vararg{Any, 4}})
@@ -33,7 +33,7 @@ function relative_l2loss(pvals, (prob, pkeys, t, data)::Tuple{Vararg{Any, 4}})
     for pairs in data
         tot_loss += sum(((sol[pairs.first] .- pairs.second) ./ sol[pairs.first]) .^ 2)
     end
-    return tot_loss, sol
+    return tot_loss
 end
 
 function relative_l2loss(pvals, (prob, pkeys, data)::Tuple{Vararg{Any, 3}})
@@ -50,7 +50,7 @@ function relative_l2loss(pvals, (prob, pkeys, data)::Tuple{Vararg{Any, 3}})
         vals = sol(ts[i]; idxs = datakeys[i])
         tot_loss += sum(((vals .- timeseries[i]) ./ vals) .^ 2)
     end
-    return tot_loss, sol
+    return tot_loss
 end
 
 """
@@ -308,7 +308,7 @@ function bayesian_datafit(
         progress = true
     )
     return [
-        Pair(p[i].first, collect(chain["pprior[" * string(i) * "]"])[:])
+        Pair(p[i].first, collect(chain[@varname(pprior[i])])[:])
             for i in eachindex(p)
     ]
 end
@@ -333,7 +333,7 @@ function bayesian_datafit(
         progress = true
     )
     return [
-        Pair(p[i].first, collect(chain["pprior[" * string(i) * "]"])[:])
+        Pair(p[i].first, collect(chain[@varname(pprior[i])])[:])
             for i in eachindex(p)
     ]
 end

@@ -19,7 +19,7 @@ dataset on which the ensembler should be trained on.
 function ensemble_weights(sol::EnsembleSolution, data_ensem)
     obs = first.(data_ensem)
     predictions = reduce(
-        vcat, reduce(hcat, [sol[i][s] for i in 1:length(sol)]) for s in obs
+        vcat, reduce(hcat, [sol.u[i][s] for i in 1:length(sol.u)]) for s in obs
     )
     data = reduce(
         vcat,
@@ -56,5 +56,7 @@ function bayesian_ensemble(
 
     @info "$(length(all_probs)) total models"
 
-    return enprob = EnsembleProblem(all_probs)
+    return enprob = EnsembleProblem(
+        all_probs[1]; prob_func = (prob, ctx) -> all_probs[ctx.sim_id]
+    )
 end
