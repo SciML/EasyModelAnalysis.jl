@@ -1,3 +1,23 @@
+"""
+    _pprior_samples(chain, i)
+
+Extract the posterior samples of `pprior[i]` from a Turing sampling result, supporting
+both chain backends across Turing versions: the `FlexiChains.VNChain` returned by newer
+Turing (indexed by `@varname(pprior[i])`) and the legacy `MCMCChains.Chains`
+(indexed by the `"pprior[i]"` string key).
+"""
+function _pprior_samples(chain, i)
+    vn = @varname(pprior[i])
+    samples = try
+        chain[vn]
+    catch err
+        err isa Union{MethodError, KeyError, ArgumentError} ||
+            rethrow(err)
+        chain["pprior[" * string(i) * "]"]
+    end
+    return collect(samples)[:]
+end
+
 function l2loss(pvals, (prob, pkeys, t, data)::Tuple{Vararg{Any, 4}})
     p = Pair.(pkeys, pvals)
     prob = remake(prob, tspan = (prob.tspan[1], t[end]), p = p)
@@ -223,7 +243,7 @@ Turing.@model function bayesianODE(prob, t, pdist, pkeys, data, noise_prior)
     prob = remake(prob, tspan = (prob.tspan[1], t[end]), p = Pair.(pkeys, pprior))
     sol = solve(prob, saveat = t)
     if !SciMLBase.successful_retcode(sol)
-        Turing.@addlogprob! (; loglikelihood = -Inf)
+        Turing.@addlogprob! -Inf
         return nothing
     end
     for i in eachindex(data)
@@ -249,7 +269,7 @@ Turing.@model function bayesianODE(
     prob = remake(prob, tspan = (prob.tspan[1], lastt), p = Pair.(pkeys, pprior))
     sol = solve(prob)
     if !SciMLBase.successful_retcode(sol)
-        Turing.@addlogprob! (; loglikelihood = -Inf)
+        Turing.@addlogprob! -Inf
         return nothing
     end
     for i in eachindex(datakeys)
@@ -308,7 +328,7 @@ function bayesian_datafit(
         progress = true
     )
     return [
-        Pair(p[i].first, collect(chain[@varname(pprior[i])])[:])
+        Pair(p[i].first, _pprior_samples(chain, i))
             for i in eachindex(p)
     ]
 end
@@ -333,7 +353,7 @@ function bayesian_datafit(
         progress = true
     )
     return [
-        Pair(p[i].first, collect(chain[@varname(pprior[i])])[:])
+        Pair(p[i].first, _pprior_samples(chain, i))
             for i in eachindex(p)
     ]
 end
