@@ -1,14 +1,32 @@
-using EasyModelAnalysis, Aqua
-@testset "Aqua" begin
-    Aqua.find_persistent_tasks_deps(EasyModelAnalysis)
-    Aqua.test_ambiguities(EasyModelAnalysis, recursive = false)
-    Aqua.test_deps_compat(EasyModelAnalysis)
-    Aqua.test_piracies(
-        EasyModelAnalysis,
-        treat_as_own = []
-    )
-    Aqua.test_project_extras(EasyModelAnalysis)
-    Aqua.test_stale_deps(EasyModelAnalysis)
-    Aqua.test_unbound_args(EasyModelAnalysis)
-    Aqua.test_undefined_exports(EasyModelAnalysis, broken = true)
-end
+using SciMLTesting, EasyModelAnalysis, Test
+
+run_qa(
+    EasyModelAnalysis;
+    explicit_imports = true,
+    aqua_kwargs = (; ambiguities = (; recursive = false)),
+    # undefined_exports: `Variable` and `rotate!` leak in (dead) via `@reexport`
+    # (SciML/EasyModelAnalysis.jl#300)
+    aqua_broken = (:undefined_exports,),
+    ei_kwargs = (;
+        all_qualified_accesses_via_owners = (;
+            ignore = (
+                :AbstractSystem,    # ModelingToolkitBase (accessed via ModelingToolkit)
+                :DynamicPPL,        # DynamicPPL (accessed via Turing)
+                :unwrap,            # SymbolicUtils (accessed via Symbolics)
+            ),
+        ),
+        all_qualified_accesses_are_public = (;
+            ignore = (
+                :AbstractMCMCEnsemble,  # AbstractMCMC (not public)
+                :AbstractSystem,        # ModelingToolkit (not public)
+                :DynamicPPL,            # Turing (not public)
+                :LN_SBPLX,              # NLopt (not public)
+                :successful_retcode,    # SciMLBase (not public)
+                :unwrap,                # Symbolics (not public)
+            ),
+        ),
+    ),
+    # no_implicit_imports: heavy reexport / bulk-using of the SciML stack
+    # (SciML/EasyModelAnalysis.jl#301)
+    ei_broken = (:no_implicit_imports,),
+)
