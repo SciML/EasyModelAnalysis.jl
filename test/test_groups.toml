@@ -1,8 +1,11 @@
 [Core]
 versions = ["1"]
+num_threads = 4
+timeout = 240
 
 [Datafit]
 versions = ["1"]
+num_threads = 4
 
 [QA]
 versions = ["lts", "1"]

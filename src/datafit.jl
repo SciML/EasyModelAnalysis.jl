@@ -325,7 +325,7 @@ function bayesian_datafit(
         mcmcensemble,
         niter,
         nchains;
-        progress = true
+        progress = false
     )
     return [
         Pair(p[i].first, _pprior_samples(chain, i))
@@ -350,7 +350,7 @@ function bayesian_datafit(
         mcmcensemble,
         niter,
         nchains;
-        progress = true
+        progress = false
     )
     return [
         Pair(p[i].first, _pprior_samples(chain, i))
