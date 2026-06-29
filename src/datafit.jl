@@ -1,3 +1,23 @@
+"""
+    _pprior_samples(chain, i)
+
+Extract the posterior samples of `pprior[i]` from a Turing sampling result, supporting
+both chain backends across Turing versions: the `FlexiChains.VNChain` returned by newer
+Turing (indexed by `@varname(pprior[i])`) and the legacy `MCMCChains.Chains`
+(indexed by the `"pprior[i]"` string key).
+"""
+function _pprior_samples(chain, i)
+    vn = @varname(pprior[i])
+    samples = try
+        chain[vn]
+    catch err
+        err isa Union{MethodError, KeyError, ArgumentError} ||
+            rethrow(err)
+        chain["pprior[" * string(i) * "]"]
+    end
+    return collect(samples)[:]
+end
+
 function l2loss(pvals, (prob, pkeys, t, data)::Tuple{Vararg{Any, 4}})
     p = Pair.(pkeys, pvals)
     prob = remake(prob, tspan = (prob.tspan[1], t[end]), p = p)
@@ -6,7 +26,7 @@ function l2loss(pvals, (prob, pkeys, t, data)::Tuple{Vararg{Any, 4}})
     for pairs in data
         tot_loss += sum((sol[pairs.first] .- pairs.second) .^ 2)
     end
-    return tot_loss, sol
+    return tot_loss
 end
 
 function l2loss(pvals, (prob, pkeys, data)::Tuple{Vararg{Any, 3}})
@@ -22,7 +42,7 @@ function l2loss(pvals, (prob, pkeys, data)::Tuple{Vararg{Any, 3}})
     for i in 1:length(ts)
         tot_loss += sum((sol(ts[i]; idxs = datakeys[i]) .- timeseries[i]) .^ 2)
     end
-    return tot_loss, sol
+    return tot_loss
 end
 
 function relative_l2loss(pvals, (prob, pkeys, t, data)::Tuple{Vararg{Any, 4}})
@@ -33,7 +53,7 @@ function relative_l2loss(pvals, (prob, pkeys, t, data)::Tuple{Vararg{Any, 4}})
     for pairs in data
         tot_loss += sum(((sol[pairs.first] .- pairs.second) ./ sol[pairs.first]) .^ 2)
     end
-    return tot_loss, sol
+    return tot_loss
 end
 
 function relative_l2loss(pvals, (prob, pkeys, data)::Tuple{Vararg{Any, 3}})
@@ -50,7 +70,7 @@ function relative_l2loss(pvals, (prob, pkeys, data)::Tuple{Vararg{Any, 3}})
         vals = sol(ts[i]; idxs = datakeys[i])
         tot_loss += sum(((vals .- timeseries[i]) ./ vals) .^ 2)
     end
-    return tot_loss, sol
+    return tot_loss
 end
 
 """
@@ -223,7 +243,7 @@ Turing.@model function bayesianODE(prob, t, pdist, pkeys, data, noise_prior)
     prob = remake(prob, tspan = (prob.tspan[1], t[end]), p = Pair.(pkeys, pprior))
     sol = solve(prob, saveat = t)
     if !SciMLBase.successful_retcode(sol)
-        Turing.DynamicPPL.acclogp!!(__varinfo__, -Inf)
+        Turing.@addlogprob! -Inf
         return nothing
     end
     for i in eachindex(data)
@@ -249,7 +269,7 @@ Turing.@model function bayesianODE(
     prob = remake(prob, tspan = (prob.tspan[1], lastt), p = Pair.(pkeys, pprior))
     sol = solve(prob)
     if !SciMLBase.successful_retcode(sol)
-        Turing.DynamicPPL.acclogp!!(__varinfo__, -Inf)
+        Turing.@addlogprob! -Inf
         return nothing
     end
     for i in eachindex(datakeys)
@@ -305,10 +325,10 @@ function bayesian_datafit(
         mcmcensemble,
         niter,
         nchains;
-        progress = true
+        progress = false
     )
     return [
-        Pair(p[i].first, collect(chain["pprior[" * string(i) * "]"])[:])
+        Pair(p[i].first, _pprior_samples(chain, i))
             for i in eachindex(p)
     ]
 end
@@ -330,10 +350,10 @@ function bayesian_datafit(
         mcmcensemble,
         niter,
         nchains;
-        progress = true
+        progress = false
     )
     return [
-        Pair(p[i].first, collect(chain["pprior[" * string(i) * "]"])[:])
+        Pair(p[i].first, _pprior_samples(chain, i))
             for i in eachindex(p)
     ]
 end

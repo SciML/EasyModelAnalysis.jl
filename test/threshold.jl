@@ -120,7 +120,7 @@ opt_ps, s2,
     ineq_cons
     = [abs(p2) - abs(p1) + 0.1]
 );
-@test s2.u[end][1] < 2
+@test s2[x][end] < 2
 @test abs(opt_ps[p2]) - abs(opt_ps[p1]) + 0.1 < 0
 
 @parameters σ ρ β

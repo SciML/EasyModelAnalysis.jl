@@ -32,6 +32,30 @@ function get_threshold(prob, obs, threshold; alg = nothing, kw...)
     return sol.t[end]
 end
 
+# Decompose a symbolic threshold inequality (e.g. `x > 10.0`) into the state it
+# constrains, the numeric bound, and whether the violating side is the upper one
+# (`maximum(state) > bound`) or the lower one (`minimum(state) < bound`).
+# Symbolics canonicalizes comparisons, so `x > 10.0` is stored as `<(10.0, x)`:
+# the constant can land on either side of the operator, which this normalizes.
+function _threshold_violation(threshold)
+    v = ModelingToolkit.value(threshold)
+    op = operation(v)
+    args = arguments(v)
+    isconst(z) = ModelingToolkit.value(z) isa Number
+    if isconst(args[1])
+        bound = ModelingToolkit.value(args[1])
+        state = args[2]
+        # `bound op state`: `bound < state` ⟺ `state > bound` (upper violation).
+        upper = (op === <) || (op === <=)
+    else
+        bound = ModelingToolkit.value(args[2])
+        state = args[1]
+        # `state op bound`: `state > bound`/`state >= bound` is the upper violation.
+        upper = (op === >) || (op === >=)
+    end
+    return state, bound, upper
+end
+
 """
     prob_violating_thresholdd(prob, p, thresholds)
 
@@ -46,16 +70,15 @@ function prob_violating_threshold(prob, p, thresholds)
     h(x, u, p) = u, remake(prob, p = Pair.(pkeys, [x...])).p # remake does not work well with static arrays
     function g(sol, p)
         for threshold in thresholds
-            if (threshold.val.f == >) || (threshold.val.f == >=)
-                if maximum(sol[threshold.val.arguments[1]]) > threshold.val.arguments[2]
-                    return 1.0
-                end
-            elseif (threshold.val.f == <) || (threshold.val.f == <=)
-                if minimum(sol[threshold.val.arguments[1]]) < threshold.val.arguments[2]
+            state, bound, upper = _threshold_violation(threshold)
+            if upper
+                if maximum(sol[state]) > bound
                     return 1.0
                 end
             else
-                error()
+                if minimum(sol[state]) < bound
+                    return 1.0
+                end
             end
         end
         return 0.0
