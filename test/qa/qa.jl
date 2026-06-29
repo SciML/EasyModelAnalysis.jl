@@ -9,20 +9,15 @@ run_qa(
     aqua_broken = (:undefined_exports,),
     ei_kwargs = (;
         all_qualified_accesses_via_owners = (;
-            ignore = (
-                :AbstractSystem,    # ModelingToolkitBase (accessed via ModelingToolkit)
-                :DynamicPPL,        # DynamicPPL (accessed via Turing)
-                :unwrap,            # SymbolicUtils (accessed via Symbolics)
-            ),
+            # DynamicPPL.acclogp!! is reached through Turing's re-export; DynamicPPL
+            # is not a direct dependency, so accessing it via Turing is intentional.
+            ignore = (:DynamicPPL,),
         ),
         all_qualified_accesses_are_public = (;
             ignore = (
-                :AbstractMCMCEnsemble,  # AbstractMCMC (not public)
-                :AbstractSystem,        # ModelingToolkit (not public)
-                :DynamicPPL,            # Turing (not public)
-                :LN_SBPLX,              # NLopt (not public)
-                :successful_retcode,    # SciMLBase (not public)
-                :unwrap,                # Symbolics (not public)
+                :AbstractMCMCEnsemble,  # AbstractMCMC: no public alias for the ensemble type
+                :DynamicPPL,            # Turing: submodule re-export, no public alias
+                :LN_SBPLX,              # NLopt: algorithm constant, not marked public
             ),
         ),
     ),
