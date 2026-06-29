@@ -1,7 +1,7 @@
 name = "EasyModelAnalysis"
 uuid = "ef4b24a4-a090-4686-a932-e7e56a5a83bd"
 authors = ["SciML"]
-version = "1.1.2"
+version = "1.2.0"
 
 [deps]
 AbstractMCMC = "80f14c24-f653-4e6a-9b94-39d6b0f70001"
