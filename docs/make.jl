@@ -63,6 +63,7 @@ makedocs(
             "api/sensitivity_analysis.md",
             "api/threshold_interventions.md",
             "api/ensemble_modeling.md",
+            "api/reexports.md",
         ],
     ]
 )
