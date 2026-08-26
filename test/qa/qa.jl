@@ -74,7 +74,6 @@ const REEXPORTS = (
 run_qa(
     EasyModelAnalysis;
     reexports_allow = REEXPORTS,
-    api_docs_kwargs = (; ignore = REEXPORTS, rendered_ignore = REEXPORTS),
     # The reexported names are brought into scope by the bare `using` of each upstream
     # package in src/EasyModelAnalysis.jl; they are reexported, not used, so they are not
     # implicit imports that should be made explicit.
