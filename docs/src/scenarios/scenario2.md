@@ -84,19 +84,25 @@ function f(ts, p = nothing)
     tstop - tstart
 end
 
+@parameters intervention_start = 0.0 intervention_stop = 90.0
+start_intervention = (t == intervention_start) => [β₁ => β₁ / 2, β₂ => β₂ / 2, β₃ => β₃ / 2]
+stop_intervention = (t == intervention_stop) => [β₁ => β₁ * 2, β₂ => β₂ * 2, β₃ => β₃ * 2]
+@named opttime_sys = ODESystem(
+    eqs, t, [S, E, I, cumulative_I, R, H, D, T, η],
+    [p; intervention_start; intervention_stop];
+    discrete_events = [start_intervention, stop_intervention]
+)
+opttime_sys = structural_simplify(opttime_sys)
+opttime_prob = ODEProblem(opttime_sys, [], [0.0, 90.0])
+opttime_prob = remake(opttime_prob; u0 = u60)
+
 function g(res, ts, p = nothing)
     tstart = ts[1]
     tstop = ts[2]
-    start_intervention = (t == tstart) => [β₁ => β₁ / 2, β₂ => β₂ / 2, β₃ => β₃ / 2]
-    stop_intervention = (t == tstop) => [β₁ => β₁ * 2, β₂ => β₂ * 2, β₃ => β₃ * 2]
-    @named opttime_sys = ODESystem(eqs, t;
-        discrete_events = [
-            start_intervention,
-            stop_intervention
-        ])
-    opttime_sys = structural_simplify(opttime_sys)
-    prob = ODEProblem(opttime_sys, [], [0.0, 90.0])
-    prob = remake(prob; u0 = u60)
+    prob = remake(
+        opttime_prob;
+        p = [intervention_start => tstart, intervention_stop => tstop]
+    )
     sol = solve(prob, saveat = 0.0:1.0:90.0, tstops = [tstart, tstop])
     hospitalizations = vec(sol(0.0:1.0:90.0, idxs = H))
     if SciMLBase.successful_retcode(sol.retcode)
@@ -115,12 +121,16 @@ min_intervention_timespan = solve(optprob,
     OptimizationMOI.MOI.OptimizerWithAttributes(NLopt.Optimizer,
         "algorithm" => :GN_ORIG_DIRECT,
         "maxtime" => 60.0))
+@assert isfinite(min_intervention_timespan.objective)
 min_intervention_timespan.u
 ```
 
 ```@example scenario2
 res = zeros(92)
 g(res, min_intervention_timespan.u)
+@assert all(isfinite, res)
+@assert maximum(res[1:91]) <= 0.05
+@assert res[92] >= 0.0
 maximum(res[1:91])
 ```
 
