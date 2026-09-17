@@ -46,7 +46,7 @@ Thus for example, let's calculate the sensitivity of `y(100)` over the parameter
 
 ```@example sensitivity
 pbounds = [ρ => [0.0, 20.0], β => [0.0, 100.0]]
-sensres = EasyModelAnalysis.get_sensitivity(prob, 100.0, y, pbounds; samples = 2000)
+sensres = EasyModelAnalysis.get_sensitivity(prob, 100.0, y, pbounds; samples = 128)
 ```
 
 The output shows values of `first_order`, `second_order` and `total_order` sensitivities. These are quantities that define the
@@ -111,7 +111,7 @@ and notably, all values are normalized relative quantities.
 Thus we can finally use the `create_sensitivity_plot` function to visualize the field of sensitivity results:
 
 ```@example sensitivity
-EasyModelAnalysis.create_sensitivity_plot(prob, 100.0, y, pbounds; samples = 2000)
+EasyModelAnalysis.create_sensitivity_plot(prob, 100.0, y, pbounds; samples = 128)
 ```
 
 which shows the relative sizes of the values in plots for the first, second, and total index values.

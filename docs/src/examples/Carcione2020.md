@@ -37,5 +37,5 @@ pbounds = [
     mu => [0.01, 0.02],
     beta => [0.7, 0.9]
 ]
-create_sensitivity_plot(prob, 100.0, Deceased, pbounds; samples = 2000)
+create_sensitivity_plot(prob, 100.0, Deceased, pbounds; samples = 128)
 ```
