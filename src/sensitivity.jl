@@ -4,7 +4,13 @@ function _get_sensitivity(prob, t, x, pbounds; samples)
     f = function (p)
         prob_func(prob, i::Integer, repeat) = remake(prob; p = Pair.(boundkeys, p[:, i]))
         prob_func(prob, ctx) = remake(prob; p = Pair.(boundkeys, p[:, ctx.sim_id]))
-        ensemble_prob = EnsembleProblem(prob, prob_func = prob_func)
+        # `prob_func` returns a remade problem and never mutates its argument, so
+        # the per-trajectory safety copy is unnecessary. It is also broken here:
+        # remaking the copy that `safetycopy` makes of a ModelingToolkit problem
+        # throws in MTK's initialization/tearing path, while the original is fine.
+        ensemble_prob = EnsembleProblem(
+            prob, prob_func = prob_func, safetycopy = false
+        )
         sol = solve(
             ensemble_prob, nothing, EnsembleThreads(); saveat = t,
             trajectories = size(p, 2)

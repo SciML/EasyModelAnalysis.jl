@@ -40,3 +40,15 @@ sensres = EasyModelAnalysis.get_sensitivity(prob, 100.0, y, pbounds)
 
 sensres_max = get_sensitivity_of_maximum(prob, 100.0, y, pbounds, samples = 50)
 @test length(sensres) == 5
+
+@testset "conserved state reduced to an observed variable" begin
+    @parameters a=1.0 b=1.0
+    @variables u(t)=1.0 c(t)=2.0
+    @named conserved = ODESystem([D(u) ~ -a * u - b, D(c) ~ 0], t, [u, c], [a, b])
+    conserved = structural_simplify(conserved)
+    cprob = ODEProblem(conserved, [], (0.0, 1.0), [])
+    sensres2 = EasyModelAnalysis.get_sensitivity(
+        cprob, 1.0, u, [a => [0.5, 1.5], b => [0.5, 1.5]]; samples = 8
+    )
+    @test length(sensres2) == 5
+end
