@@ -1,8 +1,12 @@
 # Scenario 3: Limiting Deaths
 
+> Note: the snippets on this page are not executed during documentation
+> builds because AlgebraicPetri does not yet support the ModelingToolkit v11
+> stack required by this package.
+
 Load packages:
 
-```@example scenario3
+```julia
 using DifferentialEquations, Distributions, EasyModelAnalysis, ModelingToolkit, Plots
 using AlgebraicPetri
 using UnPack
@@ -10,7 +14,7 @@ using UnPack
 
 ## Generate the Model and Dataset
 
-```@example scenario3
+```julia
 function formSEIRHD()
     SEIRHD = LabelledPetriNet([:S, :E, :I, :R, :H, :D],
         :expo => ((:S, :I) => (:E, :I)),
@@ -25,7 +29,7 @@ seirhd = formSEIRHD()
 sys1 = ODESystem(seirhd)
 ```
 
-```@example scenario3
+```julia
 function formSEIRD()
     SEIRD = LabelledPetriNet([:S, :E, :I, :R, :D],
         :expo => ((:S, :I) => (:E, :I)),
@@ -39,7 +43,7 @@ seird = formSEIRD()
 sys2 = ODESystem(seird)
 ```
 
-```@example scenario3
+```julia
 function formSIRHD()
     SIRHD = LabelledPetriNet([:S, :I, :R, :H, :D],
         :expo => ((:S, :I) => (:I, :I)),
@@ -53,7 +57,7 @@ sirhd = formSIRHD()
 sys3 = ODESystem(sirhd)
 ```
 
-```@example scenario3
+```julia
 function form_seird_renew()
     seird_renew = LabelledPetriNet([:S, :E, :I, :R, :D],
         :expo => ((:S, :I) => (:E, :I)),
@@ -84,7 +88,7 @@ max_seird_renew = mca(seird, seird_renew)
 AlgebraicPetri.Graph(max_seird_renew[1])
 ```
 
-```@example scenario3
+```julia
 t = ModelingToolkit.get_iv(sys1)
 @unpack S, E, I, R, H, D = sys1
 @unpack expo, conv, rec, hosp, death = sys1
@@ -94,7 +98,7 @@ sys = complete(add_accumulations(sys1, [I]))
 @unpack accumulation_I = sys
 ```
 
-```@example scenario3
+```julia
 u0init = [
     S => 0.9 * NN,
     E => 0.05 * NN,
@@ -118,21 +122,21 @@ plot(sol)
 
 > Provide a forecast of cumulative Covid-19 cases and deaths over the 6-week period from May 1 – June 15, 2020 under no interventions, including 90% prediction intervals in your forecasts. Compare the accuracy of the forecasts with true data over the six-week timespan.
 
-```@example scenario3
+```julia
 get_uncertainty_forecast(prob, [accumulation_I], ts, [conv => Uniform(0.0, 1.0)], 6 * 7)
 ```
 
-```@example scenario3
+```julia
 plot_uncertainty_forecast(prob, [accumulation_I], ts, [conv => Uniform(0.0, 1.0)], 6 * 7)
 ```
 
-```@example scenario3
+```julia
 get_uncertainty_forecast_quantiles(prob, [accumulation_I], ts,
     [conv => Uniform(0.0, 1.0)],
     6 * 7)
 ```
 
-```@example scenario3
+```julia
 plot_uncertainty_forecast_quantiles(prob, [accumulation_I], ts,
     [conv => Uniform(0.0, 1.0)],
     6 * 7)
@@ -142,7 +146,7 @@ plot_uncertainty_forecast_quantiles(prob, [accumulation_I], ts,
 
 > Based on the forecasts, do we need additional interventions to keep cumulative Covid deaths under 6000 total? Provide a probability that the cumulative number of Covid deaths will stay under 6000 for the next 6 weeks without any additional interventions.
 
-```@example scenario3
+```julia
 _prob = remake(prob, tspan = (0.0, 6 * 7.0))
 prob_violating_threshold(_prob, [conv => Uniform(0.0, 1.0)], [accumulation_I > 0.4 * NN]) # TODO: explain 0.4*NN
 ```
@@ -151,7 +155,7 @@ prob_violating_threshold(_prob, [conv => Uniform(0.0, 1.0)], [accumulation_I > 0
 
 > We are interested in determining how effective it would be to institute a mandatory mask mandate for the duration of the next six weeks. What is the probability of staying below 6000 cumulative deaths if we institute an indefinite mask mandate starting May 1, 2020?
 
-```@example scenario3
+```julia
 _prob = remake(_prob, p = [expo => 0.02])
 prob_violating_threshold(_prob, [conv => Uniform(0.0, 1.0)], [accumulation_I > 0.4 * NN])
 ```
@@ -160,7 +164,7 @@ prob_violating_threshold(_prob, [conv => Uniform(0.0, 1.0)], [accumulation_I > 0
 
 > We are interested in determining how detection rate can affect the accuracy and uncertainty in our forecasts. In particular, suppose we can improve the baseline detection rate by 20%, and the detection rate stays constant throughout the duration of the forecast. Assuming no additional interventions (ignoring Question 3), does that increase the amount of cumulative forecasted cases and deaths after six weeks? How does an increase in the detection rate affect the uncertainty in our estimates? Can you characterize the relationship between detection rate and our forecasts and their uncertainties, and comment on whether improving detection rates would provide decision-makers with better information (i.e., more accurate forecasts and/or narrower prediction intervals)?
 
-```@example scenario3
+```julia
 # these new equations add I->D and H->R  to the model.
 # this says now, that all I are undetected and u_hosp is the detection rate.
 # this assumes there is always hospital capacity
@@ -281,7 +285,7 @@ plot_uncertainty_forecast_quantiles(prob2, [accumulation_I], 0:100,
 
 > Do a 3-way structural model comparison between the SEIRD, SEIRHD, and SIRHD models.
 
-```@example scenario3
+```julia
 #
 ```
 

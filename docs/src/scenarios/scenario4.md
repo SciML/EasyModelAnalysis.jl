@@ -1,8 +1,12 @@
 # Scenario 4: Testing and Return to Campus
 
+> Note: most snippets on this page are not executed during documentation
+> builds because AlgebraicPetri does not yet support the ModelingToolkit v11
+> stack required by this package.
+
 Load packages:
 
-```@example scenario4
+```julia
 using DifferentialEquations, EasyModelAnalysis, ModelingToolkit, Plots
 using AlgebraicPetri
 using UnPack
@@ -49,7 +53,7 @@ I_staff = 100
 
 > Time/Setting: It is late 2021 and you are planning for the Spring 2022 term at the University of Michigan (Ann Arbor campus) beginning in early January 2022. For the purpose of this scenario, consider a four-month period that begins > January 1st and ends May 1st.
 
-```@example scenario4
+```julia
 tstart = Date(2022, 01, 01)
 tend = Date(2022, 05, 01)
 tdays = (tend - tstart).value
@@ -57,7 +61,7 @@ tdays = (tend - tstart).value
 
 ## Generate the Model and Dataset
 
-```@example scenario4
+```julia
 function formSEIISRD()
     SEIRHD = LabelledPetriNet([:S, :E, :I, :IS, :R, :D],
         :expo => ((:S, :I) => (:E, :I)),
@@ -77,7 +81,7 @@ sys = complete(add_accumulations(sys1, [I]))
 @unpack accumulation_I = sys
 ```
 
-```@example scenario4
+```julia
 I_total = I_ugrad + I_grad + I_staff
 u0init = [
     S => NN - I_total,
@@ -104,7 +108,7 @@ plot(sol)
 > testing approaches within time periods of the simulation. Cohorts can have
 > unique testing strategies defined by test type and number per week.
 
-```@example scenario4
+```julia
 # Minimize test subject to IS <= 430
 p_opt, s2,
 ret = optimal_parameter_threshold(prob, IS, 430, test, [test], [0.0], [1.0],
@@ -112,7 +116,7 @@ ret = optimal_parameter_threshold(prob, IS, 430, test, [test], [0.0], [1.0],
 plot(s2, idxs = [IS])
 ```
 
-```@example scenario4
+```julia
 p_opt, s2,
 ret = optimal_parameter_threshold(prob, D, 430, test, [test], [0.0], [1.0],
     maxtime = 10);
@@ -125,7 +129,7 @@ plot(s2, idxs = [I, IS, D])
 > tests but also much less (~half) as sensitive. Incorporate the cost of the
 > testing program into your recommendations.
 
-```@example scenario4
+```julia
 # Minimize test subject to IS <= 430
 p_opt, s2,
 ret = optimal_parameter_threshold(prob, IS, 430, 5 * test, [test], [0.0],
