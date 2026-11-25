@@ -28,6 +28,7 @@ Aqua = "0.8"
 DifferentialEquations = "8.0"
 Distributions = "0.25"
 GlobalSensitivity = "2"
+GR_jll = "0.73.7"
 Integrals = "5"
 LinearAlgebra = "1"
 ModelingToolkit = "11.26"
@@ -50,9 +51,10 @@ julia = "1.10"
 
 [extras]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
+GR_jll = "d2c73de3-f751-5644-a686-071e5b155ba9"
 SafeTestsets = "1bc83da4-3b8d-516f-aca4-4fe02f6d838f"
 SciMLTesting = "09d9d899-5365-40a9-917a-5f67fddea283"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Aqua", "SafeTestsets", "SciMLTesting", "Test"]
+test = ["Aqua", "GR_jll", "SafeTestsets", "SciMLTesting", "Test"]
