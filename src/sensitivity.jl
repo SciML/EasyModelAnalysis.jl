@@ -1,9 +1,24 @@
 function _get_sensitivity(prob, t, x, pbounds; samples)
     boundvals = getfield.(pbounds, :second)
     boundkeys = getfield.(pbounds, :first)
+    buffer_parameters = prob.p isa MTKParameters &&
+        all(
+        key -> key isa Num && is_parameter(prob, key) &&
+            !is_parameter(prob, Initial(key)), boundkeys
+    )
     f = function (p)
-        prob_func(prob, i::Integer, repeat) = remake(prob; p = Pair.(boundkeys, p[:, i]))
-        prob_func(prob, ctx) = remake(prob; p = Pair.(boundkeys, p[:, ctx.sim_id]))
+        function prob_func(prob, i::Integer, repeat)
+            values = p[:, i]
+            parameters = buffer_parameters ?
+                remake_buffer(prob, prob.p, boundkeys, values) : Pair.(boundkeys, values)
+            return remake(prob; p = parameters)
+        end
+        function prob_func(prob, ctx)
+            values = p[:, ctx.sim_id]
+            parameters = buffer_parameters ?
+                remake_buffer(prob, prob.p, boundkeys, values) : Pair.(boundkeys, values)
+            return remake(prob; p = parameters)
+        end
         ensemble_prob = EnsembleProblem(prob, prob_func = prob_func)
         sol = solve(
             ensemble_prob, nothing, EnsembleThreads(); saveat = t,
