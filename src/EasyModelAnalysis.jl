@@ -15,6 +15,7 @@ using Plots
 using LinearAlgebra: LinearAlgebra, I, norm
 using DifferentialEquations: DifferentialEquations, remake, solve
 using ModelingToolkit: ModelingToolkit, Num, Symbolics
+using ModelingToolkitBase: ModelingToolkitBase, Initial, MTKParameters
 using Distributions: Distributions, InverseGamma, MvNormal, product_distribution
 using Plots: Plots, @layout, bar, plot, plot!, scatter!
 using PrecompileTools: @compile_workload, @setup_workload
@@ -29,6 +30,7 @@ using SciMLExpectations: SciMLExpectations, ExpectationProblem, GenericDistribut
     Koopman, SystemMap
 using SciMLBase: SciMLBase, ContinuousCallback, EnsembleProblem, EnsembleSerial,
     EnsembleSolution, EnsembleThreads, ODESolution, terminate!
+using SymbolicIndexingInterface: is_parameter, remake_buffer
 using SymbolicUtils: SymbolicUtils
 
 include("basics.jl")

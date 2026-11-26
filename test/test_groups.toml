@@ -13,5 +13,15 @@ arch = "x86"
 versions = ["1"]
 num_threads = 4
 
+[Threshold]
+versions = ["1"]
+num_threads = 4
+
+["Threshold 32-bit"]
+group = "Threshold"
+versions = ["1"]
+os = ["ubuntu-latest"]
+arch = "x86"
+
 [QA]
 versions = ["lts", "1"]

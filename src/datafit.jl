@@ -269,12 +269,24 @@ function bayes_unpack_data(p)
     return (pdist, pkeys)
 end
 
+function _bayesian_parameters(prob, keys, values)
+    # The symbolic remake updates Initial parameters along with their corresponding values.
+    if prob.p isa MTKParameters &&
+            all(
+            key -> key isa Num && is_parameter(prob, key) &&
+                !is_parameter(prob, Initial(key)), keys
+        )
+        return remake_buffer(prob, prob.p, keys, values)
+    end
+    return Pair.(keys, values)
+end
+
 Turing.@model function bayesianODE(prob, t, pdist, pkeys, data, noise_prior)
     σ ~ noise_prior
 
     pprior ~ product_distribution(pdist)
 
-    prob = remake(prob, tspan = (prob.tspan[1], t[end]), p = Pair.(pkeys, pprior))
+    prob = remake(prob; tspan = (prob.tspan[1], t[end]), p = _bayesian_parameters(prob, pkeys, pprior))
     sol = solve(prob, saveat = t)
     if !SciMLBase.successful_retcode(sol)
         Turing.@addlogprob! -Inf
@@ -300,7 +312,7 @@ Turing.@model function bayesianODE(
 
     pprior ~ product_distribution(pdist)
 
-    prob = remake(prob, tspan = (prob.tspan[1], lastt), p = Pair.(pkeys, pprior))
+    prob = remake(prob; tspan = (prob.tspan[1], lastt), p = _bayesian_parameters(prob, pkeys, pprior))
     sol = solve(prob)
     if !SciMLBase.successful_retcode(sol)
         Turing.@addlogprob! -Inf

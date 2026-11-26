@@ -125,3 +125,15 @@ p_posterior = @time bayesian_datafit(
     niter = 200
 )
 @test var.(getfield.(p_prior, :second)) >= var.(getfield.(p_posterior, :second))
+
+@testset "Parameter-dependent initialization during Bayesian remakes" begin
+    @parameters offset = 2.0 slope = 1.0
+    @variables state(t) [guess = 1.0]
+    @named system = System(
+        [D(state) ~ offset + slope], t; initialization_eqs = [state ~ offset]
+    )
+    problem = ODEProblem(mtkcompile(system), Pair[], (0.0, 1.0))
+    p = EasyModelAnalysis._bayesian_parameters(problem, [offset, slope], [3.0, 4.0])
+    solution = solve(remake(problem; p), Tsit5(); saveat = [0.0, 1.0])
+    @test solution[state] ≈ [3.0, 10.0]
+end
