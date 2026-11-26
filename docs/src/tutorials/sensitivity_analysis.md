@@ -5,6 +5,7 @@ modified second order ODE Lorenz equation model from before:
 
 ```@example sensitivity
 using DifferentialEquations, Distributions, EasyModelAnalysis, ModelingToolkit, Plots
+using SciMLBase: successful_retcode
 
 @independent_variables t
 @parameters σ ρ β
@@ -30,6 +31,9 @@ p = [σ => 28.0,
 tspan = (0.0, 100.0)
 prob = ODEProblem(sys, u0, tspan, p, jac = true)
 sol = solve(prob)
+@assert successful_retcode(sol) # hide
+@assert all(isfinite, Array(sol)) # hide
+sol # hide
 ```
 
 On this model, we wish to perform sensitivity analyses. Global sensitivity analysis requires the specification of two things:
@@ -46,8 +50,12 @@ Thus for example, let's calculate the sensitivity of `y(100)` over the parameter
 
 ```@example sensitivity
 pbounds = [ρ => [0.0, 20.0], β => [0.0, 100.0]]
-sensres = EasyModelAnalysis.get_sensitivity(prob, 100.0, y, pbounds; samples = 2000)
+sensres = EasyModelAnalysis.get_sensitivity(prob, 100.0, y, pbounds; samples = 256)
+@assert all(isfinite, values(sensres)) # hide
+sensres # hide
 ```
+
+The example uses 256 Sobol samples. For quantitative conclusions, increase the sample count and check that the indices stabilize.
 
 The output shows values of `first_order`, `second_order` and `total_order` sensitivities. These are quantities that define the
 nonlinear effect of the variables on the output. The first order values can be thought of as the independent interaction effects,
@@ -60,8 +68,7 @@ parameter. The first indices are the scaled variance terms, for example:
 
 where `V` denotes the variance. I.e., `ρ_first_order` is the percentage of variance explained by only changing `ρ`. Being normalized,
 if the model is linear then `ρ_first_order + β_first_order == 1`, and thus its total summation tells us the degree of nonlinearity.
-Our simulation here has the sum of first indices as `<0.2`, an indication of a high degree of nonlinear interaction between the measured
-output and the parameters.
+A small sum of first-order indices indicates that interactions account for much of the variance.
 
 The second order indices then say how much can be attributed to changes of combinations of variables. I.e.:
 
@@ -79,15 +86,15 @@ should be explained by the linearity or second order interactions between the tw
 sensres[:ρ_first_order] + sensres[:β_first_order] + sensres[:ρ_β_second_order]
 ```
 
-This is not exactly equal to 1 due to the numerical error in the integral approximations, but you can see theory in action!
-(Also, this is a good test for correctness of the implementation).
+The exact indices sum to one. Estimates from a finite sample can differ from this sum.
 
 Now, if you had more than two variables, is there a good way to get a sense of the “sensitivity due to ρ”? Using the first indices
 is a bad approximation to this value, since it's only the measurement of the independent or linear sensitivity of the output due
 to ρ. Instead, what one would want to do, is to get the sum of the first order index `ρ_first_order`, plus all second order effects
 which include `ρ`, plus all third order effects that include `ρ`, plus … all the way to the `N`th order for `N` variables.
 Surprisingly, this summation can be computed without requiring the computation of all the higher order indices. This is known
-as the “total order index” of a variable. In a two parameter model, we can see this in action:
+as the “total order index” of a variable. With two parameters, each exact total-order index equals its first-order index plus the
+pairwise interaction. The two estimates in each comparison can differ because they use separate estimators.
 
 ```@example sensitivity
 sensres[:ρ_first_order] + sensres[:ρ_β_second_order], sensres[:ρ_total_order]
@@ -111,7 +118,7 @@ and notably, all values are normalized relative quantities.
 Thus we can finally use the `create_sensitivity_plot` function to visualize the field of sensitivity results:
 
 ```@example sensitivity
-EasyModelAnalysis.create_sensitivity_plot(prob, 100.0, y, pbounds; samples = 2000)
+EasyModelAnalysis.create_sensitivity_plot(sensres, pbounds)
 ```
 
 which shows the relative sizes of the values in plots for the first, second, and total index values.
